@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sakoar [website test]</title>
+    <title>Sakoar [webtest2025-10-03-v25]</title>
     <style>
         * {
             margin: 0;
@@ -30,6 +30,13 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            transition: opacity 1s ease, transform 1s ease;
+        }
+
+        .hero.hide-on-scroll {
+            opacity: 0;
+            transform: translateY(-50px);
+            pointer-events: none;
         }
 
         .hero::before {
@@ -171,6 +178,7 @@
             max-width: 1200px;
             margin: 0 auto;
             padding: 100px 20px;
+            overflow: visible;
         }
 
         .section-title {
@@ -182,6 +190,16 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
+            animation: titlePulse 3s ease-in-out infinite;
+        }
+
+        @keyframes titlePulse {
+            0%, 100% { 
+                filter: drop-shadow(0 0 20px rgba(139, 92, 246, 0.3));
+            }
+            50% { 
+                filter: drop-shadow(0 0 40px rgba(139, 92, 246, 0.6));
+            }
         }
 
         .section-subtitle {
@@ -198,6 +216,90 @@
             margin-top: 60px;
         }
 
+        .departments-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 50px;
+            flex-wrap: wrap;
+        }
+
+        .tab-button {
+            padding: 18px 40px;
+            background: rgba(139, 92, 246, 0.1);
+            border: 2px solid rgba(139, 92, 246, 0.3);
+            border-radius: 50px;
+            color: #cbd5e1;
+            font-size: 1.1em;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            position: relative;
+            transform-style: preserve-3d;
+        }
+
+        .tab-button::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 50px;
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(59, 130, 246, 0.2));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: -1;
+        }
+
+        .tab-button:hover::after {
+            opacity: 1;
+        }
+
+        .tab-button:hover {
+            background: rgba(139, 92, 246, 0.2);
+            border-color: rgba(139, 92, 246, 0.5);
+            transform: translateY(-2px) translateZ(10px);
+        }
+
+        .tab-button.active {
+            background: linear-gradient(135deg, #8b5cf6, #3b82f6);
+            border-color: transparent;
+            color: white;
+            box-shadow: 0 10px 30px rgba(139, 92, 246, 0.4);
+            transform: scale(1.05) translateZ(20px);
+        }
+
+        .tab-icon {
+            font-size: 1.3em;
+        }
+
+        .departments-content {
+            position: relative;
+        }
+
+        .tab-content {
+            display: none;
+            opacity: 0;
+            transform: translateY(30px);
+            animation: fadeInSlideUp 0.5s ease forwards;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeInSlideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
         .department-card {
             background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
             border-radius: 25px;
@@ -206,7 +308,7 @@
             transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             border: 1px solid rgba(139, 92, 246, 0.1);
             position: relative;
-            overflow: hidden;
+            overflow: visible;
         }
 
         .department-card::before {
@@ -277,11 +379,13 @@
             border-radius: 15px;
             border-left: 4px solid #8b5cf6;
             transition: all 0.3s ease;
+            transform-style: preserve-3d;
         }
 
         .feature:hover {
             background: rgba(139, 92, 246, 0.1);
-            transform: translateX(10px);
+            transform: translateX(10px) translateZ(5px) rotateY(-2deg);
+            box-shadow: -5px 5px 20px rgba(139, 92, 246, 0.2);
         }
 
         .feature-title {
@@ -308,10 +412,31 @@
             transition: all 0.3s ease;
             box-shadow: 0 10px 30px rgba(139, 92, 246, 0.4);
             margin-top: 20px;
+            position: relative;
+            overflow: hidden;
+            transform-style: preserve-3d;
+        }
+
+        .action-button::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transition: width 0.6s ease, height 0.6s ease;
+        }
+
+        .action-button:hover::before {
+            width: 300px;
+            height: 300px;
         }
 
         .action-button:hover {
-            transform: translateY(-3px);
+            transform: translateY(-5px) scale(1.05) rotateX(5deg);
             box-shadow: 0 15px 40px rgba(139, 92, 246, 0.6);
         }
 
@@ -321,6 +446,7 @@
             text-align: center;
             position: relative;
             overflow: hidden;
+            display: none;
         }
 
         .about-section::before {
@@ -348,11 +474,25 @@
         }
 
         footer {
-            background: #000000;
+            background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, #000000 40%);
             color: #94a3b8;
             text-align: center;
-            padding: 60px 20px;
-            border-top: 1px solid rgba(139, 92, 246, 0.2);
+            padding: 100px 20px 60px 20px;
+            border-top: none;
+            position: relative;
+            margin-top: -50px;
+        }
+
+        footer::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80%;
+            height: 200px;
+            background: radial-gradient(ellipse at center, rgba(139, 92, 246, 0.15), transparent 70%);
+            pointer-events: none;
         }
 
         .footer-content {
@@ -438,9 +578,24 @@
         <h2 class="section-title">Our Departments</h2>
         <p class="section-subtitle">Innovation across every aspect of competitive gaming</p>
         
-        <div class="departments-grid">
+        <div class="departments-tabs">
+            <button class="tab-button active" data-tab="software">
+                <span class="tab-icon">💻</span>
+                <span>Software</span>
+            </button>
+            <button class="tab-button" data-tab="vr">
+                <span class="tab-icon">🥽</span>
+                <span>VR League</span>
+            </button>
+            <button class="tab-button" data-tab="management">
+                <span class="tab-icon">🎯</span>
+                <span>Management</span>
+            </button>
+        </div>
+
+        <div class="departments-content">
             <!-- Software Department -->
-            <div class="department-card">
+            <div class="department-card tab-content active" data-content="software">
                 <div class="department-icon">💻</div>
                 <h3 class="department-title">Software Development</h3>
                 <p class="department-description">
@@ -453,20 +608,20 @@
                         <p class="feature-text">Professional broadcasting tools for competitive gaming</p>
                     </div>
                     <div class="feature">
-                        <h4 class="feature-title">⚡ Performance Tools</h4>
+                        <h4 class="feature-title">⚡AcuteBunny's Game Enhancements</h4>
                         <p class="feature-text">Optimization utilities for peak gaming performance</p>
                     </div>
                     <div class="feature">
-                        <h4 class="feature-title">📊 Analytics Suite</h4>
-                        <p class="feature-text">Advanced statistics and performance tracking</p>
+                        <h4 class="feature-title">📊 GT Analytics</h4>
+                        <p class="feature-text">Advanced statistics and performance tracking for Gorilla Tag</p>
                     </div>
                 </div>
                 
-                <a href="#software" class="action-button">View Software</a>
+                <a href="https://discord.gg/casting" class="action-button" target="_blank">Join Discord</a>
             </div>
 
             <!-- VR Esports League -->
-            <div class="department-card">
+            <div class="department-card tab-content" data-content="vr">
                 <div class="department-icon">🥽</div>
                 <h3 class="department-title">VR Esports League</h3>
                 <p class="department-description">
@@ -476,7 +631,7 @@
                 <div class="features">
                     <div class="feature">
                         <h4 class="feature-title">🏆 Pro Tournaments</h4>
-                        <p class="feature-text">World-class VR competitions with substantial prize pools</p>
+                        <p class="feature-text">Country-wide VR competitions with substantial prize pools</p>
                     </div>
                     <div class="feature">
                         <h4 class="feature-title">🌐 Global Community</h4>
@@ -484,15 +639,15 @@
                     </div>
                     <div class="feature">
                         <h4 class="feature-title">📺 Live Broadcasting</h4>
-                        <p class="feature-text">Immersive spectator experiences and live streams</p>
+                        <p class="feature-text">Immersive spectator experiences and live streams everyday!</p>
                     </div>
                 </div>
                 
-                <a href="#vr-league" class="action-button">Join the League</a>
+                <a href="https://discord.gg/proforall" class="action-button" target="_blank">Join Discord</a>
             </div>
 
             <!-- Esports Management -->
-            <div class="department-card">
+            <div class="department-card tab-content" data-content="management">
                 <div class="department-icon">🎯</div>
                 <h3 class="department-title">Esports Management</h3>
                 <p class="department-description">
@@ -514,10 +669,11 @@
                     </div>
                 </div>
                 
-                <a href="#management" class="action-button">Learn More</a>
+                <a href="https://discord.gg/casting" class="action-button" target="_blank">Join Discord</a>
             </div>
         </div>
     </section>
+
     <footer>
         <div class="footer-content">
             <div class="footer-logo">Sakoar</div>
@@ -527,6 +683,49 @@
     </footer>
 
     <script>
+        // Hide hero section on scroll and auto-scroll to departments
+        const hero = document.querySelector('.hero');
+        const departmentsSection = document.getElementById('departments');
+        let hasAutoScrolled = false;
+
+        window.addEventListener('scroll', () => {
+            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            
+            // Add hide class when scrolling down past 100px
+            if (scrollTop > 100) {
+                hero.classList.add('hide-on-scroll');
+                
+                // Auto-scroll to departments section once
+                if (!hasAutoScrolled) {
+                    hasAutoScrolled = true;
+                    setTimeout(() => {
+                        departmentsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }, 1000);
+                }
+            } else {
+                hero.classList.remove('hide-on-scroll');
+                hasAutoScrolled = false;
+            }
+        });
+
+        // Tab switching functionality
+        const tabButtons = document.querySelectorAll('.tab-button');
+        const tabContents = document.querySelectorAll('.tab-content');
+
+        tabButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const targetTab = button.getAttribute('data-tab');
+                
+                // Remove active class from all buttons and contents
+                tabButtons.forEach(btn => btn.classList.remove('active'));
+                tabContents.forEach(content => content.classList.remove('active'));
+                
+                // Add active class to clicked button and corresponding content
+                button.classList.add('active');
+                document.querySelector(`[data-content="${targetTab}"]`).classList.add('active');
+            });
+        });
+
         // Parallax effect on scroll
         window.addEventListener('scroll', () => {
             const scrolled = window.pageYOffset;
@@ -562,4 +761,3 @@
     </script>
 </body>
 </html>
-
