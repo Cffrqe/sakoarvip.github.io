@@ -45,35 +45,43 @@
   </div>
 
   <script>
-    const imageContainer = document.getElementById('imageContainer');
-    const button = document.getElementById('newPicBtn');
+  const imageContainer = document.getElementById('imageContainer');
+  const button = document.getElementById('newPicBtn');
 
-    async function fetchRandomCornImage() {
-      imageContainer.innerHTML = '<p>Loading...</p>';
-      try {
-        // Use Unsplash source for random corn image, no API key required for simple usage
-        const url = 'https://source.unsplash.com/featured/?corn';
-        // We add a random query param to force a fresh image
-        const uniqueUrl = url + '&' + new Date().getTime();
+  async function fetchRandomCornImage() {
+    button.disabled = true;
+    imageContainer.innerHTML = '<p>Loading...</p>';
+    try {
+      const url = 'https://source.unsplash.com/random/800x600/?corn';
+      // Add a timestamp to avoid caching issues
+      const uniqueUrl = url + '&' + new Date().getTime();
 
-        const img = document.createElement('img');
-        img.src = uniqueUrl;
-        img.alt = 'Random Corn Image';
+      const img = document.createElement('img');
+      img.src = uniqueUrl;
+      img.alt = 'Random Corn Image';
 
-        // Wait for image to load before showing it
-        img.onload = () => {
-          imageContainer.innerHTML = '';
-          imageContainer.appendChild(img);
-        };
-      } catch (error) {
+      img.onload = () => {
+        imageContainer.innerHTML = '';
+        imageContainer.appendChild(img);
+        button.disabled = false;
+      };
+
+      img.onerror = () => {
         imageContainer.innerHTML = '<p>Failed to load image. Try again.</p>';
-      }
+        button.disabled = false;
+      };
+    } catch (error) {
+      imageContainer.innerHTML = '<p>Failed to load image. Try again.</p>';
+      button.disabled = false;
     }
+  }
 
-    button.addEventListener('click', fetchRandomCornImage);
+  button.addEventListener('click', fetchRandomCornImage);
 
-    // Load a first image on page load
-    fetchRandomCornImage();
-  </script>
+  // Load a first image on page load
+  fetchRandomCornImage();
+</script>
+
 </body>
 </html>
+
