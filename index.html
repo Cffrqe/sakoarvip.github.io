@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Sakoar [webtest2025-10-03-v25]</title>
     <style>
         * {
@@ -17,6 +17,30 @@
             color: #e2e8f0;
             overflow-x: hidden;
             background: #0a0e1a;
+        }
+
+        /* Custom Cursor Glow */
+        .cursor-glow {
+            height: 40px;
+            width: 40px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(139, 92, 246, 0.8) 0%, rgba(139, 92, 246, 0.2) 100%);
+            box-shadow: 0px 0px 30px rgba(139, 92, 246, 1);
+            position: absolute;
+            pointer-events: none;
+            z-index: 9999;
+            transition: width 0.3s ease, height 0.3s ease;
+        }
+
+        .cursor-glow.hover {
+            width: 80px;
+            height: 80px;
+        }
+
+        @media (max-width: 1024px) {
+            .cursor-glow {
+                display: none;
+            }
         }
 
         .hero {
@@ -209,13 +233,6 @@
             margin-bottom: 70px;
         }
 
-        .departments-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-            gap: 40px;
-            margin-top: 60px;
-        }
-
         .departments-tabs {
             display: flex;
             justify-content: center;
@@ -276,6 +293,7 @@
 
         .departments-content {
             position: relative;
+            perspective: 2000px;
         }
 
         .tab-content {
@@ -305,10 +323,51 @@
             border-radius: 25px;
             padding: 50px;
             box-shadow: 0 20px 60px rgba(0,0,0,0.5);
-            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transition: all 0.3s ease;
             border: 1px solid rgba(139, 92, 246, 0.1);
             position: relative;
             overflow: visible;
+            transform-style: preserve-3d;
+            will-change: transform;
+        }
+
+        /* Desktop 3D hover effect */
+        @media (min-width: 1025px) {
+            .department-card {
+                transition: all 0.1s ease;
+            }
+
+            .department-card::after {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), 
+                    rgba(139, 92, 246, 0.15), transparent 50%);
+                opacity: 0;
+                transition: opacity 0.3s;
+                border-radius: 25px;
+                pointer-events: none;
+            }
+
+            .department-card:hover::after {
+                opacity: 1;
+            }
+
+            .department-card:hover {
+                border-color: rgba(139, 92, 246, 0.5);
+                box-shadow: 0 30px 80px rgba(139, 92, 246, 0.4);
+            }
+        }
+
+        /* Mobile touch-friendly styles */
+        @media (max-width: 1024px) {
+            .department-card:active {
+                transform: scale(0.98);
+                box-shadow: 0 15px 40px rgba(139, 92, 246, 0.3);
+            }
         }
 
         .department-card::before {
@@ -321,16 +380,11 @@
             background: radial-gradient(circle at top left, rgba(139, 92, 246, 0.1), transparent 70%);
             opacity: 0;
             transition: opacity 0.5s;
+            border-radius: 25px;
         }
 
         .department-card:hover::before {
             opacity: 1;
-        }
-
-        .department-card:hover {
-            transform: translateY(-15px) rotateX(5deg);
-            box-shadow: 0 30px 80px rgba(139, 92, 246, 0.4);
-            border-color: rgba(139, 92, 246, 0.5);
         }
 
         .department-icon {
@@ -384,7 +438,7 @@
 
         .feature:hover {
             background: rgba(139, 92, 246, 0.1);
-            transform: translateX(10px) translateZ(5px) rotateY(-2deg);
+            transform: translateX(10px) translateZ(5px);
             box-shadow: -5px 5px 20px rgba(139, 92, 246, 0.2);
         }
 
@@ -436,41 +490,8 @@
         }
 
         .action-button:hover {
-            transform: translateY(-5px) scale(1.05) rotateX(5deg);
+            transform: translateY(-5px) scale(1.05);
             box-shadow: 0 15px 40px rgba(139, 92, 246, 0.6);
-        }
-
-        .about-section {
-            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-            padding: 100px 20px;
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-            display: none;
-        }
-
-        .about-section::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: radial-gradient(circle at center, rgba(139, 92, 246, 0.1), transparent 70%);
-        }
-
-        .about-content {
-            position: relative;
-            z-index: 1;
-            max-width: 900px;
-            margin: 0 auto;
-        }
-
-        .about-text {
-            font-size: 1.3em;
-            color: #cbd5e1;
-            line-height: 2;
-            margin-bottom: 40px;
         }
 
         footer {
@@ -541,10 +562,6 @@
                 font-size: 1.3em;
             }
 
-            .departments-grid {
-                grid-template-columns: 1fr;
-            }
-
             .department-card {
                 padding: 35px;
             }
@@ -552,15 +569,21 @@
             .section-title {
                 font-size: 2.2em;
             }
+
+            .tab-button {
+                padding: 14px 30px;
+                font-size: 1em;
+            }
         }
 
-        /* Parallax effect */
         .parallax {
             perspective: 1000px;
         }
     </style>
 </head>
 <body>
+    <div class="cursor-glow"></div>
+    
     <div class="hero parallax">
         <div class="floating-shapes">
             <div class="shape"></div>
@@ -683,6 +706,67 @@
     </footer>
 
     <script>
+        // Custom cursor glow effect (desktop only)
+        const isDesktop = window.matchMedia('(min-width: 1025px)').matches;
+        
+        if (isDesktop) {
+            const cursorGlow = document.querySelector('.cursor-glow');
+            
+            document.addEventListener("mousemove", (event) => {
+                let mousex = event.clientX - 20; // Center the 40px glow
+                let mousey = event.clientY - 20;
+                cursorGlow.style.left = mousex + 'px';
+                cursorGlow.style.top = mousey + 'px';
+            });
+
+            // Hover effects
+            const hoverElements = document.querySelectorAll('a, button, .department-card, .feature, .tab-button');
+            hoverElements.forEach(el => {
+                el.addEventListener('mouseenter', () => {
+                    cursorGlow.classList.add('hover');
+                });
+                el.addEventListener('mouseleave', () => {
+                    cursorGlow.classList.remove('hover');
+                });
+            });
+        }
+
+        // 3D card tilt effect for desktop
+        if (isDesktop) {
+            const cards = document.querySelectorAll('.department-card');
+            
+            cards.forEach(card => {
+                card.addEventListener('mousemove', (e) => {
+                    const rect = card.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    
+                    const centerX = rect.width / 2;
+                    const centerY = rect.height / 2;
+                    
+                    const rotateX = (y - centerY) / 10;
+                    const rotateY = (centerX - x) / 10;
+                    
+                    card.style.transform = `
+                        perspective(1000px)
+                        rotateX(${rotateX}deg)
+                        rotateY(${rotateY}deg)
+                        scale3d(1.02, 1.02, 1.02)
+                    `;
+                    
+                    // Update gradient position
+                    const percentX = (x / rect.width) * 100;
+                    const percentY = (y / rect.height) * 100;
+                    card.style.setProperty('--mouse-x', `${percentX}%`);
+                    card.style.setProperty('--mouse-y', `${percentY}%`);
+                });
+                
+                card.addEventListener('mouseleave', () => {
+                    card.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) scale3d(1, 1, 1)';
+                });
+            });
+        }
+
         // Hide hero section on scroll and auto-scroll to departments
         const hero = document.querySelector('.hero');
         const departmentsSection = document.getElementById('departments');
@@ -691,11 +775,9 @@
         window.addEventListener('scroll', () => {
             const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
             
-            // Add hide class when scrolling down past 100px
             if (scrollTop > 100) {
                 hero.classList.add('hide-on-scroll');
                 
-                // Auto-scroll to departments section once
                 if (!hasAutoScrolled) {
                     hasAutoScrolled = true;
                     setTimeout(() => {
@@ -716,11 +798,9 @@
             button.addEventListener('click', () => {
                 const targetTab = button.getAttribute('data-tab');
                 
-                // Remove active class from all buttons and contents
                 tabButtons.forEach(btn => btn.classList.remove('active'));
                 tabContents.forEach(content => content.classList.remove('active'));
                 
-                // Add active class to clicked button and corresponding content
                 button.classList.add('active');
                 document.querySelector(`[data-content="${targetTab}"]`).classList.add('active');
             });
@@ -735,7 +815,7 @@
             }
         });
 
-        // Add smooth reveal animation for cards on scroll
+        // Smooth reveal animation for cards on scroll
         const observerOptions = {
             threshold: 0.1,
             rootMargin: '0px 0px -100px 0px'
@@ -761,6 +841,3 @@
     </script>
 </body>
 </html>
-
-
-
