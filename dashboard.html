@@ -6,170 +6,31 @@
     <title>Dashboard - Sakoar</title>
     <link rel="stylesheet" href="styles.css">
     <style>
-        .dashboard-container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 120px 30px 60px 30px;
-        }
-
-        .dashboard-header {
-            margin-bottom: 50px;
-        }
-
-        .dashboard-title {
-            font-size: 3em;
-            font-weight: 800;
-            background: linear-gradient(135deg, #8b5cf6, #3b82f6);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            margin-bottom: 10px;
-        }
-
-        .dashboard-subtitle {
-            font-size: 1.2em;
-            color: #94a3b8;
-        }
-
-        .quick-actions {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 30px;
-            margin-bottom: 60px;
-        }
-
-        .action-card {
+        .invite-join-section {
             background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
             border-radius: 20px;
             padding: 40px;
             border: 1px solid rgba(139, 92, 246, 0.1);
-            transition: all 0.3s ease;
-            cursor: pointer;
-            text-decoration: none;
-            color: inherit;
-            display: block;
-        }
-
-        .action-card:hover {
-            transform: translateY(-10px);
-            border-color: rgba(139, 92, 246, 0.5);
-            box-shadow: 0 20px 50px rgba(139, 92, 246, 0.3);
-        }
-
-        .action-icon {
-            font-size: 3em;
-            margin-bottom: 20px;
-        }
-
-        .action-title {
-            font-size: 1.5em;
-            font-weight: 700;
-            color: #f1f5f9;
-            margin-bottom: 10px;
-        }
-
-        .action-desc {
-            color: #94a3b8;
-            line-height: 1.6;
-        }
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 30px;
             margin-bottom: 60px;
         }
-
-        .stat-card {
-            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-            border-radius: 20px;
-            padding: 30px;
-            border: 1px solid rgba(139, 92, 246, 0.1);
-            text-align: center;
-        }
-
-        .stat-number {
-            font-size: 3em;
-            font-weight: 900;
-            background: linear-gradient(135deg, #8b5cf6, #3b82f6);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            margin-bottom: 10px;
-        }
-
-        .stat-label {
-            color: #94a3b8;
-            font-size: 1.1em;
-        }
-
-        .recent-activity {
-            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-            border-radius: 20px;
-            padding: 40px;
-            border: 1px solid rgba(139, 92, 246, 0.1);
-        }
-
-        .activity-title {
-            font-size: 2em;
-            font-weight: 700;
-            color: #f1f5f9;
-            margin-bottom: 30px;
-        }
-
-        .activity-item {
-            padding: 20px;
-            background: rgba(139, 92, 246, 0.05);
-            border-radius: 15px;
-            margin-bottom: 15px;
-            border-left: 4px solid #8b5cf6;
-        }
-
-        .activity-item:last-child {
-            margin-bottom: 0;
-        }
-
-        .activity-text {
-            color: #cbd5e1;
-            line-height: 1.6;
-        }
-
-        .activity-time {
-            color: #64748b;
-            font-size: 0.9em;
-            margin-top: 5px;
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 60px 20px;
-            color: #64748b;
-        }
-
-        .empty-icon {
-            font-size: 4em;
-            margin-bottom: 20px;
-            opacity: 0.5;
-        }
+        .invite-title { font-size: 2em; font-weight: 700; color: #f1f5f9; margin-bottom: 20px; }
+        .invite-form { display: flex; gap: 15px; }
+        .invite-form .form-input { flex: 1; }
     </style>
 </head>
 <body>
-    <!-- Navigation -->
     <nav class="navbar">
         <div class="nav-container">
             <div class="nav-logo" onclick="window.location.href='index.html'">Sakoar</div>
             <div class="nav-links">
-                <a href="index.html" class="nav-link">Home</a>
+                <a href="browse-leagues.html" class="nav-link">Browse Leagues</a>
                 <a href="dashboard.html" class="nav-link">Dashboard</a>
-                <a href="leagues.html" class="nav-link">Leagues</a>
-                <a href="rosters.html" class="nav-link">Rosters</a>
-                <div class="user-menu">
-                    <div class="user-avatar" id="userAvatar">U</div>
+                <div class="user-menu user-dependent">
+                    <img src="default-avatar.png" class="user-avatar" id="userAvatar">
                     <div class="dropdown" id="userDropdown">
-                        <a href="dashboard.html" class="dropdown-item">Dashboard</a>
+                        <a href="edit-profile.html" class="dropdown-item">Edit Profile</a>
                         <a href="leagues.html" class="dropdown-item">My Leagues</a>
-                        <a href="rosters.html" class="dropdown-item">My Rosters</a>
-                        <a href="#" class="dropdown-item" id="logoutBtn">Logout</a>
+                        <a href="#" class="dropdown-item logoutBtn">Logout</a>
                     </div>
                 </div>
             </div>
@@ -182,141 +43,85 @@
             <p class="dashboard-subtitle">Here's what's happening with your leagues and rosters</p>
         </div>
 
-        <!-- Quick Actions -->
+        <div class="invite-join-section">
+            <h2 class="invite-title">Have an Invite Code?</h2>
+            <form id="joinInviteForm" class="invite-form">
+                <input type="text" id="inviteCode" class="form-input" placeholder="Enter invite code..." required>
+                <button type="submit" class="btn btn-primary">Join League</button>
+            </form>
+            <div id="inviteAlert" style="margin-top: 15px;"></div>
+        </div>
+
         <div class="quick-actions">
             <a href="create-league.html" class="action-card">
                 <div class="action-icon">🏆</div>
                 <h3 class="action-title">Create League</h3>
                 <p class="action-desc">Start a new competitive league and invite teams to join</p>
             </a>
-
-            <a href="create-roster.html" class="action-card">
-                <div class="action-icon">👥</div>
-                <h3 class="action-title">Create Roster</h3>
-                <p class="action-desc">Build your team roster and manage your players</p>
+            <a href="browse-leagues.html" class="action-card">
+                <div class="action-icon">🌐</div>
+                <h3 class="action-title">Browse Leagues</h3>
+                <p class="action-desc">Find and join existing public leagues and tournaments</p>
             </a>
-
             <a href="leagues.html" class="action-card">
                 <div class="action-icon">📊</div>
-                <h3 class="action-title">Manage Leagues</h3>
-                <p class="action-desc">View and manage all your existing leagues</p>
+                <h3 class="action-title">Manage My Leagues</h3>
+                <p class="action-desc">View and manage all the leagues you've created or joined</p>
             </a>
-
-            <a href="rosters.html" class="action-card">
-                <div class="action-icon">⚡</div>
-                <h3 class="action-title">Manage Rosters</h3>
-                <p class="action-desc">Edit your team rosters and player information</p>
+            <a href="edit-profile.html" class="action-card">
+                <div class="action-icon">👤</div>
+                <h3 class="action-title">Edit Your Profile</h3>
+                <p class="action-desc">Update your username and profile picture</p>
             </a>
-        </div>
-
-        <!-- Stats -->
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-number" id="userLeagues">0</div>
-                <div class="stat-label">My Leagues</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number" id="userRosters">0</div>
-                <div class="stat-label">My Rosters</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number" id="totalPlayers">0</div>
-                <div class="stat-label">Total Players</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number" id="activeTournaments">0</div>
-                <div class="stat-label">Active Tournaments</div>
-            </div>
-        </div>
-
-        <!-- Recent Activity -->
-        <div class="recent-activity">
-            <h2 class="activity-title">Recent Activity</h2>
-            <div id="activityList">
-                <div class="empty-state">
-                    <div class="empty-icon">📭</div>
-                    <p>No recent activity yet. Start by creating a league or roster!</p>
-                </div>
-            </div>
         </div>
     </div>
-
+    
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script src="firebase-config.js"></script>
     <script src="auth.js"></script>
+
     <script>
-        // Check if user is logged in
-        const user = getCurrentUser();
-        if (!user) {
+    auth.onAuthStateChanged(user => {
+        if (user) {
+            loadDashboardData(user);
+
+            document.getElementById('joinInviteForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const inviteCode = document.getElementById('inviteCode').value.trim();
+                const inviteRef = db.collection('invites').doc(inviteCode);
+                const inviteDoc = await inviteRef.get();
+
+                if (!inviteDoc.exists || inviteDoc.data().usedBy) {
+                    showAlert('inviteAlert', 'This invite code is invalid or has already been used.', 'error');
+                    return;
+                }
+
+                const leagueId = inviteDoc.data().leagueId;
+                const leagueRef = db.collection('leagues').doc(leagueId);
+
+                await leagueRef.update({
+                    memberIds: firebase.firestore.FieldValue.arrayUnion(user.uid)
+                });
+
+                await inviteRef.update({
+                    usedBy: user.uid,
+                    usedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                showAlert('inviteAlert', 'Successfully joined the league!', 'success');
+                setTimeout(() => window.location.href = `league-details.html?id=${leagueId}`, 1500);
+            });
+        } else {
             window.location.href = 'index.html';
         }
+    });
 
-        // Update user info
-        document.getElementById('userName').textContent = user.username;
-
-        // Load user stats
-        function loadUserStats() {
-            const leagues = DB.get('leagues').filter(l => l.creatorId === user.id);
-            const rosters = DB.get('rosters').filter(r => r.creatorId === user.id);
-            
-            let totalPlayers = 0;
-            rosters.forEach(roster => {
-                totalPlayers += roster.players.length;
-            });
-
-            let activeTournaments = leagues.filter(l => l.status === 'active').length;
-
-            document.getElementById('userLeagues').textContent = leagues.length;
-            document.getElementById('userRosters').textContent = rosters.length;
-            document.getElementById('totalPlayers').textContent = totalPlayers;
-            document.getElementById('activeTournaments').textContent = activeTournaments;
-        }
-
-        // Load recent activity
-        function loadRecentActivity() {
-            const activityList = document.getElementById('activityList');
-            const leagues = DB.get('leagues').filter(l => l.creatorId === user.id);
-            const rosters = DB.get('rosters').filter(r => r.creatorId === user.id);
-
-            const activities = [];
-
-            leagues.forEach(league => {
-                activities.push({
-                    text: `Created league "${league.name}"`,
-                    time: league.createdAt,
-                    icon: '🏆'
-                });
-            });
-
-            rosters.forEach(roster => {
-                activities.push({
-                    text: `Created roster "${roster.name}"`,
-                    time: roster.createdAt,
-                    icon: '👥'
-                });
-            });
-
-            // Sort by date
-            activities.sort((a, b) => new Date(b.time) - new Date(a.time));
-
-            if (activities.length === 0) {
-                activityList.innerHTML = `
-                    <div class="empty-state">
-                        <div class="empty-icon">📭</div>
-                        <p>No recent activity yet. Start by creating a league or roster!</p>
-                    </div>
-                `;
-                return;
-            }
-
-            activityList.innerHTML = activities.slice(0, 5).map(activity => `
-                <div class="activity-item">
-                    <div class="activity-text">${activity.icon} ${activity.text}</div>
-                    <div class="activity-time">${new Date(activity.time).toLocaleString()}</div>
-                </div>
-            `).join('');
-        }
-
-        loadUserStats();
-        loadRecentActivity();
+    async function loadDashboardData(user) {
+        const userDoc = await db.collection('users').doc(user.uid).get();
+        document.getElementById('userName').textContent = userDoc.data().username;
+    }
     </script>
 </body>
 </html>
