@@ -4,130 +4,52 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - Sakoar</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
     <style>
-        /* General Body Styles */
-        body {
-            background-color: #0f172a;
-            color: #f1f5f9;
-            font-family: 'Inter', sans-serif;
-            margin: 0;
-            padding: 0;
-        }
-
-        /* Navbar Styling */
-        .navbar {
-            background-color: #1e293b;
-            padding: 15px 40px;
-            border-bottom: 1px solid #334155;
-        }
-        .nav-container {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-        .nav-logo {
-            font-size: 1.8em;
-            font-weight: 700;
-            color: #e2e8f0;
-            cursor: pointer;
-        }
-        .nav-links {
-            display: flex;
-            align-items: center;
-            gap: 25px;
-        }
-        .nav-link {
-            color: #94a3b8;
-            text-decoration: none;
-            font-size: 1em;
-            font-weight: 500;
-            transition: color 0.3s;
-        }
-        .nav-link:hover {
-            color: #f1f5f9;
-        }
-        .user-menu {
-            position: relative;
-        }
-        .user-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            cursor: pointer;
-            background: linear-gradient(135deg, #60a5fa, #a78bfa);
-        }
-        .dropdown { /* Hidden by default, functionality via JS */
-            display: none; 
-        }
-
-        /* Dashboard Container */
         .dashboard-container {
-            max-width: 1200px;
-            margin: 40px auto;
-            padding: 0 40px;
+            max-width: 1600px;
         }
-        .dashboard-header { /* Hidden in the image, but good to have */
-            display: none;
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 450px;
+            gap: 30px;
+            align-items: flex-start;
         }
-
-        /* Invite Code Section */
-        .invite-join-section {
-            background: #1e293b;
-            border-radius: 12px;
-            padding: 40px;
-            margin-bottom: 60px;
-        }
-        .invite-title {
-            font-size: 2em;
-            font-weight: 700;
-            color: #f1f5f9;
-            margin-top: 0;
-            margin-bottom: 20px;
-        }
-        .invite-form {
+        .main-content {
             display: flex;
-            gap: 15px;
+            flex-direction: column;
+            gap: 30px;
         }
-        .form-input {
-            flex-grow: 1;
-            background-color: #0f172a;
-            border: 1px solid #334155;
-            border-radius: 8px;
-            padding: 15px;
-            color: #f1f5f9;
-            font-size: 1em;
-        }
-        .form-input::placeholder {
-            color: #64748b;
-        }
-        .form-input:focus {
-            outline: none;
-            border-color: #4f46e5;
-        }
-        .btn {
-            border: none;
-            border-radius: 8px;
-            padding: 15px 30px;
-            font-size: 1em;
-            font-weight: 700;
-            cursor: pointer;
-            transition: transform 0.2s;
-        }
-        .btn:hover {
-            transform: scale(1.03);
-        }
-        .btn-primary {
-            background: linear-gradient(to right, #4f46e5, #a78bfa);
-            color: white;
-            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+        .sidebar-content {
+           position: sticky;
+           top: 100px; /* Adjust based on navbar height */
         }
 
-        /* Quick Actions Section */
+        /* Welcome Header */
+        .welcome-header {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            border-radius: 20px;
+            padding: 40px;
+            border: 1px solid rgba(139, 92, 246, 0.1);
+        }
+        .welcome-title {
+            font-size: 2.5em;
+            font-weight: 800;
+            color: #f1f5f9;
+            margin-bottom: 5px;
+        }
+        .welcome-subtitle {
+             font-size: 1.1em;
+             color: #94a3b8;
+        }
+        
+        /* Quick Actions Styling */
+        .quick-actions-card {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            border-radius: 20px;
+            padding: 40px;
+            border: 1px solid rgba(139, 92, 246, 0.1);
+        }
         .quick-actions {
             display: flex;
             flex-direction: column;
@@ -136,24 +58,65 @@
         .action-card {
             display: flex;
             align-items: flex-start;
-            gap: 15px;
-            text-decoration: none;
+            gap: 20px;
+            padding: 15px;
+            border-radius: 15px;
+            transition: background-color 0.3s;
+        }
+        .action-card:hover {
+            background-color: rgba(139, 92, 246, 0.1);
         }
         .action-icon {
-            font-size: 1.5em;
-            margin-top: -4px; /* Align icon better with text */
+            font-size: 1.8em;
+            margin-top: -2px;
         }
         .action-title {
             margin: 0;
             font-size: 1.2em;
-            font-weight: 500;
-            color: #60a5fa;
+            font-weight: 700;
+            color: #c4b5fd;
         }
         .action-desc {
-            margin: 0;
+            margin: 5px 0 0 0;
             color: #94a3b8;
         }
 
+        /* Global Chat Styling */
+        .global-chat-section {
+            background: #1e293b;
+            border-radius: 20px;
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            height: 75vh;
+        }
+        .chat-messages {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding-right: 10px;
+            margin-bottom: 20px;
+        }
+        /* Custom scrollbar for chat */
+        .chat-messages::-webkit-scrollbar { width: 6px; }
+        .chat-messages::-webkit-scrollbar-track { background: #0f172a; }
+        .chat-messages::-webkit-scrollbar-thumb { background: #4a5568; border-radius: 3px; }
+
+        .message { display: flex; gap: 15px; margin-bottom: 20px; }
+        .message-avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; flex-shrink: 0; }
+        .message-author { font-weight: 700; color: #f1f5f9; }
+        .message-time { font-size: 0.8em; color: #64748b; margin-left: 10px; }
+        .message-content { color: #cbd5e1; margin-top: 4px; word-wrap: break-word; }
+        .chat-input-form { display: flex; gap: 10px; }
+        
+        @media (max-width: 1200px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            .sidebar-content {
+                position: static;
+                top: auto;
+            }
+        }
     </style>
 </head>
 <body>
@@ -162,12 +125,12 @@
             <div class="nav-logo" onclick="window.location.href='index.html'">Sakoar</div>
             <div class="nav-links">
                 <a href="browse-leagues.html" class="nav-link">Browse Leagues</a>
-                <a href="dashboard.html" class="nav-link">Dashboard</a>
                 <div class="user-menu user-dependent">
-                    <img src="default-avatar.png" class="user-avatar" id="userAvatar">
-                    <div class="dropdown" id="userDropdown">
+                    <img src="default-avatar.png" class="user-avatar" alt="User Avatar">
+                    <div class="dropdown">
                         <a href="edit-profile.html" class="dropdown-item">Edit Profile</a>
                         <a href="leagues.html" class="dropdown-item">My Leagues</a>
+                        <a href="rosters.html" class="dropdown-item">My Rosters</a>
                         <a href="#" class="dropdown-item logoutBtn">Logout</a>
                     </div>
                 </div>
@@ -176,99 +139,224 @@
     </nav>
 
     <div class="dashboard-container">
-        <div class="dashboard-header">
-            <h1 class="dashboard-title">Welcome back, <span id="userName">User</span>!</h1>
-            <p class="dashboard-subtitle">Here's what's happening with your leagues and rosters</p>
-        </div>
+        <div class="dashboard-grid">
+            <div class="main-content">
+                <div class="welcome-header">
+                    <h1 class="welcome-title">Welcome back, <span id="userName">User</span>!</h1>
+                    <p class="welcome-subtitle">Here are some quick actions to get you started.</p>
+                </div>
+                
+                <div class="form-card" id="invite-join-section">
+                    <h2 class="section-title">Have an Invite Code?</h2>
+                    <form id="joinInviteForm" style="display: flex; gap: 15px;">
+                        <input type="text" id="inviteCode" class="form-input" placeholder="Enter invite code..." required>
+                        <button type="submit" class="btn btn-primary">Join League</button>
+                    </form>
+                    <div id="inviteAlert" style="margin-top: 15px;"></div>
+                </div>
 
-        <div class="invite-join-section">
-            <h2 class="invite-title">Have an Invite Code?</h2>
-            <form id="joinInviteForm" class="invite-form">
-                <input type="text" id="inviteCode" class="form-input" placeholder="Enter invite code..." required>
-                <button type="submit" class="btn btn-primary">Join League</button>
-            </form>
-            <div id="inviteAlert" style="margin-top: 15px;"></div>
-        </div>
+                <div class="quick-actions-card">
+                     <h2 class="section-title">Quick Actions</h2>
+                    <div class="quick-actions">
+                        <a href="create-league.html" class="action-card">
+                            <div class="action-icon">🏆</div>
+                            <div>
+                                <h3 class="action-title">Create League</h3>
+                                <p class="action-desc">Start a new competitive league and invite teams</p>
+                            </div>
+                        </a>
+                         <a href="create-roster.html" class="action-card">
+                            <div class="action-icon">👥</div>
+                            <div>
+                                <h3 class="action-title">Create Roster</h3>
+                                <p class="action-desc">Build a new team roster to manage your players</p>
+                            </div>
+                        </a>
+                        <a href="browse-leagues.html" class="action-card">
+                            <div class="action-icon">🌐</div>
+                            <div>
+                                <h3 class="action-title">Browse Public Leagues</h3>
+                                <p class="action-desc">Find and join existing public leagues</p>
+                            </div>
+                        </a>
+                         <a href="leagues.html" class="action-card">
+                            <div class="action-icon">📊</div>
+                            <div>
+                                <h3 class="action-title">Manage My Leagues</h3>
+                                <p class="action-desc">View all the leagues you've created or joined</p>
+                            </div>
+                        </a>
+                        <a href="edit-profile.html" class="action-card">
+                            <div class="action-icon">👤</div>
+                            <div>
+                                <h3 class="action-title">Edit Your Profile</h3>
+                                <p class="action-desc">Update your username and profile picture</p>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
 
-        <div class="quick-actions">
-            <a href="create-league.html" class="action-card">
-                <div class="action-icon">🏆</div>
-                <div>
-                    <h3 class="action-title">Create League</h3>
-                    <p class="action-desc">Start a new competitive league and invite teams to join</p>
+            <div class="sidebar-content">
+                <div class="global-chat-section">
+                    <h2 class="section-title">Global Chat</h2>
+                    <div class="chat-messages" id="chatMessages">
+                        <p style="text-align: center; color: #64748b;">Loading chat...</p>
+                    </div>
+                    <form id="chatInputForm" class="chat-input-form">
+                        <input type="text" id="messageInput" class="form-input" placeholder="Say something..." autocomplete="off" required>
+                        <button type="submit" class="btn btn-primary">Send</button>
+                    </form>
                 </div>
-            </a>
-            <a href="browse-leagues.html" class="action-card">
-                <div class="action-icon">🌐</div>
-                <div>
-                    <h3 class="action-title">Browse Leagues</h3>
-                    <p class="action-desc">Find and join existing public leagues and tournaments</p>
-                </div>
-            </a>
-            <a href="leagues.html" class="action-card">
-                <div class="action-icon">📊</div>
-                <div>
-                    <h3 class="action-title">Manage My Leagues</h3>
-                    <p class="action-desc">View and manage all the leagues you've created or joined</p>
-                </div>
-            </a>
-            <a href="edit-profile.html" class="action-card">
-                <div class="action-icon">👤</div>
-                <div>
-                    <h3 class="action-title">Edit Your Profile</h3>
-                    <p class="action-desc">Update your username and profile picture</p>
-                </div>
-            </a>
+            </div>
         </div>
     </div>
 
+    <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+
+    <!-- Local Scripts -->
     <script src="firebase-config.js"></script>
     <script src="auth.js"></script>
     
     <script>
-    // Your Javascript remains the same
+    let currentUserData = null;
+
     auth.onAuthStateChanged(user => {
         if (user) {
-            // loadDashboardData(user); // Uncomment if you use it
+            // User is signed in.
+            loadDashboardData(user);
+            setupEventListeners(user);
+            loadGlobalChat();
+        } else {
+            // No user is signed in. Redirect to the homepage.
+            window.location.href = 'index.html';
+        }
+    });
 
-           document.getElementById('joinInviteForm').addEventListener('submit', async (e) => {
-                e.preventDefault();
-                const inviteCode = document.getElementById('inviteCode').value.trim();
+    // Fetches user data and populates the welcome message
+    async function loadDashboardData(user) {
+        const userDoc = await db.collection('users').doc(user.uid).get();
+        if (userDoc.exists) {
+            currentUserData = userDoc.data();
+            document.getElementById('userName').textContent = currentUserData.username;
+        } else {
+            console.error("User data not found in Firestore!");
+            document.getElementById('userName').textContent = "User";
+        }
+    }
+
+    // Sets up form submission listeners
+    function setupEventListeners(user) {
+        const joinInviteForm = document.getElementById('joinInviteForm');
+        joinInviteForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const inviteCode = document.getElementById('inviteCode').value.trim();
+            if (!inviteCode) return;
+            
+            const submitButton = joinInviteForm.querySelector('button');
+            submitButton.disabled = true;
+
+            try {
                 const inviteRef = db.collection('invites').doc(inviteCode);
                 const inviteDoc = await inviteRef.get();
 
-                if (!inviteDoc.exists || inviteDoc.data().usedBy) {
-                    showAlert('inviteAlert', 'This invite code is invalid or has already been used.', 'error');
-                    return;
+                if (!inviteDoc.exists) {
+                    throw new Error('This invite code is invalid.');
+                }
+                if (inviteDoc.data().usedBy) {
+                    throw new Error('This invite code has already been used.');
                 }
 
                 const leagueId = inviteDoc.data().leagueId;
                 const leagueRef = db.collection('leagues').doc(leagueId);
-
+                
+                // Add user to the league's members
                 await leagueRef.update({
                     memberIds: firebase.firestore.FieldValue.arrayUnion(user.uid)
                 });
-
+                
+                // Mark the invite as used
                 await inviteRef.update({
                     usedBy: user.uid,
                     usedAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
 
-                showAlert('inviteAlert', 'Successfully joined the league!', 'success');
+                showAlert('inviteAlert', 'Successfully joined the league! Redirecting...', 'success');
                 setTimeout(() => window.location.href = `league-details.html?id=${leagueId}`, 1500);
-                // Form submission logic...
-            });
-        } else {
-            // window.location.href = 'index.html';
-        }
-    });
 
-    async function loadDashboardData(user) {
-        const userDoc = await db.collection('users').doc(user.uid).get();
-        document.getElementById('userName').textContent = userDoc.data().username;
+            } catch (error) {
+                showAlert('inviteAlert', error.message, 'error');
+            } finally {
+                submitButton.disabled = false;
+            }
+        });
+
+        // Global Chat form submission
+        const chatInputForm = document.getElementById('chatInputForm');
+        chatInputForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const messageInput = document.getElementById('messageInput');
+            const text = messageInput.value.trim();
+            
+            if (!text || !currentUserData) return;
+            
+            messageInput.value = ''; // Clear input immediately
+            
+            try {
+                await db.collection('global_chat').add({
+                    text: text,
+                    authorId: user.uid,
+                    authorName: currentUserData.username,
+                    authorAvatar: currentUserData.photoURL || 'default-avatar.png',
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+            } catch (error) {
+                console.error("Error sending message:", error);
+                // Optionally, restore the input value if sending fails
+                messageInput.value = text;
+            }
+        });
+    }
+
+    // Loads global chat and listens for new messages
+    function loadGlobalChat() {
+        const chatMessages = document.getElementById('chatMessages');
+        const messagesRef = db.collection('global_chat').orderBy('createdAt', 'desc').limit(50);
+
+        messagesRef.onSnapshot(snapshot => {
+            if (snapshot.empty) {
+                chatMessages.innerHTML = '<p style="text-align: center; color: #64748b;">No messages yet. Say hello!</p>';
+                return;
+            }
+            
+            let messagesHTML = '';
+            // Reverse the array to display oldest messages first
+            snapshot.docs.reverse().forEach(doc => {
+                const msg = doc.data();
+                const messageDate = msg.createdAt ? msg.createdAt.toDate().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }) : '';
+                messagesHTML += `
+                    <div class="message">
+                        <img src="${msg.authorAvatar}" class="message-avatar" alt="${msg.authorName}'s avatar">
+                        <div>
+                            <div class="message-header">
+                                <span class="message-author">${msg.authorName}</span>
+                                <span class="message-time">${messageDate}</span>
+                            </div>
+                            <div class="message-content">${msg.text.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</div>
+                        </div>
+                    </div>`;
+            });
+            chatMessages.innerHTML = messagesHTML;
+
+            // Auto-scroll to the bottom of the chat
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }, error => {
+            console.error("Error listening to chat messages:", error);
+            chatMessages.innerHTML = '<p style="text-align: center; color: #fca5a5;">Error loading chat.</p>';
+        });
     }
     </script>
 </body>
