@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create League - Sakoar</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .create-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 120px 30px 60px 30px;
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .page-title {
+            font-size: 3em;
+            font-weight: 800;
+            background: linear-gradient(135deg, #8b5cf6, #3b82f6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 15px;
+        }
+
+        .page-subtitle {
+            font-size: 1.2em;
+            color: #94a3b8;
+        }
+
+        .form-card {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            border-radius: 25px;
+            padding: 50px;
+            border: 1px solid rgba(139, 92, 246, 0.1);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+        }
+
+        .form-section {
+            margin-bottom: 40px;
+        }
+
+        .section-title {
+            font-size: 1.5em;
+            font-weight: 700;
+            color: #f1f5f9;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid rgba(139, 92, 246, 0.2);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 20px;
+            justify-content: flex-end;
+            margin-top: 40px;
+        }
+
+        .icon-input {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .icon-option {
+            padding: 15px;
+            background: rgba(139, 92, 246, 0.05);
+            border: 2px solid rgba(139, 92, 246, 0.2);
+            border-radius: 10px;
+            font-size: 2em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .icon-option:hover,
+        .icon-option.selected {
+            background: rgba(139, 92, 246, 0.2);
+            border-color: #8b5cf6;
+            transform: scale(1.1);
+        }
+
+        @media (max-width: 768px) {
+            .form-card {
+                padding: 30px;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .form-actions {
+                flex-direction: column;
+            }
+
+            .form-actions button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo" onclick="window.location.href='index.html'">Sakoar</div>
+            <div class="nav-links">
+                <a href="index.html" class="nav-link">Home</a>
+                <a href="dashboard.html" class="nav-link">Dashboard</a>
+                <a href="leagues.html" class="nav-link">Leagues</a>
+                <a href="rosters.html" class="nav-link">Rosters</a>
+                <div class="user-menu">
+                    <div class="user-avatar" id="userAvatar">U</div>
+                    <div class="dropdown" id="userDropdown">
+                        <a href="dashboard.html" class="dropdown-item">Dashboard</a>
+                        <a href="leagues.html" class="dropdown-item">My Leagues</a>
+                        <a href="rosters.html" class="dropdown-item">My Rosters</a>
+                        <a href="#" class="dropdown-item" id="logoutBtn">Logout</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="create-container">
+        <div class="page-header">
+            <h1 class="page-title">Create New League</h1>
+            <p class="page-subtitle">Set up your competitive league and start organizing tournaments</p>
+        </div>
+
+        <div class="form-card">
+            <div id="alertContainer"></div>
+
+            <form id="createLeagueForm">
+                <!-- Basic Information -->
+                <div class="form-section">
+                    <h2 class="section-title">Basic Information</h2>
+                    
+                    <div class="form-group">
+                        <label class="form-label">League Name *</label>
+                        <input type="text" class="form-input" id="leagueName" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Description *</label>
+                        <textarea class="form-textarea" id="leagueDescription" required></textarea>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Game/Sport *</label>
+                            <input type="text" class="form-input" id="leagueGame" placeholder="e.g., Gorilla Tag, VR Soccer" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Region</label>
+                            <select class="form-select" id="leagueRegion">
+                                <option value="global">Global</option>
+                                <option value="na">North America</option>
+                                <option value="eu">Europe</option>
+                                <option value="asia">Asia</option>
+                                <option value="oce">Oceania</option>
+                                <option value="sa">South America</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- League Settings -->
+                <div class="form-section">
+                    <h2 class="section-title">League Settings</h2>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Max Teams</label>
+                            <input type="number" class="form-input" id="maxTeams" min="2" max="128" value="16">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Team Size</label>
+                            <input type="number" class="form-input" id="teamSize" min="1" max="20" value="5">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Format</label>
+                            <select class="form-select" id="leagueFormat">
+                                <option value="single-elimination">Single Elimination</option>
+                                <option value="double-elimination">Double Elimination</option>
+                                <option value="round-robin">Round Robin</option>
+                                <option value="swiss">Swiss System</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Status</label>
+                            <select class="form-select" id="leagueStatus">
+                                <option value="draft">Draft</option>
+                                <option value="open">Open for Registration</option>
+                                <option value="active">Active</option>
+                                <option value="completed">Completed</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Prize Pool (Optional)</label>
+                        <input type="text" class="form-input" id="prizPool" placeholder="e.g., $1,000">
+                    </div>
+                </div>
+
+                <!-- Visual Settings -->
+                <div class="form-section">
+                    <h2 class="section-title">Visual Settings</h2>
+                    
+                    <div class="form-group">
+                        <label class="form-label">League Icon</label>
+                        <div class="icon-input" id="iconSelector">
+                            <span class="icon-option" data-icon="🏆">🏆</span>
+                            <span class="icon-option" data-icon="🥇">🥇</span>
+                            <span class="icon-option" data-icon="⚡">⚡</span>
+                            <span class="icon-option" data-icon="🎮">🎮</span>
+                            <span class="icon-option" data-icon="🥽">🥽</span>
+                            <span class="icon-option" data-icon="🎯">🎯</span>
+                            <span class="icon-option" data-icon="🔥">🔥</span>
+                            <span class="icon-option" data-icon="⭐">⭐</span>
+                        </div>
+                        <input type="hidden" id="leagueIcon" value="🏆">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Banner Color</label>
+                        <select class="form-select" id="bannerColor">
+                            <option value="purple">Purple</option>
+                            <option value="blue">Blue</option>
+                            <option value="red">Red</option>
+                            <option value="green">Green</option>
+                            <option value="orange">Orange</option>
+                            <option value="pink">Pink</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Form Actions -->
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="window.location.href='dashboard.html'">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Create League</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="auth.js"></script>
+    <script>
+        // Check if user is logged in
+        const user = getCurrentUser();
+        if (!user) {
+            window.location.href = 'index.html';
+        }
+
+        // Icon selector
+        const iconOptions = document.querySelectorAll('.icon-option');
+        const iconInput = document.getElementById('leagueIcon');
+
+        iconOptions.forEach(option => {
+            if (option.dataset.icon === '🏆') {
+                option.classList.add('selected');
+            }
+
+            option.addEventListener('click', () => {
+                iconOptions.forEach(opt => opt.classList.remove('selected'));
+                option.classList.add('selected');
+                iconInput.value = option.dataset.icon;
+            });
+        });
+
+        // Form submission
+        document.getElementById('createLeagueForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            const alertContainer = document.getElementById('alertContainer');
+
+            const league = {
+                id: Date.now().toString(),
+                creatorId: user.id,
+                creatorName: user.username,
+                name: document.getElementById('leagueName').value.trim(),
+                description: document.getElementById('leagueDescription').value.trim(),
+                game: document.getElementById('leagueGame').value.trim(),
+                region: document.getElementById('leagueRegion').value,
+                maxTeams: parseInt(document.getElementById('maxTeams').value),
+                teamSize: parseInt(document.getElementById('teamSize').value),
+                format: document.getElementById('leagueFormat').value,
+                status: document.getElementById('leagueStatus').value,
+                prizePool: document.getElementById('prizePool').value.trim(),
+                icon: document.getElementById('leagueIcon').value,
+                bannerColor: document.getElementById('bannerColor').value,
+                teams: [],
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString()
+            };
+
+            const leagues = DB.get('leagues');
+            leagues.push(league);
+            DB.set('leagues', leagues);
+
+            alertContainer.innerHTML = '<div class="alert alert-success">League created successfully! Redirecting...</div>';
+
+            setTimeout(() => {
+                window.location.href = 'leagues.html';
+            }, 1500);
+        });
+    </script>
+</body>
+</html>
