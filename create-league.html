@@ -4,59 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Create League - Sakoar</title>
-    <style>
-        /* --- GLOBAL STYLES & RESET --- */
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #e2e8f0; overflow-x: hidden; background: #0f172a; }
-        a { text-decoration: none; color: inherit; }
-
-        /* --- NAVIGATION BAR --- */
-        .navbar { position: fixed; top: 0; width: 100%; background: rgba(10, 14, 26, 0.9); backdrop-filter: blur(10px); z-index: 1000; padding: 15px 0; border-bottom: 1px solid rgba(139, 92, 246, 0.1); }
-        .nav-container { max-width: 1400px; margin: 0 auto; padding: 0 30px; display: flex; justify-content: space-between; align-items: center; }
-        .nav-logo { font-size: 1.8em; font-weight: 900; background: linear-gradient(135deg, #8b5cf6, #3b82f6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; cursor: pointer; }
-        .nav-links { display: flex; gap: 30px; align-items: center; }
-        .nav-link { color: #cbd5e1; font-weight: 600; transition: color 0.3s; }
-        .nav-link:hover { color: #8b5cf6; }
-
-        /* --- USER MENU & DROPDOWN --- */
-        .user-menu { position: relative; display: flex; align-items: center; }
-        .user-avatar { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #8b5cf6, #3b82f6); object-fit: cover; cursor: pointer; border: 2px solid rgba(255, 255, 255, 0.5); }
-        .dropdown { position: absolute; top: 60px; right: 0; background: #1e293b; border-radius: 15px; min-width: 200px; box-shadow: 0 10px 40px rgba(0,0,0,0.5); opacity: 0; pointer-events: none; transform: translateY(-10px); transition: all 0.3s ease; z-index: 1001; }
-        .dropdown.active { opacity: 1; pointer-events: all; transform: translateY(0); }
-        .dropdown-item { padding: 12px 15px; color: #cbd5e1; display: block; border-radius: 10px; transition: all 0.3s; }
-        .dropdown-item:hover { background: rgba(139, 92, 246, 0.2); }
-        
-        /* --- FORM STYLES --- */
-        .form-group { margin-bottom: 25px; }
-        .form-label { display: block; margin-bottom: 10px; color: #cbd5e1; font-weight: 600; }
-        .form-input, .form-textarea, .form-select { width: 100%; padding: 15px; background: rgba(139, 92, 246, 0.05); border: 2px solid rgba(139, 92, 246, 0.2); border-radius: 10px; color: #e2e8f0; font-size: 1em; }
-        .form-input:focus, .form-textarea:focus, .form-select:focus { outline: none; border-color: #8b5cf6; background: rgba(139, 92, 246, 0.1); }
-        .form-card { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); border-radius: 25px; padding: 50px; border: 1px solid rgba(139, 92, 246, 0.1); }
-        .form-section { margin-bottom: 40px; }
-        .section-title { font-size: 1.5em; font-weight: 700; color: #f1f5f9; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 2px solid rgba(139, 92, 246, 0.2); }
-        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        .form-actions { display: flex; gap: 20px; justify-content: flex-end; margin-top: 40px; }
-        .icon-input { display: flex; gap: 10px; flex-wrap: wrap; }
-        .icon-option { padding: 15px; background: rgba(139, 92, 246, 0.05); border: 2px solid rgba(139, 92, 246, 0.2); border-radius: 10px; font-size: 2em; cursor: pointer; transition: all 0.3s ease; }
-        .icon-option:hover, .icon-option.selected { background: rgba(139, 92, 246, 0.2); border-color: #8b5cf6; transform: scale(1.1); }
-        
-        /* --- PAGE-SPECIFIC & REUSABLE COMPONENTS --- */
-        .create-container { max-width: 900px; margin: 0 auto; padding: 120px 30px 60px 30px; }
-        .page-header { text-align: center; margin-bottom: 50px; }
-        .page-title { font-size: 3em; font-weight: 800; background: linear-gradient(135deg, #8b5cf6, #3b82f6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 15px; }
-        .page-subtitle { font-size: 1.2em; color: #94a3b8; }
-        
-        /* --- BUTTONS --- */
-        .btn { padding: 12px 30px; border-radius: 50px; font-weight: 700; cursor: pointer; border: none; transition: all 0.3s ease; text-align: center; }
-        .btn-primary { background: linear-gradient(135deg, #8b5cf6, #3b82f6); color: white; }
-        .btn-secondary { background: #334155; color: #e2e8f0; }
-        .btn:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(139, 92, 246, 0.4); }
-
-        /* --- ALERTS --- */
-        .alert { padding: 15px; border-radius: 10px; margin-bottom: 20px; text-align: center; }
-        .alert-error { background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); color: #fca5a5; }
-        .alert-success { background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.3); color: #86efac; }
-    </style>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <nav class="navbar">
@@ -64,9 +12,9 @@
             <div class="nav-logo" onclick="window.location.href='index.html'">Sakoar</div>
             <div class="nav-links">
                 <a href="browse-leagues.html" class="nav-link">Browse Leagues</a>
-                <a href="dashboard.html" class="nav-link user-dependent" style="display: none;">Dashboard</a>
-                <div class="user-menu user-dependent" style="display: none;">
-                    <img src="default-avatar.png" class="user-avatar">
+                <a href="dashboard.html" class="nav-link user-dependent">Dashboard</a>
+                <div class="user-menu user-dependent">
+                    <img src="default-avatar.png" class="user-avatar" alt="User Avatar">
                     <div class="dropdown">
                         <a href="edit-profile.html" class="dropdown-item">Edit Profile</a>
                         <a href="leagues.html" class="dropdown-item">My Leagues</a>
@@ -100,16 +48,20 @@
 
                 <div class="form-section">
                     <h2 class="section-title">League Settings</h2>
-                    <div class="form-group"><label class="form-label">Status</label><select class="form-select" id="leagueStatus"><option value="open">Open for Registration</option><option value="closed">Closed (Invite Only)</option></select></div>
+                    <div class="form-group"><label class="form-label">Visibility</label><select class="form-select" id="leagueStatus"><option value="open">Public (Open for anyone to join)</option><option value="closed">Private (Invite Only)</option></select></div>
                 </div>
 
                 <div class="form-section">
-                    <h2 class="section-title">Visual Settings</h2>
+                    <h2 class="section-title">Visuals</h2>
                     <div class="form-group">
                         <label class="form-label">League Icon</label>
                         <div class="icon-input" id="iconSelector">
-                            <span class="icon-option selected" data-icon="🏆">🏆</span><span class="icon-option" data-icon="🥇">🥇</span>
-                            <span class="icon-option" data-icon="⚡">⚡</span><span class="icon-option" data-icon="🎮">🎮</span>
+                            <span class="icon-option selected" data-icon="🏆">🏆</span>
+                            <span class="icon-option" data-icon="🥇">🥇</span>
+                            <span class="icon-option" data-icon="⚡">⚡</span>
+                            <span class="icon-option" data-icon="🎮">🎮</span>
+                            <span class="icon-option" data-icon="⚔️">⚔️</span>
+                            <span class="icon-option" data-icon="🛡️">🛡️</span>
                         </div>
                         <input type="hidden" id="leagueIcon" value="🏆">
                     </div>
@@ -123,62 +75,34 @@
         </div>
     </div>
     
-    <!-- Use updated v9 modular SDKs for better performance -->
+    <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+
+    <!-- Local Scripts -->
+    <script src="firebase-config.js"></script>
+    <script src="auth.js"></script>
     
     <script>
-        // --- START: FIREBASE CONFIGURATION ---
-        // IMPORTANT: Replace the placeholder values with your actual Firebase project configuration.
-        // You can find this in your Firebase project console: Project settings > General > Your apps > SDK setup and configuration
-        const firebaseConfig = {
-          apiKey: "YOUR_API_KEY",
-          authDomain: "YOUR_AUTH_DOMAIN",
-          projectId: "YOUR_PROJECT_ID",
-          storageBucket: "YOUR_STORAGE_BUCKET",
-          messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-          appId: "YOUR_APP_ID"
-        };
+        let currentUser;
 
-        // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const db = firebase.firestore();
-        // --- END: FIREBASE CONFIGURATION ---
-
-
-        // Wait for the DOM to be fully loaded before running scripts
-        document.addEventListener('DOMContentLoaded', () => {
-            let currentUser;
-
-            auth.onAuthStateChanged(user => {
-                if (user) {
-                    currentUser = user;
-                    // You might want to show user-specific elements here
-                } else {
-                    // If no user is logged in, redirect to the login page
-                    console.log("No user signed in. Redirecting...");
-                    window.location.href = 'index.html'; 
-                }
-            });
-
-            // --- Function to display alerts ---
-            // This function was missing from your original code.
-            function showAlert(containerId, message, type) {
-                const container = document.getElementById(containerId);
-                if (!container) return;
-                const alertDiv = document.createElement('div');
-                alertDiv.className = `alert alert-${type}`; // e.g., 'alert-error' or 'alert-success'
-                alertDiv.textContent = message;
-                container.innerHTML = ''; // Clear previous alerts
-                container.appendChild(alertDiv);
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                currentUser = user;
+            } else {
+                // If no user is logged in, redirect to the login page
+                console.log("No user signed in. Redirecting...");
+                window.location.href = 'index.html'; 
             }
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
 
             // --- Icon selection logic ---
             const iconSelector = document.getElementById('iconSelector');
             const iconInput = document.getElementById('leagueIcon');
-            if(iconSelector) {
+            if (iconSelector) {
                 iconSelector.addEventListener('click', (e) => {
                     if (e.target.classList.contains('icon-option')) {
                         // Remove 'selected' from the currently selected icon
@@ -195,7 +119,7 @@
 
             // --- Form submission logic ---
             const createLeagueForm = document.getElementById('createLeagueForm');
-            if(createLeagueForm) {
+            if (createLeagueForm) {
                 createLeagueForm.addEventListener('submit', async (e) => {
                     e.preventDefault();
 
@@ -204,18 +128,27 @@
                         showAlert('alertContainer', 'Error: You must be signed in to create a league.', 'error');
                         return;
                     }
+                    
+                    const leagueName = document.getElementById('leagueName').value.trim();
+                    const leagueDescription = document.getElementById('leagueDescription').value.trim();
+                    const leagueGame = document.getElementById('leagueGame').value.trim();
+                    
+                    if(!leagueName || !leagueDescription || !leagueGame) {
+                        showAlert('alertContainer', 'Please fill out all required fields.', 'error');
+                        return;
+                    }
 
                     const submitButton = e.target.querySelector('button[type="submit"]');
                     submitButton.disabled = true;
                     submitButton.textContent = 'Creating...';
 
                     try {
-                        // Get the username from the 'users' collection
+                        // Get the creator's username from the 'users' collection
                         const userDoc = await db.collection('users').doc(currentUser.uid).get();
                         
                         // Check if the user document exists and has a username
-                        if (!userDoc.exists) {
-                            throw new Error("User data not found. Cannot create league.");
+                        if (!userDoc.exists || !userDoc.data().username) {
+                            throw new Error("Your user data is incomplete. Please update your profile.");
                         }
                         const creatorUsername = userDoc.data().username;
 
@@ -224,9 +157,9 @@
                             creatorId: currentUser.uid, 
                             creatorUsername: creatorUsername,
                             memberIds: [currentUser.uid], // Start with the creator as the first member
-                            name: document.getElementById('leagueName').value.trim(),
-                            description: document.getElementById('leagueDescription').value.trim(),
-                            game: document.getElementById('leagueGame').value.trim(),
+                            name: leagueName,
+                            description: leagueDescription,
+                            game: leagueGame,
                             region: document.getElementById('leagueRegion').value,
                             status: document.getElementById('leagueStatus').value,
                             icon: document.getElementById('leagueIcon').value,
@@ -244,6 +177,7 @@
                         
                         showAlert('alertContainer', 'League created successfully! Redirecting...', 'success');
                         setTimeout(() => { 
+                            // Redirect to the new league's details page
                             window.location.href = `league-details.html?id=${leagueDocRef.id}`; 
                         }, 1500);
 
