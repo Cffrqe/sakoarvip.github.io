@@ -5,25 +5,106 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Browse Leagues - Sakoar</title>
     <link rel="stylesheet" href="styles.css">
+    <style>
+        .leagues-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 25px;
+        }
+        .league-card {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            border-radius: 20px;
+            padding: 25px;
+            border: 1px solid rgba(139, 92, 246, 0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+        }
+        .league-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(139, 92, 246, 0.4);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.3);
+        }
+        .league-header {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 15px;
+        }
+        .league-icon { font-size: 3em; }
+        .league-info { flex-grow: 1; }
+        .league-name {
+            font-size: 1.3em;
+            font-weight: 700;
+            color: #f1f5f9;
+        }
+        .league-game {
+            font-size: 0.9em;
+            color: #94a3b8;
+        }
+        .league-description {
+            color: #cbd5e1;
+            margin-bottom: 20px;
+            font-size: 0.95em;
+            flex-grow: 1;
+        }
+        .league-stats {
+            display: flex;
+            justify-content: space-between;
+            padding-top: 15px;
+            border-top: 1px solid rgba(139, 92, 246, 0.1);
+        }
+        .stat-item { text-align: center; }
+        .stat-value {
+            font-size: 1.2em;
+            font-weight: 700;
+            color: #f1f5f9;
+        }
+        .stat-label {
+            font-size: 0.8em;
+            color: #94a3b8;
+        }
+    </style>
 </head>
 <body>
     <nav class="navbar">
-        <!-- ... (Same navbar as index.html, it will auto-update) ... -->
+        <div class="nav-container">
+            <div class="nav-logo" onclick="window.location.href='index.html'">Sakoar</div>
+            <div class="nav-links">
+                <a href="dashboard.html" class="nav-link user-dependent" style="display: none;">Dashboard</a>
+                 <div class="guest-dependent" style="display: flex; gap: 15px;">
+                    <a href="index.html" class="btn btn-primary">Login or Sign Up</a>
+                </div>
+                <div class="user-menu user-dependent" style="display: none;">
+                    <img src="default-avatar.png" class="user-avatar" alt="User Avatar">
+                    <div class="dropdown">
+                        <a href="edit-profile.html" class="dropdown-item">Edit Profile</a>
+                        <a href="leagues.html" class="dropdown-item">My Leagues</a>
+                        <a href="rosters.html" class="dropdown-item">My Rosters</a>
+                        <a href="#" class="dropdown-item logoutBtn">Logout</a>
+                    </div>
+                </div>
+            </div>
+        </div>
     </nav>
 
     <div class="leagues-container">
-        <div class="page-header">
+        <div class="page-header" style="text-align: center; display: block;">
             <h1 class="page-title">Browse Public Leagues</h1>
             <p class="page-subtitle">Find a community and start competing</p>
         </div>
         <div id="leaguesGrid" class="leagues-grid">
-            <p id="loadingState" style="color: #94a3b8; font-size: 1.2em;">Finding open leagues...</p>
+            <p id="loadingState" style="color: #94a3b8; font-size: 1.2em; grid-column: 1 / -1; text-align: center;">Finding open leagues...</p>
         </div>
     </div>
     
+    <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    
+    <!-- Local Scripts -->
     <script src="firebase-config.js"></script>
     <script src="auth.js"></script>
     <script>
@@ -32,6 +113,8 @@
         async function loadPublicLeagues() {
             const leaguesGrid = document.getElementById('leaguesGrid');
             const loadingState = document.getElementById('loadingState');
+            
+            // Query for leagues that are 'open' for registration.
             const query = db.collection('leagues').where('status', '==', 'open').orderBy('createdAt', 'desc');
 
             try {
@@ -39,15 +122,22 @@
                 loadingState.style.display = 'none';
 
                 if (snapshot.empty) {
-                    leaguesGrid.innerHTML = `<div class="empty-state" style="grid-column: 1 / -1;"><div class="empty-text">No open leagues found right now. Why not create one?</div></div>`;
+                    leaguesGrid.innerHTML = `
+                        <div class="empty-state">
+                             <div class="empty-icon">📂</div>
+                             <p class="empty-text">No open leagues found right now. Why not create one?</p>
+                             <a href="create-league.html" class="btn btn-primary">Create a League</a>
+                        </div>`;
                     return;
                 }
 
                 let leaguesHTML = '';
                 snapshot.forEach(doc => {
                     const league = doc.data();
+                    const leagueDesc = league.description.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+                    
                     leaguesHTML += `
-                        <div class="league-card" onclick="window.location.href='league-details.html?id=${doc.id}'" style="cursor: pointer;">
+                        <div class="league-card" onclick="window.location.href='league-details.html?id=${doc.id}'">
                             <div class="league-header">
                                 <div class="league-icon">${league.icon}</div>
                                 <div class="league-info">
@@ -55,16 +145,22 @@
                                     <div class="league-game">${league.game}</div>
                                 </div>
                             </div>
-                            <p class="league-description">${league.description}</p>
+                            <p class="league-description">${leagueDesc.substring(0, 120)}${leagueDesc.length > 120 ? '...' : ''}</p>
                             <div class="league-stats">
-                                <div class="stat-item"><div class="stat-value">${league.memberIds.length}</div><div class="stat-label">Members</div></div>
-                                <div class="stat-item"><div class="stat-value">${league.region.toUpperCase()}</div><div class="stat-label">Region</div></div>
+                                <div class="stat-item">
+                                    <div class="stat-value">${league.memberIds ? league.memberIds.length : 0}</div>
+                                    <div class="stat-label">Members</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-value">${league.region.toUpperCase()}</div>
+                                    <div class="stat-label">Region</div>
+                                </div>
                             </div>
                         </div>`;
                 });
                 leaguesGrid.innerHTML = leaguesHTML;
             } catch (error) {
-                loadingState.textContent = 'Error loading leagues.';
+                loadingState.textContent = 'Error loading leagues. Please check the console for details.';
                 console.error("Error fetching public leagues: ", error);
             }
         }
