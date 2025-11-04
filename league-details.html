@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>League Details - Sakoar</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .details-container { display: grid; grid-template-columns: 280px 1fr 320px; gap: 30px; max-width: 1600px; margin: 0 auto; padding: 100px 30px; }
+        .sidebar { background: #0f172a; padding: 20px; border-radius: 20px; }
+        .sidebar-title { font-size: 1.5em; font-weight: 700; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid #334155; }
+        .main-content { /* Chat area */ }
+        .chat-header { padding-bottom: 20px; margin-bottom: 20px; border-bottom: 1px solid #334155; }
+        .chat-messages { height: 60vh; overflow-y: auto; padding: 10px; display: flex; flex-direction: column-reverse; }
+        .message { display: flex; gap: 15px; margin-bottom: 20px; }
+        .message-avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; }
+        .message-author { font-weight: bold; }
+        .message-time { font-size: 0.8em; color: #64748b; margin-left: 10px; }
+        .chat-input-form { display: flex; gap: 15px; margin-top: 20px; }
+        .channel-list .channel { padding: 10px; border-radius: 8px; cursor: pointer; transition: background 0.2s; }
+        .channel-list .channel:hover { background: #334155; }
+        .channel-list .channel.active { background: #8b5cf6; color: white; }
+        .member-item { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+        .member-avatar { width: 30px; height: 30px; border-radius: 50%; }
+        #ownerControls { margin-top: 20px; border-top: 1px solid #334155; padding-top: 20px; }
+        @media (max-width: 1200px) { .details-container { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <!-- ... (Same navbar) ... -->
+    </nav>
+    <div class="details-container" id="detailsContainer" style="display: none;">
+        <!-- Left Sidebar (Channels & Owner Controls) -->
+        <div class="sidebar">
+            <h2 id="leagueNameSidebar" class="sidebar-title">League Name</h2>
+            <div id="channelsSection">
+                <h3 class="sidebar-subtitle">Channels</h3>
+                <div id="channelList" class="channel-list"></div>
+                <div id="channelControls" style="display: none; margin-top: 10px;">
+                    <input type="text" id="newChannelName" class="form-input" placeholder="New channel name...">
+                    <button id="addChannelBtn" class="btn btn-primary" style="width: 100%; margin-top: 10px;">Add Channel</button>
+                </div>
+            </div>
+            <div id="ownerControls" style="display: none;">
+                 <h3 class="sidebar-subtitle">Owner Controls</h3>
+                 <button id="generateInviteBtn" class="btn btn-secondary" style="width: 100%;">Generate Invite</button>
+                 <input type="text" id="inviteLinkInput" class="form-input" style="margin-top: 10px; display: none;" readonly>
+                 <button id="deleteLeagueBtn" class="btn btn-danger" style="width: 100%; margin-top: 10px;">Delete League</button>
+            </div>
+             <div id="memberControls" style="margin-top: 20px;">
+                 <button id="leaveLeagueBtn" class="btn btn-danger" style="width: 100%;">Leave League</button>
+            </div>
+        </div>
+
+        <!-- Main Content (Chat) -->
+        <div class="main-content">
+            <div class="chat-header">
+                <h1 id="channelNameHeader" class="page-title"># general</h1>
+            </div>
+            <div id="chatMessages" class="chat-messages">
+                <p>Loading messages...</p>
+            </div>
+            <form id="chatInputForm" class="chat-input-form">
+                <input type="text" id="messageInput" class="form-input" placeholder="Type a message..." autocomplete="off" required>
+                <button type="submit" class="btn btn-primary">Send</button>
+            </form>
+        </div>
+
+        <!-- Right Sidebar (Members) -->
+        <div class="sidebar">
+            <h2 class="sidebar-title">Members (<span id="memberCount">0</span>)</h2>
+            <div id="memberList"></div>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script src="firebase-config.js"></script>
+    <script src="auth.js"></script>
+    <script>
+        const leagueId = new URLSearchParams(window.location.search).get('id');
+        let currentUser;
+        let currentChannelId;
+        let unsubscribeMessages; // To stop listening to old channel's messages
+
+        auth.onAuthStateChanged(async user => {
+            if (user && leagueId) {
+                currentUser = user;
+                loadLeagueDetails();
+            } else {
+                window.location.href = 'index.html';
+            }
+        });
+
+        async function loadLeagueDetails() {
+            const leagueRef = db.collection('leagues').doc(leagueId);
+            const leagueDoc = await leagueRef.get();
+
+            if (!leagueDoc.exists) {
+                document.body.innerHTML = '<h1>League not found.</h1>';
+                return;
+            }
+
+            const league = leagueDoc.data();
+            const isMember = league.memberIds.includes(currentUser.uid);
+            const isOwner = league.creatorId === currentUser.uid;
+
+            if (!isMember) {
+                document.body.innerHTML = '<h1>You are not a member of this league.</h1>';
+                // Future: Show a "Join League" button if it's public
+                return;
+            }
+
+            document.getElementById('detailsContainer').style.display = 'grid';
+            document.getElementById('leagueNameSidebar').textContent = league.name;
+
+            // Load UI components
+            loadMembers(league.memberIds);
+            loadChannels(isOwner);
+
+            // Display controls based on user role
+            if (isOwner) {
+                document.getElementById('ownerControls').style.display = 'block';
+                document.getElementById('channelControls').style.display = 'block';
+                document.getElementById('memberControls').style.display = 'none';
+            } else {
+                 document.getElementById('memberControls').style.display = 'block';
+            }
+        }
+
+        async function loadMembers(memberIds) {
+            document.getElementById('memberCount').textContent = memberIds.length;
+            const memberList = document.getElementById('memberList');
+            memberList.innerHTML = '';
+            for (const uid of memberIds) {
+                const userDoc = await db.collection('users').doc(uid).get();
+                if (userDoc.exists) {
+                    const user = userDoc.data();
+                    memberList.innerHTML += `
+                        <div class="member-item">
+                            <img src="${user.photoURL || 'default-avatar.png'}" class="member-avatar">
+                            <span>${user.username}</span>
+                        </div>`;
+                }
+            }
+        }
+        
+        function loadChannels(isOwner) {
+            const channelList = document.getElementById('channelList');
+            db.collection('leagues').doc(leagueId).collection('channels')
+              .orderBy('createdAt').onSnapshot(snapshot => {
+                channelList.innerHTML = '';
+                snapshot.forEach(doc => {
+                    const channel = doc.data();
+                    const channelEl = document.createElement('div');
+                    channelEl.className = 'channel';
+                    channelEl.textContent = `# ${channel.name}`;
+                    channelEl.dataset.id = doc.id;
+                    channelList.appendChild(channelEl);
+
+                    // If it's the first channel, load its messages
+                    if (!currentChannelId) {
+                        switchChannel(doc.id, channel.name);
+                    }
+                });
+            });
+        }
+        
+        function switchChannel(channelId, channelName) {
+            if (currentChannelId) {
+                document.querySelector(`.channel[data-id="${currentChannelId}"]`).classList.remove('active');
+            }
+            currentChannelId = channelId;
+            document.querySelector(`.channel[data-id="${currentChannelId}"]`).classList.add('active');
+            document.getElementById('channelNameHeader').textContent = `# ${channelName}`;
+            loadMessages();
+        }
+
+        function loadMessages() {
+            if (unsubscribeMessages) unsubscribeMessages(); // Stop listening to previous channel
+            
+            const chatMessages = document.getElementById('chatMessages');
+            const messagesRef = db.collection('leagues').doc(leagueId).collection('channels').doc(currentChannelId).collection('messages').orderBy('createdAt', 'desc').limit(50);
+
+            unsubscribeMessages = messagesRef.onSnapshot(snapshot => {
+                chatMessages.innerHTML = '';
+                if (snapshot.empty) {
+                    chatMessages.innerHTML = '<p style="text-align: center; color: #64748b;">Be the first to say something!</p>';
+                    return;
+                }
+                snapshot.forEach(doc => {
+                    const msg = doc.data();
+                    const messageDate = msg.createdAt?.toDate().toLocaleString() || '';
+                    chatMessages.innerHTML += `
+                        <div class="message">
+                            <img src="${msg.authorAvatar || 'default-avatar.png'}" class="message-avatar">
+                            <div>
+                                <div class="message-header">
+                                    <span class="message-author">${msg.authorName}</span>
+                                    <span class="message-time">${messageDate}</span>
+                                </div>
+                                <div class="message-content">${msg.text}</div>
+                            </div>
+                        </div>`;
+                });
+            });
+        }
+
+        // Event Listeners for actions
+        document.getElementById('channelList').addEventListener('click', e => {
+            if (e.target.classList.contains('channel')) {
+                switchChannel(e.target.dataset.id, e.target.textContent.substring(2));
+            }
+        });
+        
+        document.getElementById('chatInputForm').addEventListener('submit', async e => {
+            e.preventDefault();
+            const messageInput = document.getElementById('messageInput');
+            const text = messageInput.value.trim();
+            if (!text) return;
+
+            const userDoc = await db.collection('users').doc(currentUser.uid).get();
+            const userData = userDoc.data();
+
+            await db.collection('leagues').doc(leagueId).collection('channels').doc(currentChannelId).collection('messages').add({
+                text: text,
+                authorId: currentUser.uid,
+                authorName: userData.username,
+                authorAvatar: userData.photoURL || null,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            messageInput.value = '';
+        });
+
+        document.getElementById('generateInviteBtn')?.addEventListener('click', async () => {
+            const inviteRef = await db.collection('invites').add({
+                leagueId: leagueId,
+                createdBy: currentUser.uid,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                usedBy: null
+            });
+            const inviteInput = document.getElementById('inviteLinkInput');
+            inviteInput.value = inviteRef.id;
+            inviteInput.style.display = 'block';
+            inviteInput.select();
+            document.execCommand('copy');
+            alert('Single-use invite code copied to clipboard!');
+        });
+
+        document.getElementById('leaveLeagueBtn')?.addEventListener('click', async () => {
+             if (confirm('Are you sure you want to leave this league?')) {
+                await db.collection('leagues').doc(leagueId).update({
+                    memberIds: firebase.firestore.FieldValue.arrayRemove(currentUser.uid)
+                });
+                window.location.href = 'leagues.html';
+             }
+        });
+
+        document.getElementById('deleteLeagueBtn')?.addEventListener('click', async () => {
+            if (prompt('This action cannot be undone. To confirm, type DELETE below:') === 'DELETE') {
+                await db.collection('leagues').doc(leagueId).delete();
+                // In a real app, you'd also delete all sub-collections (channels, messages) with a cloud function.
+                alert('League deleted.');
+                window.location.href = 'leagues.html';
+            }
+        });
+
+    </script>
+</body>
+</html>
