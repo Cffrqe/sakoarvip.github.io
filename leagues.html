@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Leagues - Sakoar</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .leagues-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 120px 30px 60px 30px;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 50px;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .page-title {
+            font-size: 3em;
+            font-weight: 800;
+            background: linear-gradient(135deg, #8b5cf6, #3b82f6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .leagues-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+            gap: 30px;
+        }
+
+        .league-card {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            border-radius: 25px;
+            padding: 30px;
+            border: 1px solid rgba(139, 92, 246, 0.1);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .league-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 6px;
+            background: linear-gradient(135deg, #8b5cf6, #3b82f6);
+        }
+
+        .league-card:hover {
+            transform: translateY(-10px);
+            border-color: rgba(139, 92, 246, 0.5);
+            box-shadow: 0 30px 80px rgba(139, 92, 246, 0.3);
+        }
+
+        .league-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .league-icon {
+            font-size: 3em;
+            background: linear-gradient(135deg, #8b5cf6, #3b82f6);
+            width: 80px;
+            height: 80px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .league-info {
+            flex: 1;
+        }
+
+        .league-name {
+            font-size: 1.5em;
+            font-weight: 700;
+            color: #f1f5f9;
+            margin-bottom: 5px;
+        }
+
+        .league-game {
+            color: #94a3b8;
+            font-size: 0.9em;
+        }
+
+        .league-status {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: 700;
+            margin-top: 10px;
+        }
+
+        .status-draft {
+            background: rgba(148, 163, 184, 0.2);
+            color: #cbd5e1;
+        }
+
+        .status-open {
+            background: rgba(34, 197, 94, 0.2);
+            color: #86efac;
+        }
+
+        .status-active {
+            background: rgba(59, 130, 246, 0.2);
+            color: #93c5fd;
+        }
+
+        .status-completed {
+            background: rgba(139, 92, 246, 0.2);
+            color: #c4b5fd;
+        }
+
+        .league-description {
+            color: #cbd5e1;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .league-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-item {
+            background: rgba(139, 92, 246, 0.05);
+            padding: 12px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.5em;
+            font-weight: 700;
+            color: #8b5cf6;
+        }
+
+        .stat-label {
+            font-size: 0.8em;
+            color: #94a3b8;
+            margin-top: 5px;
+        }
+
+        .league-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-small {
+            padding: 10px 25px;
+            font-size: 0.9em;
+            flex: 1;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 100px 20px;
+        }
+
+        .empty-icon {
+            font-size: 5em;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        .empty-text {
+            font-size: 1.5em;
+            color: #64748b;
+            margin-bottom: 30px;
+        }
+
+        @media (max-width: 768px) {
+            .leagues-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .league-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .league-actions {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo" onclick="window.location.href='index.html'">Sakoar</div>
+            <div class="nav-links">
+                <a href="index.html" class="nav-link">Home</a>
+                <a href="dashboard.html" class="nav-link">Dashboard</a>
+                <a href="leagues.html" class="nav-link">Leagues</a>
+                <a href="rosters.html" class="nav-link">Rosters</a>
+                <div class="user-menu">
+                    <div class="user-avatar" id="userAvatar">U</div>
+                    <div class="dropdown" id="userDropdown">
+                        <a href="dashboard.html" class="dropdown-item">Dashboard</a>
+                        <a href="leagues.html" class="dropdown-item">My Leagues</a>
+                        <a href="rosters.html" class="dropdown-item">My Rosters</a>
+                        <a href="#" class="dropdown-item" id="logoutBtn">Logout</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="leagues-container">
+        <div class="page-header">
+            <h1 class="page-title">My Leagues</h1>
+            <a href="create-league.html" class="btn btn-primary">+ Create League</a>
+        </div>
+
+        <div id="leaguesGrid" class="leagues-grid"></div>
+    </div>
+
+    <script src="auth.js"></script>
+    <script>
+        // Check if user is logged in
+        const user = getCurrentUser();
+        if (!user) {
+            window.location.href = 'index.html';
+        }
+
+        function getStatusClass(status) {
+            return `status-${status}`;
+        }
+
+        function formatStatus(status) {
+            return status.charAt(0).toUpperCase() + status.slice(1).replace('-', ' ');
+        }
+
+        function deleteLeague(leagueId) {
+            if (!confirm('Are you sure you want to delete this league? This action cannot be undone.')) {
+                return;
+            }
+
+            let leagues = DB.get('leagues');
+            leagues = leagues.filter(l => l.id !== leagueId);
+            DB.set('leagues', leagues);
+            loadLeagues();
+        }
+
+        function editLeague(leagueId) {
+            window.location.href = `edit-league.html?id=${leagueId}`;
+        }
+
+        function loadLeagues() {
+            const leaguesGrid = document.getElementById('leaguesGrid');
+            const leagues = DB.get('leagues').filter(l => l.creatorId === user.id);
+
+            if (leagues.length === 0) {
+                leaguesGrid.innerHTML = `
+                    <div class="empty-state" style="grid-column: 1 / -1;">
+                        <div class="empty-icon">🏆</div>
+                        <div class="empty-text">You haven't created any leagues yet</div>
+                        <a href="create-league.html" class="btn btn-primary">Create Your First League</a>
+                    </div>
+                `;
+                return;
+            }
+
+            leaguesGrid.innerHTML = leagues.map(league => `
+                <div class="league-card">
+                    <div class="league-header">
+                        <div class="league-icon">${league.icon}</div>
+                        <div class="league-info">
+                            <div class="league-name">${league.name}</div>
+                            <div class="league-game">${league.game}</div>
+                            <span class="league-status ${getStatusClass(league.status)}">
+                                ${formatStatus(league.status)}
+                            </span>
+                        </div>
+                    </div>
+
+                    <p class="league-description">${league.description}</p>
+
+                    <div class="league-stats">
+                        <div class="stat-item">
+                            <div class="stat-value">${league.teams.length}</div>
+                            <div class="stat-label">Teams</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">${league.maxTeams}</div>
+                            <div class="stat-label">Max</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">${league.format}</div>
+                            <div class="stat-label">Format</div>
+                        </div>
+                    </div>
+
+                    <div class="league-actions">
+                        <button class="btn btn-primary btn-small" onclick="editLeague('${league.id}')">Edit</button>
+                        <button class="btn btn-secondary btn-small" onclick="viewLeagueDetails('${league.id}')">View</button>
+                        <button class="btn btn-danger btn-small" onclick="deleteLeague('${league.id}')">Delete</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function viewLeagueDetails(leagueId) {
+            window.location.href = `league-details.html?id=${leagueId}`;
+        }
+
+        loadLeagues();
+    </script>
+</body>
+</html>
