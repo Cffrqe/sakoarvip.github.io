@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Rosters - Sakoar</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .rosters-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 120px 30px 60px 30px;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 50px;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .page-title {
+            font-size: 3em;
+            font-weight: 800;
+            background: linear-gradient(135deg, #8b5cf6, #3b82f6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .rosters-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+            gap: 30px;
+        }
+
+        .roster-card {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            border-radius: 25px;
+            padding: 30px;
+            border: 1px solid rgba(139, 92, 246, 0.1);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .roster-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 6px;
+            background: linear-gradient(135deg, #8b5cf6, #3b82f6);
+        }
+
+        .roster-card:hover {
+            transform: translateY(-10px);
+            border-color: rgba(139, 92, 246, 0.5);
+            box-shadow: 0 30px 80px rgba(139, 92, 246, 0.3);
+        }
+
+        .roster-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .roster-icon {
+            font-size: 3em;
+            background: linear-gradient(135deg, #8b5cf6, #3b82f6);
+            width: 80px;
+            height: 80px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .roster-info {
+            flex: 1;
+        }
+
+        .roster-name {
+            font-size: 1.5em;
+            font-weight: 700;
+            color: #f1f5f9;
+            margin-bottom: 5px;
+        }
+
+        .roster-tag {
+            display: inline-block;
+            padding: 3px 12px;
+            background: rgba(139, 92, 246, 0.2);
+            border-radius: 15px;
+            font-size: 0.8em;
+            font-weight: 700;
+            color: #c4b5fd;
+            margin-right: 10px;
+        }
+
+        .roster-game {
+            color: #94a3b8;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+
+        .roster-description {
+            color: #cbd5e1;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .players-section {
+            background: rgba(139, 92, 246, 0.05);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .players-title {
+            font-size: 1.1em;
+            font-weight: 700;
+            color: #f1f5f9;
+            margin-bottom: 15px;
+        }
+
+        .player-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .player-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            background: rgba(139, 92, 246, 0.05);
+            border-radius: 10px;
+            border: 1px solid rgba(139, 92, 246, 0.1);
+        }
+
+        .player-name {
+            color: #e2e8f0;
+            font-weight: 600;
+        }
+
+        .player-role {
+            font-size: 0.9em;
+            color: #94a3b8;
+            padding: 3px 10px;
+            background: rgba(139, 92, 246, 0.1);
+            border-radius: 10px;
+        }
+
+        .roster-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-item {
+            background: rgba(139, 92, 246, 0.05);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.8em;
+            font-weight: 700;
+            color: #8b5cf6;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            color: #94a3b8;
+            margin-top: 5px;
+        }
+
+        .roster-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-small {
+            padding: 10px 25px;
+            font-size: 0.9em;
+            flex: 1;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 100px 20px;
+        }
+
+        .empty-icon {
+            font-size: 5em;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        .empty-text {
+            font-size: 1.5em;
+            color: #64748b;
+            margin-bottom: 30px;
+        }
+
+        @media (max-width: 768px) {
+            .rosters-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .roster-actions {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo" onclick="window.location.href='index.html'">Sakoar</div>
+            <div class="nav-links">
+                <a href="index.html" class="nav-link">Home</a>
+                <a href="dashboard.html" class="nav-link">Dashboard</a>
+                <a href="leagues.html" class="nav-link">Leagues</a>
+                <a href="rosters.html" class="nav-link">Rosters</a>
+                <div class="user-menu">
+                    <div class="user-avatar" id="userAvatar">U</div>
+                    <div class="dropdown" id="userDropdown">
+                        <a href="dashboard.html" class="dropdown-item">Dashboard</a>
+                        <a href="leagues.html" class="dropdown-item">My Leagues</a>
+                        <a href="rosters.html" class="dropdown-item">My Rosters</a>
+                        <a href="#" class="dropdown-item" id="logoutBtn">Logout</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="rosters-container">
+        <div class="page-header">
+            <h1 class="page-title">My Rosters</h1>
+            <a href="create-roster.html" class="btn btn-primary">+ Create Roster</a>
+        </div>
+
+        <div id="rostersGrid" class="rosters-grid"></div>
+    </div>
+
+    <script src="auth.js"></script>
+    <script>
+        // Check if user is logged in
+        const user = getCurrentUser();
+        if (!user) {
+            window.location.href = 'index.html';
+        }
+
+        function deleteRoster(rosterId) {
+            if (!confirm('Are you sure you want to delete this roster? This action cannot be undone.')) {
+                return;
+            }
+
+            let rosters = DB.get('rosters');
+            rosters = rosters.filter(r => r.id !== rosterId);
+            DB.set('rosters', rosters);
+            loadRosters();
+        }
+
+        function editRoster(rosterId) {
+            window.location.href = `edit-roster.html?id=${rosterId}`;
+        }
+
+        function viewRosterDetails(rosterId) {
+            window.location.href = `roster-details.html?id=${rosterId}`;
+        }
+
+        function loadRosters() {
+            const rostersGrid = document.getElementById('rostersGrid');
+            const rosters = DB.get('rosters').filter(r => r.creatorId === user.id);
+
+            if (rosters.length === 0) {
+                rostersGrid.innerHTML = `
+                    <div class="empty-state" style="grid-column: 1 / -1;">
+                        <div class="empty-icon">👥</div>
+                        <div class="empty-text">You haven't created any rosters yet</div>
+                        <a href="create-roster.html" class="btn btn-primary">Create Your First Roster</a>
+                    </div>
+                `;
+                return;
+            }
+
+            rostersGrid.innerHTML = rosters.map(roster => `
+                <div class="roster-card">
+                    <div class="roster-header">
+                        <div class="roster-icon">${roster.icon}</div>
+                        <div class="roster-info">
+                            <div class="roster-name">
+                                ${roster.tag ? `<span class="roster-tag">${roster.tag}</span>` : ''}
+                                ${roster.name}
+                            </div>
+                            <div class="roster-game">${roster.game} • ${roster.region.toUpperCase()}</div>
+                        </div>
+                    </div>
+
+                    ${roster.description ? `<p class="roster-description">${roster.description}</p>` : ''}
+
+                    <div class="roster-stats">
+                        <div class="stat-item">
+                            <div class="stat-value">${roster.players.length}</div>
+                            <div class="stat-label">Players</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">${roster.players.filter(p => p.role === 'Captain').length}</div>
+                            <div class="stat-label">Captains</div>
+                        </div>
+                    </div>
+
+                    <div class="players-section">
+                        <div class="players-title">Team Members</div>
+                        <div class="player-list">
+                            ${roster.players.length > 0 
+                                ? roster.players.slice(0, 5).map(player => `
+                                    <div class="player-item">
+                                        <span class="player-name">${player.name}</span>
+                                        <span class="player-role">${player.role}</span>
+                                    </div>
+                                `).join('')
+                                : '<p style="color: #64748b; text-align: center;">No players added yet</p>'
+                            }
+                            ${roster.players.length > 5 
+                                ? `<div style="text-align: center; color: #94a3b8; font-size: 0.9em; margin-top: 10px;">
+                                    +${roster.players.length - 5} more players
+                                </div>`
+                                : ''
+                            }
+                        </div>
+                    </div>
+
+                    <div class="roster-actions">
+                        <button class="btn btn-primary btn-small" onclick="editRoster('${roster.id}')">Edit</button>
+                        <button class="btn btn-secondary btn-small" onclick="viewRosterDetails('${roster.id}')">View</button>
+                        <button class="btn btn-danger btn-small" onclick="deleteRoster('${roster.id}')">Delete</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        loadRosters();
+    </script>
+</body>
+</html>
