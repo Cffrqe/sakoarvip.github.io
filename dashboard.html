@@ -234,8 +234,31 @@
         if (user) {
             // loadDashboardData(user); // Uncomment if you use it
 
-            document.getElementById('joinInviteForm').addEventListener('submit', async (e) => {
+           document.getElementById('joinInviteForm').addEventListener('submit', async (e) => {
                 e.preventDefault();
+                const inviteCode = document.getElementById('inviteCode').value.trim();
+                const inviteRef = db.collection('invites').doc(inviteCode);
+                const inviteDoc = await inviteRef.get();
+
+                if (!inviteDoc.exists || inviteDoc.data().usedBy) {
+                    showAlert('inviteAlert', 'This invite code is invalid or has already been used.', 'error');
+                    return;
+                }
+
+                const leagueId = inviteDoc.data().leagueId;
+                const leagueRef = db.collection('leagues').doc(leagueId);
+
+                await leagueRef.update({
+                    memberIds: firebase.firestore.FieldValue.arrayUnion(user.uid)
+                });
+
+                await inviteRef.update({
+                    usedBy: user.uid,
+                    usedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                showAlert('inviteAlert', 'Successfully joined the league!', 'success');
+                setTimeout(() => window.location.href = `league-details.html?id=${leagueId}`, 1500);
                 // Form submission logic...
             });
         } else {
