@@ -6,6 +6,7 @@
     <title>Dashboard - Sakoar</title>
     <link rel="stylesheet" href="styles.css">
     <style>
+        /* Your existing styles are fine, but for clarity, they are here */
         .invite-join-section {
             background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
             border-radius: 20px;
@@ -13,9 +14,19 @@
             border: 1px solid rgba(139, 92, 246, 0.1);
             margin-bottom: 60px;
         }
-        .invite-title { font-size: 2em; font-weight: 700; color: #f1f5f9; margin-bottom: 20px; }
-        .invite-form { display: flex; gap: 15px; }
-        .invite-form .form-input { flex: 1; }
+        .invite-title {
+            font-size: 2em;
+            font-weight: 700;
+            color: #f1f5f9;
+            margin-bottom: 20px;
+        }
+        .invite-form {
+            display: flex;
+            gap: 15px;
+        }
+        .invite-form .form-input {
+            flex: 1;
+        }
     </style>
 </head>
 <body>
@@ -75,7 +86,7 @@
             </a>
         </div>
     </div>
-    
+
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
@@ -109,7 +120,7 @@
                     usedBy: user.uid,
                     usedAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
-                
+
                 showAlert('inviteAlert', 'Successfully joined the league!', 'success');
                 setTimeout(() => window.location.href = `league-details.html?id=${leagueId}`, 1500);
             });
