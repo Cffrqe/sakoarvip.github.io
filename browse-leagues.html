@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Browse Leagues - Sakoar</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <nav class="navbar">
+        <!-- ... (Same navbar as index.html, it will auto-update) ... -->
+    </nav>
+
+    <div class="leagues-container">
+        <div class="page-header">
+            <h1 class="page-title">Browse Public Leagues</h1>
+            <p class="page-subtitle">Find a community and start competing</p>
+        </div>
+        <div id="leaguesGrid" class="leagues-grid">
+            <p id="loadingState" style="color: #94a3b8; font-size: 1.2em;">Finding open leagues...</p>
+        </div>
+    </div>
+    
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script src="firebase-config.js"></script>
+    <script src="auth.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', loadPublicLeagues);
+
+        async function loadPublicLeagues() {
+            const leaguesGrid = document.getElementById('leaguesGrid');
+            const loadingState = document.getElementById('loadingState');
+            const query = db.collection('leagues').where('status', '==', 'open').orderBy('createdAt', 'desc');
+
+            try {
+                const snapshot = await query.get();
+                loadingState.style.display = 'none';
+
+                if (snapshot.empty) {
+                    leaguesGrid.innerHTML = `<div class="empty-state" style="grid-column: 1 / -1;"><div class="empty-text">No open leagues found right now. Why not create one?</div></div>`;
+                    return;
+                }
+
+                let leaguesHTML = '';
+                snapshot.forEach(doc => {
+                    const league = doc.data();
+                    leaguesHTML += `
+                        <div class="league-card" onclick="window.location.href='league-details.html?id=${doc.id}'" style="cursor: pointer;">
+                            <div class="league-header">
+                                <div class="league-icon">${league.icon}</div>
+                                <div class="league-info">
+                                    <div class="league-name">${league.name}</div>
+                                    <div class="league-game">${league.game}</div>
+                                </div>
+                            </div>
+                            <p class="league-description">${league.description}</p>
+                            <div class="league-stats">
+                                <div class="stat-item"><div class="stat-value">${league.memberIds.length}</div><div class="stat-label">Members</div></div>
+                                <div class="stat-item"><div class="stat-value">${league.region.toUpperCase()}</div><div class="stat-label">Region</div></div>
+                            </div>
+                        </div>`;
+                });
+                leaguesGrid.innerHTML = leaguesHTML;
+            } catch (error) {
+                loadingState.textContent = 'Error loading leagues.';
+                console.error("Error fetching public leagues: ", error);
+            }
+        }
+    </script>
+</body>
+</html>
