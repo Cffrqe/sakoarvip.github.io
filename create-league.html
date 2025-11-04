@@ -4,12 +4,78 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Create League - Sakoar</title>
-    <link rel="stylesheet" href="styles.css">
-    <!-- Add styles from your original create-league.html to styles.css -->
+    <style>
+        /* --- GLOBAL STYLES & RESET --- */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #e2e8f0; overflow-x: hidden; background: #0f172a; }
+        a { text-decoration: none; color: inherit; }
+
+        /* --- NAVIGATION BAR --- */
+        .navbar { position: fixed; top: 0; width: 100%; background: rgba(10, 14, 26, 0.9); backdrop-filter: blur(10px); z-index: 1000; padding: 15px 0; border-bottom: 1px solid rgba(139, 92, 246, 0.1); }
+        .nav-container { max-width: 1400px; margin: 0 auto; padding: 0 30px; display: flex; justify-content: space-between; align-items: center; }
+        .nav-logo { font-size: 1.8em; font-weight: 900; background: linear-gradient(135deg, #8b5cf6, #3b82f6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; cursor: pointer; }
+        .nav-links { display: flex; gap: 30px; align-items: center; }
+        .nav-link { color: #cbd5e1; font-weight: 600; transition: color 0.3s; }
+        .nav-link:hover { color: #8b5cf6; }
+
+        /* --- USER MENU & DROPDOWN --- */
+        .user-menu { position: relative; display: flex; align-items: center; }
+        .user-avatar { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #8b5cf6, #3b82f6); object-fit: cover; cursor: pointer; border: 2px solid rgba(255, 255, 255, 0.5); }
+        .dropdown { position: absolute; top: 60px; right: 0; background: #1e293b; border-radius: 15px; min-width: 200px; box-shadow: 0 10px 40px rgba(0,0,0,0.5); opacity: 0; pointer-events: none; transform: translateY(-10px); transition: all 0.3s ease; z-index: 1001; }
+        .dropdown.active { opacity: 1; pointer-events: all; transform: translateY(0); }
+        .dropdown-item { padding: 12px 15px; color: #cbd5e1; display: block; border-radius: 10px; transition: all 0.3s; }
+        .dropdown-item:hover { background: rgba(139, 92, 246, 0.2); }
+        
+        /* --- FORM STYLES --- */
+        .form-group { margin-bottom: 25px; }
+        .form-label { display: block; margin-bottom: 10px; color: #cbd5e1; font-weight: 600; }
+        .form-input, .form-textarea, .form-select { width: 100%; padding: 15px; background: rgba(139, 92, 246, 0.05); border: 2px solid rgba(139, 92, 246, 0.2); border-radius: 10px; color: #e2e8f0; font-size: 1em; }
+        .form-input:focus, .form-textarea:focus, .form-select:focus { outline: none; border-color: #8b5cf6; background: rgba(139, 92, 246, 0.1); }
+        .form-card { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); border-radius: 25px; padding: 50px; border: 1px solid rgba(139, 92, 246, 0.1); }
+        .form-section { margin-bottom: 40px; }
+        .section-title { font-size: 1.5em; font-weight: 700; color: #f1f5f9; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 2px solid rgba(139, 92, 246, 0.2); }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .form-actions { display: flex; gap: 20px; justify-content: flex-end; margin-top: 40px; }
+        .icon-input { display: flex; gap: 10px; flex-wrap: wrap; }
+        .icon-option { padding: 15px; background: rgba(139, 92, 246, 0.05); border: 2px solid rgba(139, 92, 246, 0.2); border-radius: 10px; font-size: 2em; cursor: pointer; transition: all 0.3s ease; }
+        .icon-option:hover, .icon-option.selected { background: rgba(139, 92, 246, 0.2); border-color: #8b5cf6; transform: scale(1.1); }
+        
+        /* --- PAGE-SPECIFIC & REUSABLE COMPONENTS --- */
+        .create-container { max-width: 900px; margin: 0 auto; padding: 120px 30px 60px 30px; }
+        .page-header { text-align: center; margin-bottom: 50px; }
+        .page-title { font-size: 3em; font-weight: 800; background: linear-gradient(135deg, #8b5cf6, #3b82f6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 15px; }
+        .page-subtitle { font-size: 1.2em; color: #94a3b8; }
+        
+        /* --- BUTTONS --- */
+        .btn { padding: 12px 30px; border-radius: 50px; font-weight: 700; cursor: pointer; border: none; transition: all 0.3s ease; text-align: center; }
+        .btn-primary { background: linear-gradient(135deg, #8b5cf6, #3b82f6); color: white; }
+        .btn-secondary { background: #334155; color: #e2e8f0; }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(139, 92, 246, 0.4); }
+
+        /* --- ALERTS --- */
+        .alert { padding: 15px; border-radius: 10px; margin-bottom: 20px; text-align: center; }
+        .alert-error { background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); color: #fca5a5; }
+        .alert-success { background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.3); color: #86efac; }
+    </style>
 </head>
 <body>
     <nav class="navbar">
-        <!-- ... (Same navbar as dashboard.html) ... -->
+        <div class="nav-container">
+            <div class="nav-logo" onclick="window.location.href='index.html'">Sakoar</div>
+            <div class="nav-links">
+                <a href="browse-leagues.html" class="nav-link">Browse Leagues</a>
+                <a href="dashboard.html" class="nav-link user-dependent" style="display: none;">Dashboard</a>
+                <div class="user-menu user-dependent" style="display: none;">
+                    <img src="default-avatar.png" class="user-avatar">
+                    <div class="dropdown">
+                        <a href="edit-profile.html" class="dropdown-item">Edit Profile</a>
+                        <a href="leagues.html" class="dropdown-item">My Leagues</a>
+                        <a href="rosters.html" class="dropdown-item">My Rosters</a>
+                        <a href="#" class="dropdown-item logoutBtn">Logout</a>
+                    </div>
+                </div>
+            </div>
+        </div>
     </nav>
 
     <div class="create-container">
@@ -22,7 +88,6 @@
             <div id="alertContainer"></div>
 
             <form id="createLeagueForm">
-                <!-- Basic Information -->
                 <div class="form-section">
                     <h2 class="section-title">Basic Information</h2>
                     <div class="form-group"><label class="form-label">League Name *</label><input type="text" class="form-input" id="leagueName" required></div>
@@ -33,22 +98,18 @@
                     </div>
                 </div>
 
-                <!-- League Settings -->
                 <div class="form-section">
                     <h2 class="section-title">League Settings</h2>
                     <div class="form-group"><label class="form-label">Status</label><select class="form-select" id="leagueStatus"><option value="open">Open for Registration</option><option value="closed">Closed (Invite Only)</option></select></div>
                 </div>
 
-                <!-- Visual Settings -->
                 <div class="form-section">
                     <h2 class="section-title">Visual Settings</h2>
                     <div class="form-group">
                         <label class="form-label">League Icon</label>
                         <div class="icon-input" id="iconSelector">
-                            <span class="icon-option selected" data-icon="🏆">🏆</span>
-                            <span class="icon-option" data-icon="🥇">🥇</span>
-                            <span class="icon-option" data-icon="⚡">⚡</span>
-                            <span class="icon-option" data-icon="🎮">🎮</span>
+                            <span class="icon-option selected" data-icon="🏆">🏆</span><span class="icon-option" data-icon="🥇">🥇</span>
+                            <span class="icon-option" data-icon="⚡">⚡</span><span class="icon-option" data-icon="🎮">🎮</span>
                         </div>
                         <input type="hidden" id="leagueIcon" value="🏆">
                     </div>
@@ -70,14 +131,9 @@
     <script>
         let currentUser;
         auth.onAuthStateChanged(user => {
-            if (user) {
-                currentUser = user;
-            } else {
-                window.location.href = 'index.html';
-            }
+            user ? currentUser = user : window.location.href = 'index.html';
         });
 
-        // Icon selector logic
         const iconSelector = document.getElementById('iconSelector');
         const iconInput = document.getElementById('leagueIcon');
         iconSelector.addEventListener('click', (e) => {
@@ -88,7 +144,6 @@
             }
         });
 
-        // Form submission
         document.getElementById('createLeagueForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const submitButton = e.target.querySelector('button[type="submit"]');
@@ -98,11 +153,9 @@
             try {
                 const userDoc = await db.collection('users').doc(currentUser.uid).get();
                 const creatorUsername = userDoc.data().username;
-
                 const leagueData = {
-                    creatorId: currentUser.uid,
-                    creatorUsername: creatorUsername,
-                    memberIds: [currentUser.uid], // Creator is the first member
+                    creatorId: currentUser.uid, creatorUsername: creatorUsername,
+                    memberIds: [currentUser.uid],
                     name: document.getElementById('leagueName').value.trim(),
                     description: document.getElementById('leagueDescription').value.trim(),
                     game: document.getElementById('leagueGame').value.trim(),
@@ -111,20 +164,13 @@
                     icon: document.getElementById('leagueIcon').value,
                     createdAt: firebase.firestore.FieldValue.serverTimestamp()
                 };
-
                 const leagueDocRef = await db.collection('leagues').add(leagueData);
-                
-                // Automatically create a 'general' channel for the new league
                 await db.collection('leagues').doc(leagueDocRef.id).collection('channels').add({
                     name: 'general',
                     createdAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
-
                 showAlert('alertContainer', 'League created successfully! Redirecting...', 'success');
-                setTimeout(() => {
-                    window.location.href = `league-details.html?id=${leagueDocRef.id}`;
-                }, 1500);
-
+                setTimeout(() => { window.location.href = `league-details.html?id=${leagueDocRef.id}`; }, 1500);
             } catch (error) {
                 showAlert('alertContainer', `Error: ${error.message}`, 'error');
                 submitButton.disabled = false;
