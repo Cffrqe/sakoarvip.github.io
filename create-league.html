@@ -123,58 +123,137 @@
         </div>
     </div>
     
+    <!-- Use updated v9 modular SDKs for better performance -->
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
-    <script src="firebase-config.js"></script>
-    <script src="auth.js"></script>
+    
     <script>
-        let currentUser;
-        auth.onAuthStateChanged(user => {
-            user ? currentUser = user : window.location.href = 'index.html';
-        });
+        // --- START: FIREBASE CONFIGURATION ---
+        // IMPORTANT: Replace the placeholder values with your actual Firebase project configuration.
+        // You can find this in your Firebase project console: Project settings > General > Your apps > SDK setup and configuration
+        const firebaseConfig = {
+          apiKey: "YOUR_API_KEY",
+          authDomain: "YOUR_AUTH_DOMAIN",
+          projectId: "YOUR_PROJECT_ID",
+          storageBucket: "YOUR_STORAGE_BUCKET",
+          messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+          appId: "YOUR_APP_ID"
+        };
 
-        const iconSelector = document.getElementById('iconSelector');
-        const iconInput = document.getElementById('leagueIcon');
-        iconSelector.addEventListener('click', (e) => {
-            if (e.target.classList.contains('icon-option')) {
-                iconSelector.querySelector('.selected').classList.remove('selected');
-                e.target.classList.add('selected');
-                iconInput.value = e.target.dataset.icon;
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+        // --- END: FIREBASE CONFIGURATION ---
+
+
+        // Wait for the DOM to be fully loaded before running scripts
+        document.addEventListener('DOMContentLoaded', () => {
+            let currentUser;
+
+            auth.onAuthStateChanged(user => {
+                if (user) {
+                    currentUser = user;
+                    // You might want to show user-specific elements here
+                } else {
+                    // If no user is logged in, redirect to the login page
+                    console.log("No user signed in. Redirecting...");
+                    window.location.href = 'index.html'; 
+                }
+            });
+
+            // --- Function to display alerts ---
+            // This function was missing from your original code.
+            function showAlert(containerId, message, type) {
+                const container = document.getElementById(containerId);
+                if (!container) return;
+                const alertDiv = document.createElement('div');
+                alertDiv.className = `alert alert-${type}`; // e.g., 'alert-error' or 'alert-success'
+                alertDiv.textContent = message;
+                container.innerHTML = ''; // Clear previous alerts
+                container.appendChild(alertDiv);
             }
-        });
 
-        document.getElementById('createLeagueForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const submitButton = e.target.querySelector('button[type="submit"]');
-            submitButton.disabled = true;
-            submitButton.textContent = 'Creating...';
-
-            try {
-                const userDoc = await db.collection('users').doc(currentUser.uid).get();
-                const creatorUsername = userDoc.data().username;
-                const leagueData = {
-                    creatorId: currentUser.uid, creatorUsername: creatorUsername,
-                    memberIds: [currentUser.uid],
-                    name: document.getElementById('leagueName').value.trim(),
-                    description: document.getElementById('leagueDescription').value.trim(),
-                    game: document.getElementById('leagueGame').value.trim(),
-                    region: document.getElementById('leagueRegion').value,
-                    status: document.getElementById('leagueStatus').value,
-                    icon: document.getElementById('leagueIcon').value,
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                };
-                const leagueDocRef = await db.collection('leagues').add(leagueData);
-                await db.collection('leagues').doc(leagueDocRef.id).collection('channels').add({
-                    name: 'general',
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            // --- Icon selection logic ---
+            const iconSelector = document.getElementById('iconSelector');
+            const iconInput = document.getElementById('leagueIcon');
+            if(iconSelector) {
+                iconSelector.addEventListener('click', (e) => {
+                    if (e.target.classList.contains('icon-option')) {
+                        // Remove 'selected' from the currently selected icon
+                        const currentSelected = iconSelector.querySelector('.selected');
+                        if (currentSelected) {
+                            currentSelected.classList.remove('selected');
+                        }
+                        // Add 'selected' to the clicked icon and update the hidden input
+                        e.target.classList.add('selected');
+                        iconInput.value = e.target.dataset.icon;
+                    }
                 });
-                showAlert('alertContainer', 'League created successfully! Redirecting...', 'success');
-                setTimeout(() => { window.location.href = `league-details.html?id=${leagueDocRef.id}`; }, 1500);
-            } catch (error) {
-                showAlert('alertContainer', `Error: ${error.message}`, 'error');
-                submitButton.disabled = false;
-                submitButton.textContent = 'Create League';
+            }
+
+            // --- Form submission logic ---
+            const createLeagueForm = document.getElementById('createLeagueForm');
+            if(createLeagueForm) {
+                createLeagueForm.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+
+                    // Ensure a user is logged in before proceeding
+                    if (!currentUser) {
+                        showAlert('alertContainer', 'Error: You must be signed in to create a league.', 'error');
+                        return;
+                    }
+
+                    const submitButton = e.target.querySelector('button[type="submit"]');
+                    submitButton.disabled = true;
+                    submitButton.textContent = 'Creating...';
+
+                    try {
+                        // Get the username from the 'users' collection
+                        const userDoc = await db.collection('users').doc(currentUser.uid).get();
+                        
+                        // Check if the user document exists and has a username
+                        if (!userDoc.exists) {
+                            throw new Error("User data not found. Cannot create league.");
+                        }
+                        const creatorUsername = userDoc.data().username;
+
+                        // Construct the league data object
+                        const leagueData = {
+                            creatorId: currentUser.uid, 
+                            creatorUsername: creatorUsername,
+                            memberIds: [currentUser.uid], // Start with the creator as the first member
+                            name: document.getElementById('leagueName').value.trim(),
+                            description: document.getElementById('leagueDescription').value.trim(),
+                            game: document.getElementById('leagueGame').value.trim(),
+                            region: document.getElementById('leagueRegion').value,
+                            status: document.getElementById('leagueStatus').value,
+                            icon: document.getElementById('leagueIcon').value,
+                            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                        };
+
+                        // Add the new league to the 'leagues' collection
+                        const leagueDocRef = await db.collection('leagues').add(leagueData);
+                        
+                        // Automatically create a 'general' channel for the new league
+                        await db.collection('leagues').doc(leagueDocRef.id).collection('channels').add({
+                            name: 'general',
+                            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                        });
+                        
+                        showAlert('alertContainer', 'League created successfully! Redirecting...', 'success');
+                        setTimeout(() => { 
+                            window.location.href = `league-details.html?id=${leagueDocRef.id}`; 
+                        }, 1500);
+
+                    } catch (error) {
+                        console.error("Error creating league: ", error);
+                        showAlert('alertContainer', `Error: ${error.message}`, 'error');
+                        submitButton.disabled = false;
+                        submitButton.textContent = 'Create League';
+                    }
+                });
             }
         });
     </script>
