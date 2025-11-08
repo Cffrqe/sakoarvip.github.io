@@ -2,183 +2,215 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Sakoar Interactive - Gaming & Esports Platform</title>
-    <link rel="stylesheet" href="styles.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sakoar Interactive - Upgrading</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Animated background particles */
+        .particle {
+            position: absolute;
+            background: rgba(139, 92, 246, 0.3);
+            border-radius: 50%;
+            animation: floatAround 25s infinite ease-in-out;
+            backdrop-filter: blur(2px);
+            box-shadow: 0 0 20px rgba(139, 92, 246, 0.4);
+        }
+
+        @keyframes floatAround {
+            0% {
+                transform: translate(0, 0) scale(1);
+                opacity: 0.3;
+            }
+            25% {
+                transform: translate(100px, -100px) scale(1.2);
+                opacity: 0.5;
+            }
+            50% {
+                transform: translate(-50px, -200px) scale(0.8);
+                opacity: 0.4;
+            }
+            75% {
+                transform: translate(-150px, -100px) scale(1.1);
+                opacity: 0.6;
+            }
+            100% {
+                transform: translate(0, 0) scale(1);
+                opacity: 0.3;
+            }
+        }
+
+        .container {
+            text-align: center;
+            z-index: 10;
+            padding: 40px;
+            max-width: 800px;
+        }
+
+        .logo {
+            font-size: 4em;
+            font-weight: 800;
+            background: linear-gradient(45deg, #8b5cf6, #a78bfa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 20px;
+            animation: glow 2s ease-in-out infinite;
+        }
+
+        @keyframes glow {
+            0%, 100% {
+                filter: drop-shadow(0 0 20px rgba(139, 92, 246, 0.6));
+            }
+            50% {
+                filter: drop-shadow(0 0 40px rgba(139, 92, 246, 0.9));
+            }
+        }
+
+        .main-heading {
+            font-size: 2.5em;
+            color: white;
+            margin-bottom: 20px;
+            animation: slideDown 1s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .subtitle {
+            font-size: 1.3em;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 40px;
+            animation: slideUp 1s ease-out 0.3s both;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .discord-section {
+            margin-top: 60px;
+            animation: slideUp 1s ease-out 0.7s both;
+        }
+
+        .discord-text {
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 25px;
+            font-size: 1.2em;
+        }
+
+        .discord-btn {
+            padding: 18px 45px;
+            border: none;
+            border-radius: 50px;
+            background: #5865F2;
+            color: white;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .discord-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 15px 40px rgba(88, 101, 242, 0.5);
+        }
+
+        .discord-icon {
+            width: 24px;
+            height: 24px;
+        }
+
+        @media (max-width: 768px) {
+            .logo {
+                font-size: 2.5em;
+            }
+            .main-heading {
+                font-size: 1.8em;
+            }
+            .subtitle {
+                font-size: 1em;
+            }
+            .discord-btn {
+                padding: 15px 35px;
+                font-size: 1em;
+            }
+        }
+    </style>
 </head>
 <body>
-    <nav class="navbar">
-        <div class="nav-container">
-            <div class="nav-logo" onclick="window.location.href='index.html'">Sakoar</div>
-            <div class="nav-links">
-                <a href="browse-leagues.html" class="nav-link">Browse Leagues</a>
-                <a href="dashboard.html" class="nav-link user-dependent" style="display: none;">Dashboard</a>
-                <div class="guest-dependent" style="display: flex; gap: 15px;">
-                    <button class="btn btn-secondary" id="loginBtn">Login</button>
-                    <button class="btn btn-primary" id="signupBtn">Sign Up</button>
-                </div>
-                <div class="user-menu user-dependent" style="display: none;">
-                    <img src="default-avatar.png" class="user-avatar" alt="User Avatar">
-                    <div class="dropdown">
-                        <a href="dashboard.html" class="dropdown-item">Dashboard</a>
-                        <a href="edit-profile.html" class="dropdown-item">Edit Profile</a>
-                        <a href="leagues.html" class="dropdown-item">My Leagues</a>
-                        <a href="rosters.html" class="dropdown-item">My Rosters</a>
-                        <a href="#" class="dropdown-item logoutBtn">Logout</a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </nav>
+    <!-- Animated background particles -->
+    <script>
+        for (let i = 0; i < 15; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            const size = Math.random() * 150 + 50;
+            particle.style.width = size + 'px';
+            particle.style.height = size + 'px';
+            particle.style.left = Math.random() * 100 + '%';
+            particle.style.top = Math.random() * 100 + '%';
+            particle.style.animationDelay = Math.random() * 10 + 's';
+            particle.style.animationDuration = (Math.random() * 15 + 20) + 's';
+            document.body.appendChild(particle);
+        }
+    </script>
 
-    <div class="hero" id="home">
-        <div class="hero-content">
-            <h1 class="logo">Sakoar Interactive</h1>
-            <p class="tagline">Create, Compete, Inspire.</p>
-            <div class="cta-buttons">
-                <button class="btn btn-primary" id="getStartedBtn" style="padding: 18px 50px; font-size: 1.2em;">Get Started</button>
-                <a href="browse-leagues.html" class="btn btn-secondary" style="padding: 18px 50px; font-size: 1.2em;">Explore Leagues</a>
-            </div>
+    <div class="container">
+        <div class="logo">Sakoar</div>
+        <h1 class="main-heading">We're Making Things Better</h1>
+        <p class="subtitle">Our platform is getting a major upgrade to enhance your gaming experience</p>
+
+        <div class="discord-section">
+            <p class="discord-text">Stay updated on our progress</p>
+            <button class="discord-btn" onclick="window.open('https://discord.gg/yourinvite', '_blank')">
+                <svg class="discord-icon" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515a.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0a12.64 12.64 0 0 0-.617-1.25a.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057a19.9 19.9 0 0 0 5.993 3.03a.078.078 0 0 0 .084-.028a14.09 14.09 0 0 0 1.226-1.994a.076.076 0 0 0-.041-.106a13.107 13.107 0 0 1-1.872-.892a.077.077 0 0 1-.008-.128a10.2 10.2 0 0 0 .372-.292a.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127a12.299 12.299 0 0 1-1.873.892a.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028a19.839 19.839 0 0 0 6.002-3.03a.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419c0-1.333.956-2.419 2.157-2.419c1.21 0 2.176 1.096 2.157 2.42c0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419c0-1.333.955-2.419 2.157-2.419c1.21 0 2.176 1.096 2.157 2.42c0 1.333-.946 2.418-2.157 2.418z"/>
+                </svg>
+                Join Discord for Updates
+            </button>
         </div>
     </div>
-    
-    <div class="modal" id="loginModal">
-        <div class="modal-content card">
-            <span class="modal-close" id="closeLogin">&times;</span>
-            <h2 class="page-title" style="text-align: center; margin-bottom: 30px;">Welcome Back</h2>
-            <div id="loginAlert"></div>
-            <form id="loginForm">
-                <div class="form-group"><label class="form-label">Email</label><input type="email" class="form-input" id="loginEmail" required></div>
-                <div class="form-group"><label class="form-label">Password</label><input type="password" class="form-input" id="loginPassword" required></div>
-                <button type="submit" class="btn btn-primary" style="width: 100%;">Login</button>
-            </form>
-            <div class="form-toggle" style="text-align: center; margin-top: 20px;">Don't have an account? <a href="#" id="switchToSignup" style="color: #8b5cf6; font-weight: 600;">Sign up</a></div>
-        </div>
-    </div>
-
-    <div class="modal" id="signupModal">
-        <div class="modal-content card">
-            <span class="modal-close" id="closeSignup">&times;</span>
-            <h2 class="page-title" style="text-align: center; margin-bottom: 30px;">Join Sakoar</h2>
-            <div id="signupAlert"></div>
-            <form id="signupForm">
-                <div class="form-group"><label class="form-label">Username</label><input type="text" class="form-input" id="signupUsername" required></div>
-                <div class="form-group"><label class="form-label">Email</label><input type="email" class="form-input" id="signupEmail" required></div>
-                <div class="form-group"><label class="form-label">Password</label><input type="password" class="form-input" id="signupPassword" required minlength="6"></div>
-                <button type="submit" class="btn btn-primary" style="width: 100%;">Sign Up</button>
-            </form>
-            <div class="form-toggle" style="text-align: center; margin-top: 20px;">Already have an account? <a href="#" id="switchToLogin" style="color: #8b5cf6; font-weight: 600;">Login</a></div>
-        </div>
-    </div>
-
-    <!-- Firebase SDKs -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
-    
-    <!-- Local Scripts -->
-    <script src="firebase-config.js"></script>
-    <script src="auth.js"></script>
 
     <script>
-        // --- Modal Control Logic ---
-        const loginModal = document.getElementById('loginModal');
-        const signupModal = document.getElementById('signupModal');
-        const loginBtn = document.getElementById('loginBtn');
-        const signupBtn = document.getElementById('signupBtn');
-        const closeLoginBtn = document.getElementById('closeLogin');
-        const closeSignupBtn = document.getElementById('closeSignup');
-        const switchToSignupLink = document.getElementById('switchToSignup');
-        const switchToLoginLink = document.getElementById('switchToLogin');
-        const getStartedBtn = document.getElementById('getStartedBtn');
-
-        const openModal = (modal) => modal.style.display = 'flex';
-        const closeModal = (modal) => modal.style.display = 'none';
-
-        if (loginBtn) loginBtn.addEventListener('click', () => openModal(loginModal));
-        if (signupBtn) signupBtn.addEventListener('click', () => openModal(signupModal));
-        if (closeLoginBtn) closeLoginBtn.addEventListener('click', () => closeModal(loginModal));
-        if (closeSignupBtn) closeSignupBtn.addEventListener('click', () => closeModal(signupModal));
-        if (getStartedBtn) {
-            getStartedBtn.addEventListener('click', () => {
-                auth.currentUser ? window.location.href = 'dashboard.html' : openModal(signupModal);
-            });
+        function handleNotify(event) {
+            event.preventDefault();
+            const email = event.target.querySelector('.email-input').value;
+            alert('Thanks! We\'ll notify you at ' + email + ' when we launch!');
+            event.target.reset();
         }
-        
-        // Switch between login and signup modals
-        switchToSignupLink.addEventListener('click', (e) => { 
-            e.preventDefault(); 
-            closeModal(loginModal); 
-            openModal(signupModal); 
-        });
-        switchToLoginLink.addEventListener('click', (e) => { 
-            e.preventDefault(); 
-            closeModal(signupModal); 
-            openModal(loginModal); 
-        });
-
-        // Close modal if clicking on the background
-        window.addEventListener('click', (e) => {
-            if (e.target === loginModal) closeModal(loginModal);
-            if (e.target === signupModal) closeModal(signupModal);
-        });
-
-
-        // --- Firebase Authentication Logic ---
-        const signupForm = document.getElementById('signupForm');
-        signupForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const username = document.getElementById('signupUsername').value.trim();
-            const email = document.getElementById('signupEmail').value.trim();
-            const password = document.getElementById('signupPassword').value;
-
-            // Basic validation
-            if (!username || !email || !password) {
-                 showAlert('signupAlert', 'All fields are required.', 'error');
-                 return;
-            }
-
-            auth.createUserWithEmailAndPassword(email, password)
-                .then(userCredential => {
-                    const user = userCredential.user;
-                    // Set a default profile picture URL or leave it null
-                    const defaultAvatar = 'default-avatar.png';
-                    // Update Firebase Auth profile
-                    return user.updateProfile({
-                        displayName: username,
-                        photoURL: defaultAvatar
-                    }).then(() => {
-                        // Create a user document in Firestore
-                        return db.collection('users').doc(user.uid).set({
-                            username: username,
-                            email: email,
-                            uid: user.uid,
-                            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                            photoURL: defaultAvatar
-                        });
-                    });
-                })
-                .then(() => {
-                    showAlert('signupAlert', 'Account created! Redirecting...', 'success');
-                    setTimeout(() => window.location.href = 'dashboard.html', 1500);
-                })
-                .catch(error => showAlert('signupAlert', error.message, 'error'));
-        });
-
-        const loginForm = document.getElementById('loginForm');
-        loginForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const email = document.getElementById('loginEmail').value.trim();
-            const password = document.getElementById('loginPassword').value;
-
-            auth.signInWithEmailAndPassword(email, password)
-                .then(() => {
-                    showAlert('loginAlert', 'Login successful! Redirecting...', 'success');
-                    setTimeout(() => window.location.href = 'dashboard.html', 1500);
-                })
-                .catch(error => showAlert('loginAlert', error.message, 'error'));
-        });
     </script>
 </body>
 </html>
