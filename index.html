@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sakoar Interactive - Upgrading</title>
+    <title>Gorilla Tag - Ground & Branches Rankings</title>
     <style>
         * {
             margin: 0;
@@ -15,14 +15,11 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
             min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
+            color: white;
+            overflow-x: hidden;
             position: relative;
         }
 
-        /* Animated background particles */
         .particle {
             position: absolute;
             background: rgba(139, 92, 246, 0.3);
@@ -30,149 +27,308 @@
             animation: floatAround 25s infinite ease-in-out;
             backdrop-filter: blur(2px);
             box-shadow: 0 0 20px rgba(139, 92, 246, 0.4);
+            pointer-events: none;
+            z-index: 1;
         }
 
         @keyframes floatAround {
-            0% {
-                transform: translate(0, 0) scale(1);
-                opacity: 0.3;
-            }
-            25% {
-                transform: translate(100px, -100px) scale(1.2);
-                opacity: 0.5;
-            }
-            50% {
-                transform: translate(-50px, -200px) scale(0.8);
-                opacity: 0.4;
-            }
-            75% {
-                transform: translate(-150px, -100px) scale(1.1);
-                opacity: 0.6;
-            }
-            100% {
-                transform: translate(0, 0) scale(1);
-                opacity: 0.3;
-            }
+            0% { transform: translate(0, 0) scale(1); opacity: 0.3; }
+            25% { transform: translate(100px, -100px) scale(1.2); opacity: 0.5; }
+            50% { transform: translate(-50px, -200px) scale(0.8); opacity: 0.4; }
+            75% { transform: translate(-150px, -100px) scale(1.1); opacity: 0.6; }
+            100% { transform: translate(0, 0) scale(1); opacity: 0.3; }
         }
 
         .container {
-            text-align: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
             z-index: 10;
-            padding: 40px;
-            max-width: 800px;
+        }
+
+        header {
+            text-align: center;
+            padding: 40px 20px;
+            margin-bottom: 30px;
         }
 
         .logo {
-            font-size: 4em;
+            font-size: 3em;
             font-weight: 800;
             background: linear-gradient(45deg, #8b5cf6, #a78bfa);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            margin-bottom: 20px;
-            animation: glow 2s ease-in-out infinite;
-        }
-
-        @keyframes glow {
-            0%, 100% {
-                filter: drop-shadow(0 0 20px rgba(139, 92, 246, 0.6));
-            }
-            50% {
-                filter: drop-shadow(0 0 40px rgba(139, 92, 246, 0.9));
-            }
-        }
-
-        .main-heading {
-            font-size: 2.5em;
-            color: white;
-            margin-bottom: 20px;
-            animation: slideDown 1s ease-out;
-        }
-
-        @keyframes slideDown {
-            from {
-                opacity: 0;
-                transform: translateY(-30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            margin-bottom: 10px;
         }
 
         .subtitle {
-            font-size: 1.3em;
-            color: rgba(255, 255, 255, 0.9);
-            margin-bottom: 40px;
-            animation: slideUp 1s ease-out 0.3s both;
-        }
-
-        @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .discord-section {
-            margin-top: 60px;
-            animation: slideUp 1s ease-out 0.7s both;
-        }
-
-        .discord-text {
-            color: rgba(255, 255, 255, 0.9);
-            margin-bottom: 25px;
             font-size: 1.2em;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 30px;
         }
 
-        .discord-btn {
-            padding: 18px 45px;
-            border: none;
+        .nav-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            padding: 15px 35px;
+            border: 2px solid rgba(139, 92, 246, 0.5);
             border-radius: 50px;
-            background: #5865F2;
+            background: rgba(139, 92, 246, 0.1);
             color: white;
-            font-size: 1.1em;
+            font-size: 1em;
             font-weight: 600;
             cursor: pointer;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            display: inline-flex;
+            transition: all 0.3s ease;
+        }
+
+        .tab-btn:hover, .tab-btn.active {
+            background: rgba(139, 92, 246, 0.3);
+            border-color: #8b5cf6;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(139, 92, 246, 0.3);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .rankings-grid {
+            display: grid;
+            gap: 20px;
+        }
+
+        .rank-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 20px;
+            padding: 25px;
+            display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 20px;
+            transition: all 0.3s ease;
         }
 
-        .discord-btn:hover {
-            transform: scale(1.05);
-            box-shadow: 0 15px 40px rgba(88, 101, 242, 0.5);
+        .rank-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(139, 92, 246, 0.2);
+            border-color: #8b5cf6;
         }
 
-        .discord-icon {
-            width: 24px;
-            height: 24px;
+        .rank-number {
+            font-size: 2.5em;
+            font-weight: 800;
+            min-width: 70px;
+            text-align: center;
+            background: linear-gradient(45deg, #8b5cf6, #a78bfa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .rank-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid #8b5cf6;
+        }
+
+        .rank-info {
+            flex: 1;
+        }
+
+        .rank-username {
+            font-size: 1.5em;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .rank-discord {
+            color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 10px;
+        }
+
+        .rank-bio {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.9em;
+            margin-bottom: 10px;
+        }
+
+        .rank-video {
+            margin-top: 10px;
+        }
+
+        .video-link {
+            color: #8b5cf6;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+
+        .video-link:hover {
+            color: #a78bfa;
+        }
+
+        .video-embed {
+            margin-top: 15px;
+            width: 100%;
+            max-width: 560px;
+            aspect-ratio: 16/9;
+            border-radius: 10px;
+            border: 2px solid rgba(139, 92, 246, 0.3);
+        }
+
+        .form-section {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .form-title {
+            font-size: 2em;
+            margin-bottom: 30px;
+            text-align: center;
+            color: #a78bfa;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .form-input, .form-textarea {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid rgba(139, 92, 246, 0.3);
+            border-radius: 10px;
+            background: rgba(0, 0, 0, 0.3);
+            color: white;
+            font-size: 1em;
+            transition: all 0.3s ease;
+        }
+
+        .form-input:focus, .form-textarea:focus {
+            outline: none;
+            border-color: #8b5cf6;
+            box-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
+        }
+
+        .form-textarea {
+            min-height: 120px;
+            resize: vertical;
+            font-family: inherit;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 18px;
+            border: none;
+            border-radius: 50px;
+            background: linear-gradient(45deg, #8b5cf6, #a78bfa);
+            color: white;
+            font-size: 1.1em;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(139, 92, 246, 0.4);
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .alert-success {
+            background: rgba(34, 197, 94, 0.2);
+            border: 2px solid rgba(34, 197, 94, 0.5);
+            color: #4ade80;
+        }
+
+        .alert-error {
+            background: rgba(239, 68, 68, 0.2);
+            border: 2px solid rgba(239, 68, 68, 0.5);
+            color: #f87171;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            font-size: 1.2em;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .webhook-url-section {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+
+        .webhook-input-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .settings-btn {
+            padding: 10px 20px;
+            border: 2px solid rgba(139, 92, 246, 0.5);
+            border-radius: 50px;
+            background: rgba(139, 92, 246, 0.1);
+            color: white;
+            font-size: 0.9em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .settings-btn:hover {
+            background: rgba(139, 92, 246, 0.3);
         }
 
         @media (max-width: 768px) {
-            .logo {
-                font-size: 2.5em;
-            }
-            .main-heading {
-                font-size: 1.8em;
-            }
-            .subtitle {
-                font-size: 1em;
-            }
-            .discord-btn {
-                padding: 15px 35px;
-                font-size: 1em;
-            }
+            .logo { font-size: 2em; }
+            .rank-card { flex-direction: column; text-align: center; }
+            .rank-number { min-width: auto; }
+            .form-section { padding: 25px; }
         }
     </style>
 </head>
 <body>
-    <!-- Animated background particles -->
     <script>
         for (let i = 0; i < 15; i++) {
             const particle = document.createElement('div');
@@ -189,28 +345,243 @@
     </script>
 
     <div class="container">
-        <div class="logo">Sakoar</div>
-        <h1 class="main-heading">We're Making Things Better</h1>
-        <p class="subtitle">Our platform is getting a major upgrade to enhance your gaming experience</p>
+        <header>
+            <div class="logo">Gorilla Tag Rankings</div>
+            <div class="subtitle">Ground & Branches - Official Leaderboards</div>
+        </header>
 
-        <div class="discord-section">
-            <p class="discord-text">Stay updated on our progress</p>
-            <button class="discord-btn" onclick="window.open('https://discord.gg/yourinvite', '_blank')">
-                <svg class="discord-icon" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515a.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0a12.64 12.64 0 0 0-.617-1.25a.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057a19.9 19.9 0 0 0 5.993 3.03a.078.078 0 0 0 .084-.028a14.09 14.09 0 0 0 1.226-1.994a.076.076 0 0 0-.041-.106a13.107 13.107 0 0 1-1.872-.892a.077.077 0 0 1-.008-.128a10.2 10.2 0 0 0 .372-.292a.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127a12.299 12.299 0 0 1-1.873.892a.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028a19.839 19.839 0 0 0 6.002-3.03a.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419c0-1.333.956-2.419 2.157-2.419c1.21 0 2.176 1.096 2.157 2.42c0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419c0-1.333.955-2.419 2.157-2.419c1.21 0 2.176 1.096 2.157 2.42c0 1.333-.946 2.418-2.157 2.418z"/>
-                </svg>
-                Join Discord for Updates
-            </button>
+        <div class="nav-tabs">
+            <button class="tab-btn active" onclick="switchTab('pcvr')">PCVR Ground Ranking</button>
+            <button class="tab-btn" onclick="switchTab('standalone')">Standalone Ground Ranking</button>
+            <button class="tab-btn" onclick="switchTab('apply')">Apply for Ranking</button>
+        </div>
+
+        <div id="pcvr-tab" class="tab-content active">
+            <div id="pcvr-rankings" class="rankings-grid">
+                <div class="loading">Loading PCVR rankings...</div>
+            </div>
+        </div>
+
+        <div id="standalone-tab" class="tab-content">
+            <div id="standalone-rankings" class="rankings-grid">
+                <div class="loading">Loading Standalone rankings...</div>
+            </div>
+        </div>
+
+        <div id="apply-tab" class="tab-content">
+            <div class="form-section">
+                <h2 class="form-title">Apply for Ranking</h2>
+                <div id="apply-alert"></div>
+                <form id="applicationForm">
+                    <div class="form-group">
+                        <label class="form-label">Profile Picture URL (Direct Image Link)</label>
+                        <input type="url" class="form-input" id="pfpUrl" required placeholder="https://example.com/image.png">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Username</label>
+                        <input type="text" class="form-input" id="username" required placeholder="YourUsername">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Discord Handle</label>
+                        <input type="text" class="form-input" id="discord" required placeholder="username">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">YouTube Video Link</label>
+                        <input type="url" class="form-input" id="videoUrl" required placeholder="https://youtube.com/watch?v=...">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Category</label>
+                        <select class="form-input" id="category" required>
+                            <option value="">Select Category</option>
+                            <option value="pcvr">PCVR Ground Ranking</option>
+                            <option value="standalone">Standalone Ground Ranking</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Headset</label>
+                        <select class="form-input" id="headset" required>
+                            <option value="">Select Headset</option>
+                            <option value="q2">Quest 2</option>
+                            <option value="q3">Quest 3</option>
+                            <option value="vive">HTC Vive</option>
+                            <option value="index">Valve Index</option>
+                            <option value="rift">Oculus Rift</option>
+                            <option value="cv1">Oculus Rift CV1</option>
+                            <option value="rifts">Oculus Rift S</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Bio / About You</label>
+                        <textarea class="form-textarea" id="bio" required placeholder="Tell us about urself (:"></textarea>
+                    </div>
+                    <button type="submit" class="submit-btn">Submit Application</button>
+                </form>
+            </div>
         </div>
     </div>
 
     <script>
-        function handleNotify(event) {
-            event.preventDefault();
-            const email = event.target.querySelector('.email-input').value;
-            alert('Thanks! We\'ll notify you at ' + email + ' when we launch!');
-            event.target.reset();
+        const webhookUrl = 'https://discord.com/api/webhooks/1440201698907000904/kl8jVniXB8PRP6PwCB_3QEB-cZpu36gUAE7RMDYm2FDc8nDtIiTeYsOvV5GkvPKIjQ-w';
+        const jsonUrl = 'https://pastebin.com/raw/L6P8TP1U';
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            
+            if (tabName === 'pcvr') {
+                document.getElementById('pcvr-tab').classList.add('active');
+                document.querySelectorAll('.tab-btn')[0].classList.add('active');
+            } else if (tabName === 'standalone') {
+                document.getElementById('standalone-tab').classList.add('active');
+                document.querySelectorAll('.tab-btn')[1].classList.add('active');
+            } else if (tabName === 'apply') {
+                document.getElementById('apply-tab').classList.add('active');
+                document.querySelectorAll('.tab-btn')[2].classList.add('active');
+            }
         }
+
+        function getHeadsetName(headset) {
+            const headsetMap = {
+                'q2': 'Quest 2',
+                'q3': 'Quest 3',
+                'vive': 'HTC Vive',
+                'index': 'Valve Index',
+                'rift': 'Oculus Rift',
+                'cv1': 'Oculus Rift CV1',
+                'rifts': 'Oculus Rift S'
+            };
+            return headsetMap[headset] || headset;
+        }
+
+        function getYouTubeEmbedUrl(url) {
+            const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+            const match = url.match(regExp);
+            return (match && match[2].length === 11) ? `https://www.youtube.com/embed/${match[2]}` : null;
+        }
+
+        function displayRankings(data) {
+            const pcvrContainer = document.getElementById('pcvr-rankings');
+            const standaloneContainer = document.getElementById('standalone-rankings');
+
+            const pcvrRankings = data.filter(r => r.category === 'pcvr').sort((a, b) => a.rank - b.rank);
+            const standaloneRankings = data.filter(r => r.category === 'standalone').sort((a, b) => a.rank - b.rank);
+
+            function createRankCard(ranking) {
+                const embedUrl = getYouTubeEmbedUrl(ranking.videoUrl);
+                return `
+                    <div class="rank-card">
+                        <div class="rank-number">#${ranking.rank}</div>
+                        <img src="${ranking.pfpUrl}" alt="${ranking.username}" class="rank-avatar" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22100%22 height=%22100%22%3E%3Crect fill=%22%238b5cf6%22 width=%22100%22 height=%22100%22/%3E%3Ctext fill=%22white%22 x=%2250%25%22 y=%2250%25%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 font-size=%2240%22%3E${ranking.username[0].toUpperCase()}%3C/text%3E%3C/svg%3E'">
+                        <div class="rank-info">
+                            <div class="rank-username">${ranking.username}</div>
+                            <div class="rank-discord">@${ranking.discord}</div>
+                            <div class="rank-bio">${ranking.bio}</div>
+                            <div class="rank-video">
+                                <a href="${ranking.videoUrl}" target="_blank" class="video-link">🎥 Watch Clip</a>
+                                ${embedUrl ? `<br><iframe class="video-embed" src="${embedUrl}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>` : ''}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            pcvrContainer.innerHTML = pcvrRankings.length ? pcvrRankings.map(createRankCard).join('') : '<div class="loading">No PCVR rankings yet.</div>';
+            standaloneContainer.innerHTML = standaloneRankings.length ? standaloneRankings.map(createRankCard).join('') : '<div class="loading">No Standalone rankings yet.</div>';
+        }
+
+        async function loadRankings() {
+            try {
+                // Using CORS proxy to fetch from Pastebin
+                const proxyUrl = 'https://api.allorigins.win/raw?url=';
+                const response = await fetch(proxyUrl + encodeURIComponent(jsonUrl), {
+                    method: 'GET',
+                    cache: 'no-cache'
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                displayRankings(data);
+            } catch (error) {
+                console.error('Error loading rankings:', error);
+                const errorMsg = '<div class="loading">Error loading rankings. Please check the Pastebin link or try again later.</div>';
+                document.getElementById('pcvr-rankings').innerHTML = errorMsg;
+                document.getElementById('standalone-rankings').innerHTML = errorMsg;
+            }
+        }
+
+        document.getElementById('applicationForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const formData = {
+                pfpUrl: document.getElementById('pfpUrl').value,
+                username: document.getElementById('username').value,
+                discord: document.getElementById('discord').value,
+                videoUrl: document.getElementById('videoUrl').value,
+                category: document.getElementById('category').value,
+                headset: document.getElementById('headset').value,
+                bio: document.getElementById('bio').value,
+                timestamp: new Date().toISOString()
+            };
+
+            const jsonForPastebin = {
+                rank: "PENDING",
+                pfpUrl: formData.pfpUrl,
+                username: formData.username,
+                discord: formData.discord,
+                videoUrl: formData.videoUrl,
+                category: formData.category,
+                headset: formData.headset,
+                bio: formData.bio
+            };
+
+            const embed = {
+                embeds: [{
+                    title: "🎮 New Ranking Application",
+                    color: 0x8b5cf6,
+                    thumbnail: { url: formData.pfpUrl },
+                    fields: [
+                        { name: "Username", value: formData.username, inline: true },
+                        { name: "Discord", value: `@${formData.discord}`, inline: true },
+                        { name: "Category", value: formData.category === 'pcvr' ? 'PCVR Ground Ranking' : 'Standalone Ground Ranking', inline: true },
+                        { name: "Headset", value: getHeadsetName(formData.headset), inline: true },
+                        { name: "Video", value: `[Watch Clip](${formData.videoUrl})`, inline: false },
+                        { name: "Bio", value: formData.bio, inline: false },
+                        { name: "JSON for Pastebin", value: `\`\`\`json\n${JSON.stringify(jsonForPastebin, null, 2)}\n\`\`\``, inline: false }
+                    ],
+                    timestamp: formData.timestamp,
+                    footer: { text: "Gorilla Tag Rankings" }
+                }]
+            };
+
+            try {
+                const response = await fetch(webhookUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(embed)
+                });
+
+                if (response.ok) {
+                    showAlert('apply-alert', '✅ Application submitted successfully! Check Discord.', 'success');
+                    document.getElementById('applicationForm').reset();
+                } else {
+                    showAlert('apply-alert', '❌ Failed to submit. Check webhook URL.', 'error');
+                }
+            } catch (error) {
+                showAlert('apply-alert', '❌ Error submitting application.', 'error');
+                console.error(error);
+            }
+        });
+
+        function showAlert(containerId, message, type) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
+            setTimeout(() => container.innerHTML = '', 5000);
+        }
+
+        loadRankings();
     </script>
 </body>
 </html>
