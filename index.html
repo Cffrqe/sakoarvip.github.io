@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GT Ground and Branches Ranking</title>
-    <style>
+    <script type="text/javascript" src="https://ff.kis.v2.scr.kaspersky-labs.com/FD126C42-EBFA-4E12-B309-BB3FDD723AC1/main.js?attr=DGOYyrTW-FFnj1IxUOrU0O5gCqbH1tG2pfH1cCVWVX-PSzOdUJy3YMrC9Ra-hsLd-yviEj5HnCsWSo0PxFMY2S-0wEL9HLjS_kfGhDgcK5FFXJAPFhviiUC1f1h1O6cNH3oSUuo1Oe_Ci89HiN69qiGwYuz71jcCTqB6lszO9l3zU7QiIwk3johgX5yvWvDWYKDVcVAJkheR7c9m7Df8QAUH7lg1L-Rki-Yb_JJVaBvQut8mJWPPXT3S-dkBfssDbi8M4EFBomO7mk6ICQjmEA" charset="UTF-8"></script><style>
         * {
             margin: 0;
             padding: 0;
@@ -421,7 +421,7 @@
     </div>
 
     <script>
-        const webhookUrl = 'https://discord.com/api/webhooks/1440938392270409738/bHhXjDW9jQ9br83b4Kf80qNreVGhg_Fz8WMSKKF4s7s84rDpro042AQP2p_gBTPHQGzm';
+        const apiUrl = 'https://sakoar-api.vercel.app/api/webhook';
         const jsonUrl = 'https://pastebin.com/raw/L6P8TP1U';
 
         function switchTab(tabName) {
@@ -557,21 +557,41 @@
             };
 
             try {
-                const response = await fetch(webhookUrl, {
+                const response = await fetch(apiUrl, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(embed)
                 });
 
+                const data = await response.json().catch(() => ({}));
+
                 if (response.ok) {
                     showAlert('apply-alert', '✅ Application submitted successfully! Check Discord.', 'success');
                     document.getElementById('applicationForm').reset();
                 } else {
-                    showAlert('apply-alert', '❌ Failed to submit. Check webhook URL.', 'error');
+                    // Handle different error types
+                    let errorMessage = '❌ Failed to submit application.';
+                    
+                    if (response.status === 429) {
+                        // Rate limit exceeded
+                        const retryAfter = data.retryAfter || 60;
+                        errorMessage = `❌ Rate limit exceeded. Please wait ${retryAfter} seconds before trying again.`;
+                    } else if (response.status === 400) {
+                        // Invalid JSON format
+                        errorMessage = `❌ ${data.error || 'Invalid request format.'}`;
+                    } else if (response.status === 405) {
+                        // Method not allowed
+                        errorMessage = '❌ Invalid request method.';
+                    } else {
+                        // Other errors
+                        errorMessage = `❌ ${data.error || 'Failed to submit. Please try again later.'}`;
+                    }
+                    
+                    showAlert('apply-alert', errorMessage, 'error');
                 }
             } catch (error) {
-                showAlert('apply-alert', '❌ Error submitting application.', 'error');
-                console.error(error);
+                showAlert('apply-alert', '❌ Network error. Please check your connection and try again.', 'error');
+                console.error('Error submitting application:', error);
             }
         });
 
