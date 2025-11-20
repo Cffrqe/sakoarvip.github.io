@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GT Ground and Branches Ranking</title>
-    <script type="text/javascript" src="https://ff.kis.v2.scr.kaspersky-labs.com/FD126C42-EBFA-4E12-B309-BB3FDD723AC1/main.js?attr=DGOYyrTW-FFnj1IxUOrU0O5gCqbH1tG2pfH1cCVWVX-PSzOdUJy3YMrC9Ra-hsLd-yviEj5HnCsWSo0PxFMY2S-0wEL9HLjS_kfGhDgcK5FFXJAPFhviiUC1f1h1O6cNH3oSUuo1Oe_Ci89HiN69qiGwYuz71jcCTqB6lszO9l3zU7QiIwk3johgX5yvWvDWYKDVcVAJkheR7c9m7Df8QAUH7lg1L-Rki-Yb_JJVaBvQut8mJWPPXT3S-dkBfssDbi8M4EFBomO7mk6ICQjmEA" charset="UTF-8"></script><style>
+    <script type="text/javascript" src="https://ff.kis.v2.scr.kaspersky-labs.com/FD126C42-EBFA-4E12-B309-BB3FDD723AC1/main.js?attr=gJQua6gmQu6Z1VStd6c9WlK3Nk_24uVvS9HokD9MSO-Nm8nE2WYUVpIR09A5oK6YYJawbF7_B5VS92f4-TF3SqTmRzHkEIBCFdZy6AzYMkACrCbHfjVpkucpvvToEXggePqOODyxg0Y_MNdLKufYnLJoIsirO81SoasvClW2LoZWmIgOgwxc0bWEl87db6zcMB0gxDu980goHmuhD_uW15qRhBerjADj80PMqX4uuTVoW7KRWv7Sldxh6pdLktAX6k4PAzgjS6LeDqng0pfE6w" charset="UTF-8"></script><style>
         * {
             margin: 0;
             padding: 0;
@@ -557,33 +557,52 @@
             };
 
             try {
-                const response = await fetch(apiUrl, {
+                // Using CORS proxy to bypass CORS restrictions
+                const proxyUrl = 'https://api.allorigins.win/post';
+                const response = await fetch(proxyUrl, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(embed)
+                    body: JSON.stringify({
+                        url: apiUrl,
+                        method: 'POST',
+                        body: JSON.stringify(embed),
+                        headers: { 'Content-Type': 'application/json' }
+                    })
                 });
 
-                const data = await response.json().catch(() => ({}));
+                const proxyData = await response.json().catch(() => ({}));
+                
+                let data = {};
+                if (proxyData.contents) {
+                    try {
+                        data = JSON.parse(proxyData.contents);
+                    } catch (e) {
+                        data = { error: 'Failed to parse response' };
+                    }
+                } else {
+                    data = proxyData;
+                }
+                
+                const isSuccess = response.ok && (data.success || proxyData.status?.http_code === 200);
 
-                if (response.ok) {
+                if (isSuccess) {
                     showAlert('apply-alert', '✅ Application submitted successfully! Check Discord.', 'success');
                     document.getElementById('applicationForm').reset();
                 } else {
-                    // Handle different error types
                     let errorMessage = '❌ Failed to submit application.';
                     
-                    if (response.status === 429) {
-                        // Rate limit exceeded
+                    const statusCode = proxyData.status?.http_code || data.error?.includes('429') ? 429 : 
+                                     data.error?.includes('400') ? 400 : 
+                                     data.error?.includes('405') ? 405 : 500;
+                    
+                    if (statusCode === 429 || data.error?.includes('Rate limit')) {
                         const retryAfter = data.retryAfter || 60;
                         errorMessage = `❌ Rate limit exceeded. Please wait ${retryAfter} seconds before trying again.`;
-                    } else if (response.status === 400) {
-                        // Invalid JSON format
+                    } else if (statusCode === 400 || data.error?.includes('Invalid JSON')) {
                         errorMessage = `❌ ${data.error || 'Invalid request format.'}`;
-                    } else if (response.status === 405) {
-                        // Method not allowed
+                    } else if (statusCode === 405) {
                         errorMessage = '❌ Invalid request method.';
                     } else {
-                        // Other errors
                         errorMessage = `❌ ${data.error || 'Failed to submit. Please try again later.'}`;
                     }
                     
