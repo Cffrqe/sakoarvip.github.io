@@ -2,646 +2,577 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Sakoar Studio</title>
+    <title>Sakoar Sandbox</title>
     <style>
         :root {
-            --bg-dark: #1e1e1e;
-            --bg-panel: #252526;
-            --bg-header: #333333;
-            --accent: #d35400; /* Sakoar Orange */
-            --accent-hover: #e67e22;
-            --text-main: #f0f0f0;
-            --border: #3e3e42;
-            --input-bg: #3c3c3c;
+            --bg: #1a1a1a;
+            --panel: #2d2d2d;
+            --accent: #e67e22; /* Sakoar Orange */
+            --text: #ffffff;
+            --btn: #3d3d3d;
         }
-        body { margin: 0; overflow: hidden; background: var(--bg-dark); color: var(--text-main); font-family: 'Segoe UI', sans-serif; font-size: 12px; display: flex; flex-direction: column; height: 100vh; }
-        
-        /* HEADER */
-        #toolbar { height: 40px; background: var(--bg-header); display: flex; align-items: center; padding: 0 10px; border-bottom: 1px solid var(--border); gap: 10px; }
-        .brand { font-weight: 800; font-size: 14px; color: var(--accent); letter-spacing: 1px; margin-right: 15px; }
-        
-        /* LAYOUT */
-        #workspace { display: flex; flex: 1; height: calc(100vh - 240px); } /* Space for bottom panel */
-        .panel { background: var(--bg-panel); display: flex; flex-direction: column; border-right: 1px solid var(--border); }
-        #hierarchy { width: 220px; }
-        #scene { flex: 1; position: relative; background: #111; overflow: hidden; }
-        #inspector { width: 280px; border-left: 1px solid var(--border); border-right: none; overflow-y: auto; }
-        
-        /* BOTTOM PANEL (ASSETS) */
-        #assets-panel { height: 200px; background: #1e1e1e; border-top: 1px solid var(--border); display: flex; }
-        #script-list { width: 200px; border-right: 1px solid var(--border); overflow-y: auto; background: var(--bg-panel); }
-        #script-editor-container { flex: 1; display: flex; flex-direction: column; }
-        textarea.code-editor { flex: 1; background: #141414; color: #dcdcdc; border: none; padding: 10px; font-family: 'Consolas', monospace; resize: none; outline: none; }
 
-        /* UI COMPONENTS */
-        .panel-header { padding: 8px; background: #303031; font-weight: bold; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
-        .btn { background: #444; border: 1px solid #555; color: white; padding: 4px 10px; cursor: pointer; border-radius: 3px; }
-        .btn:hover { background: #555; }
-        .btn.primary { background: var(--accent); border-color: var(--accent); }
-        .btn.active { background: #fff; color: #000; }
-        
-        input, select { background: var(--input-bg); border: 1px solid #555; color: white; padding: 4px; width: 100%; box-sizing: border-box; margin-bottom: 5px; }
-        
-        .tree-item { padding: 4px 8px; cursor: pointer; display: flex; align-items: center; }
-        .tree-item:hover { background: #333; }
-        .tree-item.selected { background: #444; border-left: 3px solid var(--accent); }
-        .tree-item.group { color: #aaa; font-style: italic; }
+        body {
+            margin: 0;
+            overflow: hidden;
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            user-select: none;
+        }
 
-        .prop-row { display: flex; align-items: center; margin-bottom: 6px; }
-        .prop-row label { width: 80px; color: #aaa; }
+        /* UI LAYOUT */
+        #ui-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
 
-        /* GIZMO OVERLAY */
-        #gizmo-layer { position: absolute; top:0; left:0; width:100%; height:100%; pointer-events: none; }
+        .hud-panel {
+            pointer-events: auto;
+            background: rgba(45, 45, 45, 0.9);
+            backdrop-filter: blur(5px);
+            padding: 10px;
+            border: 1px solid #444;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        /* TOP BAR: TOOLS & SETTINGS */
+        #top-bar {
+            margin: 10px;
+            border-radius: 8px;
+            justify-content: space-between;
+        }
+
+        /* LEFT BAR: SPAWN MENU */
+        #left-bar {
+            position: absolute;
+            left: 10px;
+            top: 70px;
+            bottom: 10px;
+            width: 140px;
+            flex-direction: column;
+            border-radius: 8px;
+            overflow-y: auto;
+            align-items: stretch;
+        }
+
+        /* CONTROLS */
+        button {
+            background: var(--btn);
+            border: 1px solid #555;
+            color: white;
+            padding: 8px 12px;
+            cursor: pointer;
+            border-radius: 4px;
+            font-weight: bold;
+            transition: all 0.1s;
+            text-align: left;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        button:hover { background: #555; transform: translateX(2px); }
+        button:active { transform: scale(0.98); }
         
-        /* MODAL */
-        .hidden { display: none !important; }
+        button.active-tool {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: black;
+        }
+
+        .category-header {
+            font-size: 10px;
+            text-transform: uppercase;
+            color: #aaa;
+            margin-top: 10px;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        input[type=range] { width: 100px; }
+
+        /* SCENE */
+        #scene {
+            width: 100vw;
+            height: 100vh;
+            background: radial-gradient(circle at center, #222 0%, #111 100%);
+            cursor: crosshair;
+        }
+        
+        /* INSTRUCTIONS */
+        #controls-hint {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            color: rgba(255,255,255,0.3);
+            text-align: right;
+            font-size: 12px;
+        }
     </style>
 </head>
 <body>
 
-    <!-- TOOLBAR -->
-    <div id="toolbar">
-        <div class="brand">Sakoar Studio</div>
-        <button class="btn primary" onclick="Game.togglePlay()" id="btn-play">▶ Play</button>
-        <button class="btn" onclick="Game.stop()" id="btn-stop">■ Stop</button>
-        <div style="width:1px; height:20px; background:#555; margin:0 5px;"></div>
-        <button class="btn" onclick="Editor.saveProject()">💾 Save JSON</button>
-        <label class="btn" style="margin:0;">📂 Load JSON <input type="file" id="file-upload" style="display:none" onchange="Editor.loadProject(this)"></label>
-        <div style="flex:1"></div>
-        <select style="width:100px" id="create-menu" onchange="Editor.spawn(this.value); this.value='';">
-            <option value="">+ Create Object...</option>
-            <option value="group">📁 Empty Group</option>
-            <option value="box">⬜ Box</option>
-            <option value="circle">⚪ Circle</option>
-            <option value="sprite">🖼️ Image/Sprite</option>
-            <option value="weapon">🔫 Weapon Template</option>
-        </select>
-    </div>
+    <!-- CANVAS -->
+    <div id="scene"></div>
 
-    <!-- MAIN WORKSPACE -->
-    <div id="workspace">
+    <!-- UI OVERLAY -->
+    <div id="ui-layer">
         
-        <!-- HIERARCHY -->
-        <div id="hierarchy" class="panel">
-            <div class="panel-header">
-                <span>Hierarchy</span>
-                <button class="btn" style="padding:0 5px;" onclick="Editor.refreshHierarchy()">↻</button>
+        <!-- TOP: TOOLS -->
+        <div id="top-bar" class="hud-panel">
+            <div style="display:flex; gap:5px; align-items:center;">
+                <span style="font-weight:800; color:var(--accent); margin-right:10px;">SAKOAR SANDBOX</span>
+                
+                <div style="width:1px; height:20px; background:#555;"></div>
+
+                <!-- Tools -->
+                <button class="active-tool" onclick="Tools.set('drag')" id="btn-drag">✋ Drag</button>
+                <button onclick="Tools.set('gun')" id="btn-gun">🔫 Gun</button>
+                <button onclick="Tools.set('delete')" id="btn-delete">❌ Delete</button>
+                <button onclick="Tools.set('explode')" id="btn-explode">💣 Boom</button>
             </div>
-            <div id="hierarchy-content" style="flex:1; overflow-y:auto;"></div>
-        </div>
 
-        <!-- SCENE -->
-        <div id="scene">
-            <canvas id="gizmo-layer"></canvas>
-        </div>
-
-        <!-- INSPECTOR -->
-        <div id="inspector" class="panel">
-            <div class="panel-header">Inspector</div>
-            <div id="insp-content" class="hidden" style="padding:10px;">
-                <div class="prop-row"><label>Name</label><input type="text" id="insp-name"></div>
-                <div class="prop-row"><label>Parent</label><select id="insp-parent"></select></div>
-                
-                <hr style="border:0; border-top:1px solid #444; margin:10px 0;">
-                
-                <div style="font-weight:bold; margin-bottom:5px;">Transform</div>
-                <div class="prop-row"><label>X</label><input type="number" id="insp-x"></div>
-                <div class="prop-row"><label>Y</label><input type="number" id="insp-y"></div>
-                <div class="prop-row"><label>Rotation</label><input type="number" step="0.1" id="insp-angle"></div>
-                <div class="prop-row"><label>Scale</label><input type="number" step="0.1" id="insp-scale" value="1"></div>
-
-                <hr style="border:0; border-top:1px solid #444; margin:10px 0;">
-                
-                <div style="font-weight:bold; margin-bottom:5px;">Visuals</div>
-                <div class="prop-row"><label>Color</label><input type="color" id="insp-color"></div>
-                <div class="prop-row"><label>Image URL</label><input type="text" id="insp-texture" placeholder="https://..."></div>
-
-                <hr style="border:0; border-top:1px solid #444; margin:10px 0;">
-                
-                <div style="font-weight:bold; margin-bottom:5px;">Logic</div>
-                <div class="prop-row"><label>Attached Script</label>
-                    <select id="insp-script-select">
-                        <option value="">(None)</option>
-                    </select>
+            <div style="display:flex; gap:15px; align-items:center;">
+                <div>
+                    <div style="font-size:10px; color:#aaa;">Time Scale</div>
+                    <input type="range" min="0.1" max="2" step="0.1" value="1" oninput="Sandbox.setTimeScale(this.value)">
                 </div>
-
-                <button class="btn" style="width:100%; background:#c0392b; margin-top:20px;" onclick="Editor.deleteSelected()">Delete Object</button>
+                <button onclick="Sandbox.clear()" style="background:#c0392b;">🗑 Clear All</button>
             </div>
-            <div id="insp-empty" style="padding:20px; text-align:center; color:#666;">Select an object</div>
         </div>
+
+        <!-- LEFT: SPAWN MENU -->
+        <div id="left-bar" class="hud-panel">
+            
+            <div class="category-header">Characters</div>
+            <button onclick="Spawner.ragdoll()">🏃 Ragdoll</button>
+            <button onclick="Spawner.boxMan()">🤖 Box Bot</button>
+
+            <div class="category-header">Vehicles</div>
+            <button onclick="Spawner.car()">🏎️ Sport Car</button>
+            <button onclick="Spawner.truck()">🚚 Truck</button>
+
+            <div class="category-header">Props</div>
+            <button onclick="Spawner.crate()">📦 Crate</button>
+            <button onclick="Spawner.plank()">📏 Plank</button>
+            <button onclick="Spawner.tnt()">🧨 TNT Block</button>
+            
+            <div class="category-header">Weapons</div>
+            <button onclick="Spawner.weapon('ak')">🔫 AK-47 Item</button>
+
+        </div>
+
+        <div id="controls-hint">
+            <b>Controls:</b><br>
+            Left Click: Use Tool<br>
+            Right Click: Drag Objects<br>
+            Arrow Keys: Drive Vehicle
+        </div>
+
     </div>
 
-    <!-- ASSETS / SCRIPTS -->
-    <div id="assets-panel">
-        <div id="script-list">
-            <div class="panel-header">
-                <span>Scripts</span>
-                <button class="btn" onclick="Scripts.createNew()">+</button>
-            </div>
-            <div id="script-list-content"></div>
-        </div>
-        <div id="script-editor-container">
-            <div class="panel-header">
-                <span id="script-editor-title">No Script Selected</span>
-                <button class="btn primary" onclick="Scripts.saveCurrent()">Save Script</button>
-            </div>
-            <textarea id="code-editor" class="code-editor" disabled></textarea>
-        </div>
-    </div>
-
-    <!-- LIB -->
+    <!-- PHYSICS LIBRARY -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
 
     <script>
-        // --- CORE ENGINE ---
-        const Engine = Matter.Engine, Render = Matter.Render, Runner = Matter.Runner, 
-              Bodies = Matter.Bodies, Composite = Matter.Composite, Events = Matter.Events, 
-              Body = Matter.Body, Mouse = Matter.Mouse, MouseConstraint = Matter.MouseConstraint;
+        const Engine = Matter.Engine,
+              Render = Matter.Render,
+              Runner = Matter.Runner,
+              Bodies = Matter.Bodies,
+              Composite = Matter.Composite,
+              Composites = Matter.Composites,
+              Constraint = Matter.Constraint,
+              Mouse = Matter.Mouse,
+              MouseConstraint = Matter.MouseConstraint,
+              Events = Matter.Events,
+              Body = Matter.Body,
+              Vector = Matter.Vector;
 
-        const engine = Engine.create();
-        const world = engine.world;
-        const container = document.getElementById('scene');
-        
-        // Renderer
-        const render = Render.create({
-            element: container,
-            engine: engine,
-            options: {
-                width: container.clientWidth,
-                height: container.clientHeight,
-                background: '#111',
-                wireframes: false,
-                showAngleIndicator: false
-            }
-        });
-
-        // Input
-        const mouse = Mouse.create(render.canvas);
-        const mouseConstraint = MouseConstraint.create(engine, {
-            mouse: mouse,
-            constraint: { stiffness: 0.2, render: { visible: false } }
-        });
-        Composite.add(world, mouseConstraint);
-        
-        // Remove wheel events to prevent scrolling
-        mouse.element.removeEventListener("mousewheel", mouse.mousewheel);
-        mouse.element.removeEventListener("DOMMouseScroll", mouse.mousewheel);
-
-        // Resize
-        window.addEventListener('resize', () => {
-            render.canvas.width = container.clientWidth;
-            render.canvas.height = container.clientHeight;
-        });
-
-        // --- SCRIPT MANAGER ---
-        const Scripts = {
-            library: {}, // Stores code string: { "PlayerMove": "code..." }
-            currentEdit: null,
-            compiled: {}, // Stores executable functions
-
-            init: function() {
-                // Default Samples
-                this.library['Rotator'] = `// Simple Rotation\nbody.angle += 0.05;`;
-                this.library['PlayerMovement'] = `// WASD Control\nconst speed = 5;\nif(input.keys['w']) Body.setVelocity(body, {x: body.velocity.x, y: -speed});\nif(input.keys['a']) Body.setVelocity(body, {x: -speed, y: body.velocity.y});\nif(input.keys['s']) Body.setVelocity(body, {x: body.velocity.x, y: speed});\nif(input.keys['d']) Body.setVelocity(body, {x: speed, y: body.velocity.y});`;
-                this.library['Gun'] = `// Click to Shoot\nif(input.mouseDown && time % 10 === 0) {\n    // Create bullet\n    const b = Bodies.circle(body.position.x, body.position.y, 5, { render: { fillStyle: 'yellow' }});\n    // Shoot towards mouse\n    const force = 0.02;\n    const dx = input.mouseX - body.position.x;\n    const dy = input.mouseY - body.position.y;\n    const mag = Math.sqrt(dx*dx + dy*dy);\n    Body.applyForce(b, b.position, { x: (dx/mag)*force, y: (dy/mag)*force });\n    Composite.add(engine.world, b);\n}`;
-                this.renderList();
-            },
-
-            createNew: function() {
-                const name = prompt("Script Name:", "NewScript");
-                if(name) {
-                    this.library[name] = "// Write your code here.\n// Available: body, engine, input, time, Body, Composite, Bodies";
-                    this.renderList();
-                    this.edit(name);
-                }
-            },
-
-            edit: function(name) {
-                this.currentEdit = name;
-                document.getElementById('script-editor-title').innerText = "Editing: " + name;
-                const area = document.getElementById('code-editor');
-                area.value = this.library[name];
-                area.disabled = false;
-            },
-
-            saveCurrent: function() {
-                if(this.currentEdit) {
-                    this.library[this.currentEdit] = document.getElementById('code-editor').value;
-                    // Recompile
-                    try {
-                        // Validate syntax
-                        new Function('body', 'engine', 'input', 'time', 'Body', 'Composite', 'Bodies', this.library[this.currentEdit]);
-                        alert("Script Saved & Compiled!");
-                    } catch(e) {
-                        alert("Error in script: " + e.message);
-                    }
-                }
-            },
-
-            renderList: function() {
-                const list = document.getElementById('script-list-content');
-                list.innerHTML = '';
-                Object.keys(this.library).forEach(name => {
-                    const div = document.createElement('div');
-                    div.className = 'tree-item';
-                    div.innerText = "📜 " + name;
-                    div.onclick = () => this.edit(name);
-                    list.appendChild(div);
-                });
-                
-                // Update Inspector Dropdown
-                const sel = document.getElementById('insp-script-select');
-                const currentVal = sel.value;
-                sel.innerHTML = '<option value="">(None)</option>';
-                Object.keys(this.library).forEach(name => {
-                    const opt = document.createElement('option');
-                    opt.value = name;
-                    opt.innerText = name;
-                    sel.appendChild(opt);
-                });
-                sel.value = currentVal;
-            },
-
-            run: function(body) {
-                if(!body.sakoar || !body.sakoar.script) return;
-                const name = body.sakoar.script;
-                const code = this.library[name];
-                if(!code) return;
-
-                if(!this.compiled[name]) {
-                    try {
-                        this.compiled[name] = new Function('body', 'engine', 'input', 'time', 'Body', 'Composite', 'Bodies', code);
-                    } catch(e) { console.error(e); return; }
-                }
-                
-                try {
-                    this.compiled[name](body, engine, Game.input, Game.frameCount, Body, Composite, Bodies);
-                } catch(e) {
-                    console.error("Runtime Error in " + name, e);
-                }
-            }
-        };
-
-        // --- EDITOR LOGIC ---
-        const Editor = {
-            selected: null,
-            clipboard: null,
-
-            spawn: function(type) {
-                if(!type) return;
-                const cx = container.clientWidth/2;
-                const cy = container.clientHeight/2;
-                let b;
-
-                if(type === 'group') {
-                    // Logic group
-                    b = Composite.create({ label: 'New Group' });
-                    Composite.add(world, b);
-                    this.refreshHierarchy();
-                    return;
-                }
-                else if(type === 'box') {
-                    b = Bodies.rectangle(cx, cy, 50, 50, { render: { fillStyle: '#3498db' } });
-                }
-                else if(type === 'circle') {
-                    b = Bodies.circle(cx, cy, 30, { render: { fillStyle: '#e74c3c' } });
-                }
-                else if(type === 'sprite') {
-                    b = Bodies.rectangle(cx, cy, 64, 64, { 
-                        render: { 
-                            sprite: { texture: 'https://labs.phaser.io/assets/sprites/phaser-dude.png', xScale:1, yScale:1 } 
-                        } 
-                    });
-                }
-                else if(type === 'weapon') {
-                    b = Bodies.rectangle(cx, cy, 40, 10, { render: { fillStyle: '#2ecc71' } });
-                    b.sakoar = { script: 'Gun' }; // Auto attach script
-                }
-
-                if(b) {
-                    b.label = "New " + type;
-                    b.sakoar = b.sakoar || { script: "" }; // Custom data container
-                    Composite.add(world, b);
-                    this.select(b);
-                    this.refreshHierarchy();
-                }
-            },
-
-            select: function(obj) {
-                this.selected = obj;
-                const ui = document.getElementById('insp-content');
-                const empty = document.getElementById('insp-empty');
-                
-                if(!obj) { ui.classList.add('hidden'); empty.classList.remove('hidden'); return; }
-                
-                ui.classList.remove('hidden');
-                empty.classList.add('hidden');
-
-                // Populate UI
-                const isBody = obj.type === 'body';
-                
-                document.getElementById('insp-name').value = obj.label || 'Unnamed';
-                
-                if(isBody) {
-                    document.getElementById('insp-x').value = Math.round(obj.position.x);
-                    document.getElementById('insp-y').value = Math.round(obj.position.y);
-                    document.getElementById('insp-angle').value = obj.angle.toFixed(2);
-                    document.getElementById('insp-scale').value = obj.render.sprite.xScale || 1;
-                    document.getElementById('insp-color').value = obj.render.fillStyle;
-                    document.getElementById('insp-texture').value = obj.render.sprite ? (obj.render.sprite.texture || "") : "";
-                    
-                    // Script
-                    obj.sakoar = obj.sakoar || {};
-                    document.getElementById('insp-script-select').value = obj.sakoar.script || "";
-                }
-                
-                // Parent selector
-                const pSel = document.getElementById('insp-parent');
-                pSel.innerHTML = '<option value="world">World</option>';
-                // Find all composites
-                const traverse = (comp) => {
-                    if(comp.id !== world.id) {
-                         const opt = document.createElement('option');
-                         opt.value = comp.id;
-                         opt.innerText = comp.label;
-                         pSel.appendChild(opt);
-                    }
-                    comp.composites.forEach(traverse);
-                };
-                traverse(world);
-            },
-
-            applyProp: function(key, val) {
-                if(!this.selected || this.selected.type !== 'body') return;
-                const b = this.selected;
-
-                if(key === 'name') { b.label = val; this.refreshHierarchy(); }
-                if(key === 'x') Body.setPosition(b, { x: parseFloat(val), y: b.position.y });
-                if(key === 'y') Body.setPosition(b, { x: b.position.x, y: parseFloat(val) });
-                if(key === 'angle') Body.setAngle(b, parseFloat(val));
-                if(key === 'scale') { 
-                    const s = parseFloat(val); 
-                    // Matter.js scaling is permanent, so we need a base. simplified here:
-                    // For sprites, we adjust texture scale
-                    if(b.render.sprite) { b.render.sprite.xScale = s; b.render.sprite.yScale = s; }
-                }
-                if(key === 'color') b.render.fillStyle = val;
-                if(key === 'texture') {
-                    if(val) { b.render.sprite.texture = val; b.render.sprite.xScale = 1; b.render.sprite.yScale = 1; }
-                    else { b.render.sprite.texture = null; }
-                }
-                if(key === 'script') b.sakoar.script = val;
-            },
-
-            deleteSelected: function() {
-                if(this.selected) {
-                    Composite.remove(world, this.selected, true); // Deep remove
-                    this.selected = null;
-                    this.select(null);
-                    this.refreshHierarchy();
-                }
-            },
-
-            refreshHierarchy: function() {
-                const h = document.getElementById('hierarchy-content');
-                h.innerHTML = '';
-                
-                const buildTree = (comp, depth) => {
-                    // Items in this composite
-                    const items = [...comp.composites, ...comp.bodies];
-                    
-                    items.forEach(item => {
-                        if(item.id === mouseConstraint.constraint.bodyB?.id) return; // Skip mouse tool
-                        if(item === mouseConstraint.body) return;
-
-                        const div = document.createElement('div');
-                        div.className = 'tree-item ' + (item.type === 'composite' ? 'group' : '');
-                        if(this.selected && this.selected.id === item.id) div.classList.add('selected');
-                        div.style.paddingLeft = (depth * 15 + 5) + 'px';
-                        
-                        const icon = item.type === 'composite' ? '📁 ' : (item.render.sprite && item.render.sprite.texture ? '🖼️ ' : '🧊 ');
-                        div.innerText = icon + (item.label || item.type);
-                        
-                        div.onclick = (e) => {
-                            e.stopPropagation();
-                            this.select(item);
-                            this.refreshHierarchy(); // re-render to show selection state
-                        };
-                        h.appendChild(div);
-
-                        if(item.type === 'composite') buildTree(item, depth + 1);
-                    });
-                };
-                
-                buildTree(world, 0);
-            },
-
-            saveProject: function() {
-                // We need to serialize the world + scripts
-                // Matter.js serialization is basic, let's do a custom one for our needs
-                const data = {
-                    scripts: Scripts.library,
-                    objects: []
-                };
-
-                const serializeBody = (b) => {
-                    return {
-                        id: b.id,
-                        label: b.label,
-                        x: b.position.x,
-                        y: b.position.y,
-                        angle: b.angle,
-                        color: b.render.fillStyle,
-                        texture: b.render.sprite ? b.render.sprite.texture : null,
-                        isStatic: b.isStatic,
-                        script: b.sakoar ? b.sakoar.script : ""
-                    };
-                };
-
-                Composite.allBodies(world).forEach(b => {
-                    // Filter out boundaries/mouse
-                    if(b.label !== "Ground" && b.label !== "Wall" && b.id !== mouseConstraint.body?.id) {
-                         data.objects.push(serializeBody(b));
-                    }
-                });
-
-                const json = JSON.stringify(data, null, 2);
-                const blob = new Blob([json], {type: "application/json"});
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = "MyGame.json";
-                a.click();
-            },
-
-            loadProject: function(input) {
-                const file = input.files[0];
-                if(!file) return;
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    try {
-                        const data = JSON.parse(e.target.result);
-                        
-                        // Clear World
-                        Composite.clear(world);
-                        Composite.add(world, mouseConstraint);
-                        Game.setupBoundaries();
-
-                        // Load Scripts
-                        if(data.scripts) {
-                            Scripts.library = data.scripts;
-                            Scripts.renderList();
-                        }
-
-                        // Load Objects
-                        if(data.objects) {
-                            data.objects.forEach(obj => {
-                                let b = Bodies.rectangle(obj.x, obj.y, 50, 50); // generic size
-                                
-                                // Restore props
-                                b.label = obj.label;
-                                Body.setAngle(b, obj.angle);
-                                Body.setStatic(b, obj.isStatic || false);
-                                b.render.fillStyle = obj.color;
-                                if(obj.texture) {
-                                    b.render.sprite.texture = obj.texture;
-                                    b.render.sprite.xScale = 1;
-                                    b.render.sprite.yScale = 1;
-                                }
-                                b.sakoar = { script: obj.script || "" };
-                                
-                                Composite.add(world, b);
-                            });
-                        }
-                        this.refreshHierarchy();
-                        alert("Project Loaded!");
-                    } catch(err) {
-                        alert("Failed to load: " + err);
-                    }
-                };
-                reader.readAsText(file);
-            }
-        };
-
-        // --- GAME LOGIC ---
-        const Game = {
-            running: false,
+        // --- SANDBOX CORE ---
+        const Sandbox = {
+            engine: Engine.create(),
             runner: Runner.create(),
-            frameCount: 0,
-            input: { keys: {}, mouseX: 0, mouseY: 0, mouseDown: false },
+            render: null,
+            width: window.innerWidth,
+            height: window.innerHeight,
+            activeCar: null, // The car currently controlled by keys
 
             init: function() {
-                Scripts.init();
-                this.setupBoundaries();
+                // Setup Render
+                const container = document.getElementById('scene');
+                this.render = Render.create({
+                    element: container,
+                    engine: this.engine,
+                    options: {
+                        width: this.width,
+                        height: this.height,
+                        wireframes: false,
+                        background: 'transparent',
+                        showAngleIndicator: true,
+                        showCollisions: false
+                    }
+                });
+
+                // Boundaries
+                this.createBoundaries();
+
+                // Mouse Handling
+                const mouse = Mouse.create(this.render.canvas);
                 
-                // Gizmo Loop
-                Events.on(render, 'afterRender', () => {
-                    const ctx = document.getElementById('gizmo-layer').getContext('2d');
-                    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-                    
-                    // Draw selection box
-                    if(Editor.selected && Editor.selected.type === 'body') {
-                        const b = Editor.selected;
-                        ctx.strokeStyle = '#d35400';
-                        ctx.lineWidth = 2;
-                        ctx.beginPath();
-                        ctx.translate(b.position.x, b.position.y);
-                        ctx.rotate(b.angle);
-                        // Approximate bounds based on verts (simplified for gizmo)
-                        ctx.rect(-25, -25, 50, 50); 
-                        ctx.stroke();
-                        ctx.setTransform(1,0,0,1,0,0);
-                    }
+                // Allow right-click dragging regardless of tool
+                const mouseConstraint = MouseConstraint.create(this.engine, {
+                    mouse: mouse,
+                    constraint: { stiffness: 0.1, render: { visible: false } }
+                });
+                // Custom mouse filtering logic in Tools object
+                Composite.add(this.engine.world, mouseConstraint);
+                this.mouseConstraint = mouseConstraint;
+
+                // Event Listeners
+                window.addEventListener('resize', () => {
+                    this.width = window.innerWidth;
+                    this.height = window.innerHeight;
+                    this.render.canvas.width = this.width;
+                    this.render.canvas.height = this.height;
+                    this.createBoundaries(); // Rebuild floor
                 });
 
-                // Selection Click
-                Events.on(mouseConstraint, 'mousedown', (e) => {
-                    const mousePos = e.mouse.position;
-                    const bodies = Composite.allBodies(world);
-                    const clicked = Matter.Query.point(bodies, mousePos);
-                    
-                    if(clicked.length > 0) {
-                        // ignore walls
-                        if(clicked[0].label === "Wall" || clicked[0].label === "Ground") {
-                             Editor.select(null);
-                        } else {
-                             Editor.select(clicked[0]);
-                        }
-                    } else {
-                        Editor.select(null);
-                    }
-                    Editor.refreshHierarchy();
-                });
+                // Key Input (Driving)
+                window.addEventListener('keydown', (e) => this.handleKeys(e, true));
+                window.addEventListener('keyup', (e) => this.handleKeys(e, false));
 
-                // Input Listeners
-                window.addEventListener('keydown', e => this.input.keys[e.key] = true);
-                window.addEventListener('keyup', e => this.input.keys[e.key] = false);
-                window.addEventListener('mousemove', e => {
-                    const rect = container.getBoundingClientRect();
-                    this.input.mouseX = e.clientX - rect.left;
-                    this.input.mouseY = e.clientY - rect.top;
-                });
-                container.addEventListener('mousedown', () => this.input.mouseDown = true);
-                window.addEventListener('mouseup', () => this.input.mouseDown = false);
+                // Tool Input
+                Events.on(mouseConstraint, 'mousedown', (e) => Tools.onMouseDown(e));
 
-                // Run Render
-                Render.run(render);
-                Editor.refreshHierarchy();
+                // Start
+                Render.run(this.render);
+                Runner.run(this.runner, this.engine);
             },
 
-            setupBoundaries: function() {
-                const w = container.clientWidth;
-                const h = container.clientHeight;
-                const ground = Bodies.rectangle(w/2, h+30, w, 60, { isStatic: true, label: "Ground", render:{fillStyle:'#333'} });
-                const left = Bodies.rectangle(-30, h/2, 60, h, { isStatic: true, label: "Wall" });
-                const right = Bodies.rectangle(w+30, h/2, 60, h, { isStatic: true, label: "Wall" });
-                Composite.add(world, [ground, left, right]);
+            createBoundaries: function() {
+                Composite.remove(this.engine.world, this.walls || []);
+                const t = 100; // thickness
+                this.walls = [
+                    Bodies.rectangle(this.width/2, this.height + t/2 - 20, this.width*2, t, { isStatic: true, render: { fillStyle: '#444' } }), // Floor
+                    Bodies.rectangle(-t/2, this.height/2, t, this.height*2, { isStatic: true }), // Left
+                    Bodies.rectangle(this.width + t/2, this.height/2, t, this.height*2, { isStatic: true }) // Right
+                ];
+                Composite.add(this.engine.world, this.walls);
             },
 
-            togglePlay: function() {
-                this.running = !this.running;
-                if(this.running) {
-                    document.getElementById('btn-play').innerText = "❚❚ Pause";
-                    Runner.run(this.runner, engine);
-                    // Add update hook for scripts
-                    Events.on(engine, 'beforeUpdate', this.updateLoop);
-                } else {
-                    document.getElementById('btn-play').innerText = "▶ Play";
-                    Runner.stop(this.runner);
-                    Events.off(engine, 'beforeUpdate', this.updateLoop);
+            handleKeys: function(e, isDown) {
+                if(!this.activeCar) return;
+                
+                const speed = 0.3;
+                if(e.key === 'ArrowRight' || e.key === 'd') {
+                    this.activeCar.gas = isDown ? speed : 0;
+                }
+                if(e.key === 'ArrowLeft' || e.key === 'a') {
+                    this.activeCar.gas = isDown ? -speed : 0;
                 }
             },
 
-            stop: function() {
-                this.running = false;
-                document.getElementById('btn-play').innerText = "▶ Play";
-                Runner.stop(this.runner);
-                Events.off(engine, 'beforeUpdate', this.updateLoop);
-                
-                // Reset (Simple reload for now to reset positions, in a full engine we'd store initial states)
-                // For this demo, we just stop physics.
-                alert("Simulation Stopped. (Note: To reset positions fully, click Reload or Load JSON)");
+            updateCars: function() {
+                // Apply torque to active car wheels
+                if(this.activeCar) {
+                    const car = this.activeCar;
+                    if(car.gas !== 0) {
+                        Body.setAngularVelocity(car.w1, car.gas);
+                        Body.setAngularVelocity(car.w2, car.gas);
+                    }
+                }
             },
 
-            updateLoop: function() {
-                Game.frameCount++;
-                Composite.allBodies(world).forEach(b => Scripts.run(b));
+            clear: function() {
+                Composite.clear(this.engine.world);
+                this.createBoundaries();
+                Composite.add(this.engine.world, this.mouseConstraint);
+                this.activeCar = null;
+            },
+
+            setTimeScale: function(val) {
+                this.engine.timing.timeScale = parseFloat(val);
             }
         };
 
-        // UI Binds
-        ['name','x','y','angle','scale','color','texture','script-select'].forEach(id => {
-            const el = document.getElementById('insp-'+id);
-            if(el) {
-                el.addEventListener(el.tagName==='SELECT'?'change':'input', (e) => {
-                    const key = id === 'script-select' ? 'script' : id;
-                    Editor.applyProp(key, e.target.value);
-                });
+        // --- TOOLS ---
+        const Tools = {
+            current: 'drag', // drag, gun, delete, explode
+            
+            set: function(name) {
+                this.current = name;
+                document.querySelectorAll('.active-tool').forEach(el => el.classList.remove('active-tool'));
+                document.getElementById('btn-'+name).classList.add('active-tool');
+
+                // Enable/Disable mouse constraint based on tool
+                // We actually keep mouse constraint for Right Click, 
+                // but Left Click behavior changes.
+            },
+
+            onMouseDown: function(e) {
+                const mousePos = e.mouse.position;
+                
+                // Only act on left click (button 0)
+                if(e.mouse.button !== 0) return;
+
+                if(this.current === 'delete') {
+                    const bodies = Composite.allBodies(Sandbox.engine.world);
+                    const clicked = Matter.Query.point(bodies, mousePos);
+                    // Don't delete walls
+                    const target = clicked.find(b => !b.isStatic);
+                    if(target) {
+                        // We need to find if it belongs to a composite (like a car or ragdoll)
+                        // A simple way is to remove the body, but for ragdolls, it leaves constraints floating.
+                        // For a sandbox, just removing the body is usually fine and funny.
+                        Composite.remove(Sandbox.engine.world, target);
+                        createExplosionParticle(target.position.x, target.position.y, 5, '#fff');
+                    }
+                }
+
+                if(this.current === 'gun') {
+                    Spawner.bullet(mousePos.x, mousePos.y);
+                    // Shake screen slightly
+                    const canvas = Sandbox.render.canvas;
+                    canvas.style.transform = `translate(${Math.random()*4-2}px, ${Math.random()*4-2}px)`;
+                    setTimeout(()=>canvas.style.transform='none', 50);
+                }
+
+                if(this.current === 'explode') {
+                    Spawner.explosion(mousePos.x, mousePos.y, 150, 0.5);
+                }
+
+                // Drag is handled natively by MouseConstraint if no other logic interferes
+                if(this.current !== 'drag') {
+                    // Temporarily disable drag for the click frame if using a tool
+                    // (Handled by checking mouse button in logic usually, but Matter's constraint grabs aggressively)
+                }
             }
+        };
+
+        // --- SPAWNER (PREFABS) ---
+        const Spawner = {
+            
+            crate: function() {
+                const b = Bodies.rectangle(400, 200, 60, 60, { 
+                    render: { fillStyle: '#8e44ad' },
+                    restitution: 0.5
+                });
+                Composite.add(Sandbox.engine.world, b);
+            },
+
+            plank: function() {
+                const b = Bodies.rectangle(400, 200, 200, 20, { 
+                    render: { fillStyle: '#d35400' },
+                    density: 0.002
+                });
+                Composite.add(Sandbox.engine.world, b);
+            },
+
+            tnt: function() {
+                const b = Bodies.rectangle(400, 200, 40, 40, { 
+                    render: { fillStyle: '#c0392b', strokeStyle: '#fff', lineWidth: 2 },
+                    label: 'TNT'
+                });
+                // Add click listener logic later or use tool to explode
+                Composite.add(Sandbox.engine.world, b);
+            },
+
+            bullet: function(tx, ty) {
+                // Spawn at screen center bottom or just offset from mouse?
+                // Let's spawn from a theoretical "camera" position (center screen) toward mouse
+                // Or if we want "God Mode" shooting, spawn at mouse and shoot forward?
+                
+                // Let's do: Spawn exactly where clicked, but add impulse
+                // Actually better: Raycast style. 
+                // Sandbox style: Spawn a small fast ball at mouse location traveling in direction of movement?
+                // No, usually you click to shoot AT that spot. 
+                // Let's spawn bullet at Top Left moving toward mouse.
+                
+                const sx = 100, sy = 100; // source
+                const angle = Math.atan2(ty - sy, tx - sx);
+                const speed = 30;
+                
+                const b = Bodies.circle(sx, sy, 5, { 
+                    render: { fillStyle: 'yellow' },
+                    density: 0.01,
+                    frictionAir: 0
+                });
+                Body.setVelocity(b, {
+                    x: Math.cos(angle) * speed,
+                    y: Math.sin(angle) * speed
+                });
+                Composite.add(Sandbox.engine.world, b);
+                
+                // Cleanup bullet after 2 seconds
+                setTimeout(() => Composite.remove(Sandbox.engine.world, b), 2000);
+            },
+
+            explosion: function(x, y, radius, force) {
+                const bodies = Composite.allBodies(Sandbox.engine.world);
+                bodies.forEach(b => {
+                    if(b.isStatic) return;
+                    const d = Vector.sub(b.position, {x:x, y:y});
+                    const dist = Vector.magnitude(d);
+                    if(dist < radius) {
+                        const normal = Vector.normalise(d);
+                        const appliedForce = Vector.mult(normal, force * (1 - dist/radius) * b.mass);
+                        Body.applyForce(b, b.position, appliedForce);
+                    }
+                });
+                
+                // Visual FX
+                createExplosionParticle(x, y, 20, 'orange');
+            },
+
+            ragdoll: function() {
+                const x = 400, y = 200;
+                const group = Body.nextGroup(true);
+                const head = Bodies.circle(x, y-25, 15, { collisionFilter: { group: group }, render: { fillStyle: '#f1c40f' } });
+                const chest = Bodies.rectangle(x, y, 30, 40, { collisionFilter: { group: group }, render: { fillStyle: '#e74c3c' } });
+                
+                // Limbs
+                const rArm = Bodies.rectangle(x+20, y-10, 10, 30, { collisionFilter: { group: group }, render: { fillStyle: '#e67e22' } });
+                const lArm = Bodies.rectangle(x-20, y-10, 10, 30, { collisionFilter: { group: group }, render: { fillStyle: '#e67e22' } });
+                const rLeg = Bodies.rectangle(x+10, y+40, 10, 40, { collisionFilter: { group: group }, render: { fillStyle: '#2980b9' } });
+                const lLeg = Bodies.rectangle(x-10, y+40, 10, 40, { collisionFilter: { group: group }, render: { fillStyle: '#2980b9' } });
+
+                // Constraints (Joints)
+                const neck = Constraint.create({ bodyA: head, bodyB: chest, pointA: {x:0, y:15}, pointB: {x:0, y:-20}, stiffness: 0.5 });
+                const cRArm = Constraint.create({ bodyA: chest, bodyB: rArm, pointA: {x:15, y:-15}, pointB: {x:0, y:-12}, stiffness: 0.5 });
+                const cLArm = Constraint.create({ bodyA: chest, bodyB: lArm, pointA: {x:-15, y:-15}, pointB: {x:0, y:-12}, stiffness: 0.5 });
+                const cRLeg = Constraint.create({ bodyA: chest, bodyB: rLeg, pointA: {x:10, y:20}, pointB: {x:0, y:-18}, stiffness: 0.5 });
+                const cLLeg = Constraint.create({ bodyA: chest, bodyB: lLeg, pointA: {x:-10, y:20}, pointB: {x:0, y:-18}, stiffness: 0.5 });
+
+                Composite.add(Sandbox.engine.world, [head, chest, rArm, lArm, rLeg, lLeg, neck, cRArm, cLArm, cRLeg, cLLeg]);
+            },
+
+            boxMan: function() {
+                // A simpler, sturdier NPC
+                const x = 500, y = 200;
+                const box = Bodies.rectangle(x, y, 40, 80, { 
+                    render: { fillStyle: '#2ecc71' },
+                    chamfer: { radius: 10 }
+                });
+                Composite.add(Sandbox.engine.world, box);
+            },
+
+            car: function() {
+                const x = 300, y = 300;
+                const group = Body.nextGroup(true);
+                
+                const chassis = Bodies.rectangle(x, y, 140, 30, { 
+                    collisionFilter: { group: group },
+                    render: { fillStyle: '#c0392b' },
+                    chamfer: { radius: 5 },
+                    density: 0.004
+                });
+                
+                const w1 = Bodies.circle(x-40, y+20, 18, { 
+                    collisionFilter: { group: group },
+                    friction: 0.8,
+                    render: { fillStyle: '#222' },
+                    density: 0.01
+                });
+                
+                const w2 = Bodies.circle(x+40, y+20, 18, { 
+                    collisionFilter: { group: group },
+                    friction: 0.8,
+                    render: { fillStyle: '#222' },
+                    density: 0.01
+                });
+
+                const ax1 = Constraint.create({
+                    bodyA: chassis, bodyB: w1,
+                    pointA: {x:-40, y:15}, stiffness: 0.2, length: 0, damping: 0.1
+                });
+
+                const ax2 = Constraint.create({
+                    bodyA: chassis, bodyB: w2,
+                    pointA: {x:40, y:15}, stiffness: 0.2, length: 0, damping: 0.1
+                });
+
+                Composite.add(Sandbox.engine.world, [chassis, w1, w2, ax1, ax2]);
+
+                // Set as active car for controls
+                Sandbox.activeCar = { w1: w1, w2: w2, gas: 0 };
+            },
+
+            truck: function() {
+                const x = 400, y = 300;
+                const group = Body.nextGroup(true);
+                
+                const cab = Bodies.rectangle(x, y, 60, 50, { collisionFilter: { group: group }, render: { fillStyle: '#34495e' } });
+                const bed = Bodies.rectangle(x-60, y+10, 100, 30, { collisionFilter: { group: group }, render: { fillStyle: '#95a5a6' } });
+                Body.setDensity(cab, 0.01);
+
+                // Attach bed to cab
+                const join = Constraint.create({ bodyA: cab, bodyB: bed, pointA: {x:-30, y:10}, pointB: {x:50, y:0}, stiffness: 1 });
+
+                const w1 = Bodies.circle(x+15, y+25, 20, { collisionFilter: { group: group }, friction: 0.9, render: { fillStyle: '#222' } });
+                const w2 = Bodies.circle(x-90, y+25, 20, { collisionFilter: { group: group }, friction: 0.9, render: { fillStyle: '#222' } });
+
+                const ax1 = Constraint.create({ bodyA: cab, bodyB: w1, pointA: {x:15, y:25}, stiffness: 0.2, length:0 });
+                const ax2 = Constraint.create({ bodyA: bed, bodyB: w2, pointA: {x:-30, y:15}, stiffness: 0.2, length:0 });
+
+                Composite.add(Sandbox.engine.world, [cab, bed, w1, w2, join, ax1, ax2]);
+                Sandbox.activeCar = { w1: w1, w2: w2, gas: 0 };
+            },
+
+            weapon: function(type) {
+                // Spawns a physical gun object
+                // In a true sandbox, this would be holdable. 
+                // Here we just make a gun-shaped object that looks cool.
+                const x = 500, y = 200;
+                const stock = Bodies.rectangle(x-20, y+5, 10, 20, { render: {fillStyle: '#8e44ad'} });
+                const barrel = Bodies.rectangle(x, y, 40, 8, { render: {fillStyle: '#333'} });
+                const gun = Body.create({
+                    parts: [stock, barrel],
+                    render: { fillStyle: '#333' }
+                });
+                Composite.add(Sandbox.engine.world, gun);
+            }
+        };
+
+        // --- VISUAL FX ---
+        function createExplosionParticle(x, y, size, color) {
+            // A visual only particle using DOM or Canvas overlay would be best, 
+            // but we can spawn a short-lived physical body that doesn't collide
+            const p = Bodies.circle(x, y, size, { 
+                isStatic: true,
+                render: { fillStyle: color, opacity: 0.8 },
+                collisionFilter: { mask: 0 } // No collision
+            });
+            Composite.add(Sandbox.engine.world, p);
+            
+            let scale = 1;
+            const grow = setInterval(() => {
+                scale += 0.2;
+                Body.scale(p, 1.1, 1.1);
+                p.render.opacity -= 0.1;
+                if(p.render.opacity <= 0) {
+                    clearInterval(grow);
+                    Composite.remove(Sandbox.engine.world, p);
+                }
+            }, 50);
+        }
+
+        // --- LOOP HOOKS ---
+        Events.on(Sandbox.engine, 'beforeUpdate', () => {
+            Sandbox.updateCars();
         });
 
-        // Start
-        Game.init();
+        // Init
+        Sandbox.init();
 
     </script>
 </body>
