@@ -2,789 +2,646 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WebPhys Engine 3.0</title>
+    <title>Sakoar Studio</title>
     <style>
         :root {
             --bg-dark: #1e1e1e;
             --bg-panel: #252526;
             --bg-header: #333333;
-            --accent: #007acc;
-            --accent-hover: #0098ff;
-            --text-main: #cccccc;
-            --text-highlight: #ffffff;
+            --accent: #d35400; /* Sakoar Orange */
+            --accent-hover: #e67e22;
+            --text-main: #f0f0f0;
             --border: #3e3e42;
             --input-bg: #3c3c3c;
-            --success: #4ec9b0;
-            --x-axis: #ff5555;
-            --y-axis: #55ff55;
         }
-
-        body {
-            margin: 0;
-            overflow: hidden;
-            background-color: var(--bg-dark);
-            color: var(--text-main);
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            font-size: 13px;
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-        }
-
+        body { margin: 0; overflow: hidden; background: var(--bg-dark); color: var(--text-main); font-family: 'Segoe UI', sans-serif; font-size: 12px; display: flex; flex-direction: column; height: 100vh; }
+        
+        /* HEADER */
+        #toolbar { height: 40px; background: var(--bg-header); display: flex; align-items: center; padding: 0 10px; border-bottom: 1px solid var(--border); gap: 10px; }
+        .brand { font-weight: 800; font-size: 14px; color: var(--accent); letter-spacing: 1px; margin-right: 15px; }
+        
         /* LAYOUT */
-        #toolbar {
-            height: 45px;
-            background-color: var(--bg-header);
-            display: flex;
-            align-items: center;
-            padding: 0 15px;
-            border-bottom: 1px solid var(--border);
-            gap: 15px;
-            user-select: none;
-        }
-
-        #main-area {
-            display: flex;
-            flex: 1;
-            height: calc(100vh - 45px);
-        }
-
-        .panel {
-            background-color: var(--bg-panel);
-            display: flex;
-            flex-direction: column;
-        }
-
-        #hierarchy { width: 220px; border-right: 1px solid var(--border); }
-        #scene-container { flex: 1; position: relative; background: #111; overflow: hidden; }
-        #inspector { width: 300px; border-left: 1px solid var(--border); overflow-y: auto; }
-
-        /* UI ELEMENTS */
-        .panel-header {
-            padding: 8px 12px;
-            font-weight: 600;
-            background: #2d2d30;
-            border-bottom: 1px solid var(--border);
-            text-transform: uppercase;
-            font-size: 11px;
-            letter-spacing: 0.5px;
-        }
-
-        button {
-            background: #444;
-            color: var(--text-highlight);
-            border: 1px solid transparent;
-            padding: 5px 10px;
-            cursor: pointer;
-            border-radius: 3px;
-            font-size: 12px;
-        }
-        button:hover { background: #555; }
-        button.active { background: var(--accent); }
-        button.danger { background: #d93025; }
-
-        input, select, textarea {
-            background: var(--input-bg);
-            border: 1px solid var(--border);
-            color: white;
-            padding: 4px 6px;
-            border-radius: 2px;
-            width: 100%;
-            box-sizing: border-box;
-            font-family: monospace;
-        }
+        #workspace { display: flex; flex: 1; height: calc(100vh - 240px); } /* Space for bottom panel */
+        .panel { background: var(--bg-panel); display: flex; flex-direction: column; border-right: 1px solid var(--border); }
+        #hierarchy { width: 220px; }
+        #scene { flex: 1; position: relative; background: #111; overflow: hidden; }
+        #inspector { width: 280px; border-left: 1px solid var(--border); border-right: none; overflow-y: auto; }
         
-        .row { display: flex; align-items: center; margin-bottom: 8px; gap: 8px; }
-        .row label { width: 70px; flex-shrink: 0; color: #aaa; }
+        /* BOTTOM PANEL (ASSETS) */
+        #assets-panel { height: 200px; background: #1e1e1e; border-top: 1px solid var(--border); display: flex; }
+        #script-list { width: 200px; border-right: 1px solid var(--border); overflow-y: auto; background: var(--bg-panel); }
+        #script-editor-container { flex: 1; display: flex; flex-direction: column; }
+        textarea.code-editor { flex: 1; background: #141414; color: #dcdcdc; border: none; padding: 10px; font-family: 'Consolas', monospace; resize: none; outline: none; }
+
+        /* UI COMPONENTS */
+        .panel-header { padding: 8px; background: #303031; font-weight: bold; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+        .btn { background: #444; border: 1px solid #555; color: white; padding: 4px 10px; cursor: pointer; border-radius: 3px; }
+        .btn:hover { background: #555; }
+        .btn.primary { background: var(--accent); border-color: var(--accent); }
+        .btn.active { background: #fff; color: #000; }
         
-        /* HIERARCHY LIST */
-        .list-item {
-            padding: 4px 12px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-        }
-        .list-item:hover { background: #2a2d2e; }
-        .list-item.selected { background: #37373d; color: var(--accent); border-left: 2px solid var(--accent); }
+        input, select { background: var(--input-bg); border: 1px solid #555; color: white; padding: 4px; width: 100%; box-sizing: border-box; margin-bottom: 5px; }
+        
+        .tree-item { padding: 4px 8px; cursor: pointer; display: flex; align-items: center; }
+        .tree-item:hover { background: #333; }
+        .tree-item.selected { background: #444; border-left: 3px solid var(--accent); }
+        .tree-item.group { color: #aaa; font-style: italic; }
 
-        /* TOOL GROUPS */
-        .tool-group { display: flex; gap: 2px; background: #222; padding: 2px; border-radius: 4px; }
-        .separator { width: 1px; height: 20px; background: var(--border); margin: 0 5px; }
+        .prop-row { display: flex; align-items: center; margin-bottom: 6px; }
+        .prop-row label { width: 80px; color: #aaa; }
 
-        /* SCRIPT EDITOR */
-        .code-editor {
-            background: #1e1e1e;
-            border: 1px solid var(--border);
-            color: #d4d4d4;
-            font-family: 'Consolas', monospace;
-            min-height: 150px;
-            resize: vertical;
-            font-size: 12px;
-            line-height: 1.4;
-            tab-size: 4;
-        }
-
-        /* CANVAS OVERLAY (GIZMOS) */
-        #gizmo-layer {
-            position: absolute;
-            top: 0;
-            left: 0;
-            pointer-events: none; /* Let clicks pass through unless on a handle */
-            width: 100%;
-            height: 100%;
-        }
-
+        /* GIZMO OVERLAY */
+        #gizmo-layer { position: absolute; top:0; left:0; width:100%; height:100%; pointer-events: none; }
+        
+        /* MODAL */
         .hidden { display: none !important; }
-        
-        /* CONSOLE */
-        #console-log {
-            font-family: monospace;
-            font-size: 11px;
-            color: #aaa;
-            padding: 10px;
-            border-top: 1px solid var(--border);
-            max-height: 100px;
-            overflow-y: auto;
-            background: #1e1e1e;
-        }
     </style>
 </head>
 <body>
 
     <!-- TOOLBAR -->
     <div id="toolbar">
-        <div style="font-weight:bold; color:var(--accent);">WebPhys 3.0</div>
-        
-        <div class="separator"></div>
-
-        <!-- Play Controls -->
-        <div class="tool-group">
-            <button id="btn-play" onclick="setMode('play')">▶ Play</button>
-            <button id="btn-edit" class="active" onclick="setMode('edit')">❚❚ Edit</button>
-        </div>
-
-        <div class="separator"></div>
-
-        <!-- Transform Tools -->
-        <div class="tool-group">
-            <button id="tool-move" class="active" onclick="setTool('move')">✚ Move</button>
-            <button id="tool-scale" onclick="setTool('scale')">⤢ Scale</button>
-        </div>
-
-        <div class="separator"></div>
-
-        <!-- Create -->
-        <div class="tool-group">
-            <button onclick="Spawner.create('box')">+ Box</button>
-            <button onclick="Spawner.create('circle')">+ Circle</button>
-            <button onclick="Spawner.create('car')">+ Car</button>
-        </div>
-
-        <div class="separator"></div>
-
-        <!-- Settings -->
-        <div style="display:flex; align-items:center; gap:5px;">
-            <label>FPS:</label>
-            <select id="fps-select" style="width:70px" onchange="EngineCore.setFPS(this.value)">
-                <option value="30">30</option>
-                <option value="60" selected>60</option>
-                <option value="120">120</option>
-                <option value="0">Max</option>
-            </select>
-        </div>
-
+        <div class="brand">Sakoar Studio</div>
+        <button class="btn primary" onclick="Game.togglePlay()" id="btn-play">▶ Play</button>
+        <button class="btn" onclick="Game.stop()" id="btn-stop">■ Stop</button>
+        <div style="width:1px; height:20px; background:#555; margin:0 5px;"></div>
+        <button class="btn" onclick="Editor.saveProject()">💾 Save JSON</button>
+        <label class="btn" style="margin:0;">📂 Load JSON <input type="file" id="file-upload" style="display:none" onchange="Editor.loadProject(this)"></label>
         <div style="flex:1"></div>
-        <button class="danger" onclick="EngineCore.clearScene()">Clear Scene</button>
+        <select style="width:100px" id="create-menu" onchange="Editor.spawn(this.value); this.value='';">
+            <option value="">+ Create Object...</option>
+            <option value="group">📁 Empty Group</option>
+            <option value="box">⬜ Box</option>
+            <option value="circle">⚪ Circle</option>
+            <option value="sprite">🖼️ Image/Sprite</option>
+            <option value="weapon">🔫 Weapon Template</option>
+        </select>
     </div>
 
     <!-- MAIN WORKSPACE -->
-    <div id="main-area">
+    <div id="workspace">
         
-        <!-- LEFT: HIERARCHY -->
+        <!-- HIERARCHY -->
         <div id="hierarchy" class="panel">
-            <div class="panel-header">Hierarchy</div>
-            <div id="hierarchy-list" style="flex:1; overflow-y:auto;">
-                <!-- List items injected here -->
+            <div class="panel-header">
+                <span>Hierarchy</span>
+                <button class="btn" style="padding:0 5px;" onclick="Editor.refreshHierarchy()">↻</button>
             </div>
-            <div id="console-log">Console Ready...</div>
+            <div id="hierarchy-content" style="flex:1; overflow-y:auto;"></div>
         </div>
 
-        <!-- CENTER: SCENE -->
-        <div id="scene-container">
-            <!-- Matter.js Canvas injected here -->
-            <canvas id="gizmo-canvas"></canvas> <!-- Overlay for tools -->
+        <!-- SCENE -->
+        <div id="scene">
+            <canvas id="gizmo-layer"></canvas>
         </div>
 
-        <!-- RIGHT: INSPECTOR -->
+        <!-- INSPECTOR -->
         <div id="inspector" class="panel">
             <div class="panel-header">Inspector</div>
-            
-            <div id="inspector-empty" style="padding:20px; color:#666; text-align:center;">
-                No object selected
-            </div>
-
-            <div id="inspector-content" class="hidden" style="padding:15px;">
+            <div id="insp-content" class="hidden" style="padding:10px;">
+                <div class="prop-row"><label>Name</label><input type="text" id="insp-name"></div>
+                <div class="prop-row"><label>Parent</label><select id="insp-parent"></select></div>
                 
-                <!-- Identity -->
-                <div class="row">
-                    <label>Name</label>
-                    <input type="text" id="insp-name">
-                </div>
-                <div class="row">
-                    <label>ID</label>
-                    <input type="text" id="insp-id" disabled style="color:#666">
-                </div>
-
-                <hr style="border:0; border-top:1px solid #444; margin:15px 0;">
-
-                <!-- Transform -->
-                <div style="font-weight:bold; margin-bottom:10px;">Transform</div>
-                <div class="row">
-                    <label>Pos X</label>
-                    <input type="number" id="insp-x">
-                </div>
-                <div class="row">
-                    <label>Pos Y</label>
-                    <input type="number" id="insp-y">
-                </div>
-                <div class="row">
-                    <label>Angle</label>
-                    <input type="number" id="insp-angle">
-                </div>
-
-                <hr style="border:0; border-top:1px solid #444; margin:15px 0;">
-
-                <!-- Physics Material -->
-                <div style="font-weight:bold; margin-bottom:10px;">Physics</div>
-                <div class="row">
-                    <label>Static</label>
-                    <input type="checkbox" id="insp-static" style="width:auto;">
-                </div>
-                <div class="row">
-                    <label>Friction</label>
-                    <input type="number" step="0.1" id="insp-friction">
-                </div>
-                <div class="row">
-                    <label>Bounce</label>
-                    <input type="number" step="0.1" id="insp-restitution">
-                </div>
-
-                <hr style="border:0; border-top:1px solid #444; margin:15px 0;">
-
-                <!-- Visuals -->
-                <div style="font-weight:bold; margin-bottom:10px;">Visuals</div>
-                <div class="row">
-                    <label>Color</label>
-                    <input type="color" id="insp-color" style="height:30px;">
-                </div>
-                <div class="row">
-                    <label>Texture URL</label>
-                    <input type="text" id="insp-texture" placeholder="http://...">
-                </div>
-
-                <hr style="border:0; border-top:1px solid #444; margin:15px 0;">
-
-                <!-- Scripting -->
-                <div style="font-weight:bold; margin-bottom:10px; color:var(--success)">Script (Update Loop)</div>
-                <div style="font-size:10px; color:#888; margin-bottom:5px;">
-                    Available: <code>body</code>, <code>engine</code>, <code>input</code>
-                </div>
-                <textarea id="insp-script" class="code-editor" placeholder="// body.position.x += 1;"></textarea>
-                <button onclick="Inspector.applyScript()" style="width:100%; margin-top:5px;">Apply Script</button>
-
-                <hr style="border:0; border-top:1px solid #444; margin:15px 0;">
+                <hr style="border:0; border-top:1px solid #444; margin:10px 0;">
                 
-                <button class="danger" style="width:100%" onclick="Spawner.deleteSelected()">Delete Object</button>
+                <div style="font-weight:bold; margin-bottom:5px;">Transform</div>
+                <div class="prop-row"><label>X</label><input type="number" id="insp-x"></div>
+                <div class="prop-row"><label>Y</label><input type="number" id="insp-y"></div>
+                <div class="prop-row"><label>Rotation</label><input type="number" step="0.1" id="insp-angle"></div>
+                <div class="prop-row"><label>Scale</label><input type="number" step="0.1" id="insp-scale" value="1"></div>
+
+                <hr style="border:0; border-top:1px solid #444; margin:10px 0;">
+                
+                <div style="font-weight:bold; margin-bottom:5px;">Visuals</div>
+                <div class="prop-row"><label>Color</label><input type="color" id="insp-color"></div>
+                <div class="prop-row"><label>Image URL</label><input type="text" id="insp-texture" placeholder="https://..."></div>
+
+                <hr style="border:0; border-top:1px solid #444; margin:10px 0;">
+                
+                <div style="font-weight:bold; margin-bottom:5px;">Logic</div>
+                <div class="prop-row"><label>Attached Script</label>
+                    <select id="insp-script-select">
+                        <option value="">(None)</option>
+                    </select>
+                </div>
+
+                <button class="btn" style="width:100%; background:#c0392b; margin-top:20px;" onclick="Editor.deleteSelected()">Delete Object</button>
             </div>
+            <div id="insp-empty" style="padding:20px; text-align:center; color:#666;">Select an object</div>
         </div>
     </div>
 
-    <!-- LIBRARIES -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.18.0/matter.min.js"></script>
+    <!-- ASSETS / SCRIPTS -->
+    <div id="assets-panel">
+        <div id="script-list">
+            <div class="panel-header">
+                <span>Scripts</span>
+                <button class="btn" onclick="Scripts.createNew()">+</button>
+            </div>
+            <div id="script-list-content"></div>
+        </div>
+        <div id="script-editor-container">
+            <div class="panel-header">
+                <span id="script-editor-title">No Script Selected</span>
+                <button class="btn primary" onclick="Scripts.saveCurrent()">Save Script</button>
+            </div>
+            <textarea id="code-editor" class="code-editor" disabled></textarea>
+        </div>
+    </div>
 
-    <!-- ENGINE LOGIC -->
+    <!-- LIB -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
+
     <script>
-        // --- 1. CORE SETUP ---
-        const Engine = Matter.Engine,
-              Render = Matter.Render,
-              Runner = Matter.Runner,
-              Bodies = Matter.Bodies,
-              Composite = Matter.Composite,
-              Events = Matter.Events,
-              Body = Matter.Body,
-              Vector = Matter.Vector,
-              Mouse = Matter.Mouse;
+        // --- CORE ENGINE ---
+        const Engine = Matter.Engine, Render = Matter.Render, Runner = Matter.Runner, 
+              Bodies = Matter.Bodies, Composite = Matter.Composite, Events = Matter.Events, 
+              Body = Matter.Body, Mouse = Matter.Mouse, MouseConstraint = Matter.MouseConstraint;
 
-        const container = document.getElementById('scene-container');
-        const gizmoCanvas = document.getElementById('gizmo-canvas');
-        
-        // Setup Matter Engine
         const engine = Engine.create();
         const world = engine.world;
-
-        // Render Setup
+        const container = document.getElementById('scene');
+        
+        // Renderer
         const render = Render.create({
             element: container,
             engine: engine,
             options: {
                 width: container.clientWidth,
                 height: container.clientHeight,
+                background: '#111',
                 wireframes: false,
-                background: '#1a1a1a',
-                pixelRatio: 1
+                showAngleIndicator: false
             }
         });
 
-        // Resize Handling
-        function handleResize() {
+        // Input
+        const mouse = Mouse.create(render.canvas);
+        const mouseConstraint = MouseConstraint.create(engine, {
+            mouse: mouse,
+            constraint: { stiffness: 0.2, render: { visible: false } }
+        });
+        Composite.add(world, mouseConstraint);
+        
+        // Remove wheel events to prevent scrolling
+        mouse.element.removeEventListener("mousewheel", mouse.mousewheel);
+        mouse.element.removeEventListener("DOMMouseScroll", mouse.mousewheel);
+
+        // Resize
+        window.addEventListener('resize', () => {
             render.canvas.width = container.clientWidth;
             render.canvas.height = container.clientHeight;
-            gizmoCanvas.width = container.clientWidth;
-            gizmoCanvas.height = container.clientHeight;
-        }
-        window.addEventListener('resize', handleResize);
-        handleResize();
-
-        // Mouse Input for Raycasting
-        const mouse = Mouse.create(render.canvas);
-        
-        // State
-        const AppState = {
-            mode: 'edit', // 'edit' or 'play'
-            tool: 'move', // 'move', 'scale'
-            selectedBody: null,
-            targetFPS: 60,
-            frameCount: 0,
-            input: {
-                keys: {}
-            }
-        };
-
-        // --- 2. GAME LOOP (Custom for FPS Control) ---
-        const EngineCore = {
-            lastTime: 0,
-            accumulatedTime: 0,
-            
-            setFPS: function(val) {
-                AppState.targetFPS = parseInt(val);
-                console.log("FPS Set to:", AppState.targetFPS);
-            },
-
-            clearScene: function() {
-                Composite.clear(world);
-                EngineCore.createFloor();
-                AppState.selectedBody = null;
-                Inspector.updateUI();
-                Hierarchy.render();
-            },
-
-            createFloor: function() {
-                const floor = Bodies.rectangle(400, 600, 2000, 60, { 
-                    isStatic: true, 
-                    label: "Ground",
-                    render: { fillStyle: '#444' } 
-                });
-                Composite.add(world, floor);
-            },
-
-            loop: function(timestamp) {
-                requestAnimationFrame(EngineCore.loop);
-
-                const deltaTime = timestamp - EngineCore.lastTime;
-                
-                // FPS Throttling
-                const interval = AppState.targetFPS > 0 ? (1000 / AppState.targetFPS) : 0;
-                
-                if (deltaTime > interval) {
-                    EngineCore.lastTime = timestamp - (deltaTime % interval);
-                    
-                    // LOGIC STEP
-                    if (AppState.mode === 'play') {
-                        Engine.update(engine, 1000 / 60); // Physics step fixed at 60hz for stability
-                        ScriptSystem.update();
-                    }
-
-                    // RENDER STEP
-                    Render.world(render);
-                    Gizmos.draw(); // Draw Editor Tools
-                }
-            }
-        };
-
-        // --- 3. INPUT SYSTEM & GIZMOS ---
-        
-        const Gizmos = {
-            dragActive: false,
-            dragMode: null, // 'x', 'y', 'scale'
-            dragStartPos: { x: 0, y: 0 },
-            initialObjState: null, // {x, y, scale}
-
-            draw: function() {
-                const ctx = gizmoCanvas.getContext('2d');
-                ctx.clearRect(0, 0, gizmoCanvas.width, gizmoCanvas.height);
-
-                if (!AppState.selectedBody) return;
-                
-                const b = AppState.selectedBody;
-                const pos = b.position;
-
-                ctx.lineWidth = 2;
-
-                // Draw Selection Box
-                ctx.strokeStyle = '#007acc';
-                ctx.beginPath();
-                ctx.moveTo(b.bounds.min.x, b.bounds.min.y);
-                ctx.lineTo(b.bounds.max.x, b.bounds.min.y);
-                ctx.lineTo(b.bounds.max.x, b.bounds.max.y);
-                ctx.lineTo(b.bounds.min.x, b.bounds.max.y);
-                ctx.closePath();
-                ctx.stroke();
-
-                if (AppState.mode !== 'edit') return;
-
-                // MOVE TOOL
-                if (AppState.tool === 'move') {
-                    // X Axis (Red)
-                    ctx.strokeStyle = '#ff5555';
-                    ctx.fillStyle = '#ff5555';
-                    ctx.beginPath();
-                    ctx.moveTo(pos.x, pos.y);
-                    ctx.lineTo(pos.x + 60, pos.y);
-                    ctx.stroke();
-                    // Arrowhead
-                    ctx.beginPath();
-                    ctx.moveTo(pos.x + 60, pos.y - 5);
-                    ctx.lineTo(pos.x + 70, pos.y);
-                    ctx.lineTo(pos.x + 60, pos.y + 5);
-                    ctx.fill();
-
-                    // Y Axis (Green)
-                    ctx.strokeStyle = '#55ff55';
-                    ctx.fillStyle = '#55ff55';
-                    ctx.beginPath();
-                    ctx.moveTo(pos.x, pos.y);
-                    ctx.lineTo(pos.x, pos.y - 60); // Up
-                    ctx.stroke();
-                    // Arrowhead
-                    ctx.beginPath();
-                    ctx.moveTo(pos.x - 5, pos.y - 60);
-                    ctx.lineTo(pos.x, pos.y - 70);
-                    ctx.lineTo(pos.x + 5, pos.y - 60);
-                    ctx.fill();
-                } 
-                // SCALE TOOL
-                else if (AppState.tool === 'scale') {
-                    ctx.fillStyle = '#ffffff';
-                    // Draw a box at corners
-                    const size = 10;
-                    ctx.fillRect(b.bounds.max.x - size/2, b.bounds.max.y - size/2, size, size);
-                }
-            },
-
-            checkHit: function(mx, my) {
-                if (!AppState.selectedBody || AppState.mode !== 'edit') return null;
-                const pos = AppState.selectedBody.position;
-                
-                if (AppState.tool === 'move') {
-                    // Check X Arrow
-                    if (mx > pos.x && mx < pos.x + 70 && Math.abs(my - pos.y) < 10) return 'moveX';
-                    // Check Y Arrow
-                    if (my < pos.y && my > pos.y - 70 && Math.abs(mx - pos.x) < 10) return 'moveY';
-                }
-                if (AppState.tool === 'scale') {
-                    const b = AppState.selectedBody.bounds;
-                    const dist = Math.hypot(mx - b.max.x, my - b.max.y);
-                    if (dist < 15) return 'scale';
-                }
-                return null;
-            }
-        };
-
-        // Input Event Listeners
-        gizmoCanvas.addEventListener('mousedown', e => {
-            const rect = gizmoCanvas.getBoundingClientRect();
-            const mx = e.clientX - rect.left;
-            const my = e.clientY - rect.top;
-
-            // 1. Check Gizmo Hit
-            const gizmoHit = Gizmos.checkHit(mx, my);
-            if (gizmoHit) {
-                Gizmos.dragActive = true;
-                Gizmos.dragMode = gizmoHit;
-                Gizmos.dragStartPos = { x: mx, y: my };
-                Gizmos.initialObjState = { ...AppState.selectedBody.position, bounds: AppState.selectedBody.bounds };
-                return;
-            }
-
-            // 2. Check Object Hit (Raycast)
-            const bodies = Composite.allBodies(world);
-            const clicked = Matter.Query.point(bodies, { x: mx, y: my });
-            
-            if (clicked.length > 0) {
-                Inspector.select(clicked[0]);
-            } else {
-                Inspector.deselect();
-            }
         });
 
-        window.addEventListener('mousemove', e => {
-            const rect = gizmoCanvas.getBoundingClientRect();
-            const mx = e.clientX - rect.left;
-            const my = e.clientY - rect.top;
+        // --- SCRIPT MANAGER ---
+        const Scripts = {
+            library: {}, // Stores code string: { "PlayerMove": "code..." }
+            currentEdit: null,
+            compiled: {}, // Stores executable functions
 
-            if (Gizmos.dragActive && AppState.selectedBody) {
-                const dx = mx - Gizmos.dragStartPos.x;
-                const dy = my - Gizmos.dragStartPos.y;
+            init: function() {
+                // Default Samples
+                this.library['Rotator'] = `// Simple Rotation\nbody.angle += 0.05;`;
+                this.library['PlayerMovement'] = `// WASD Control\nconst speed = 5;\nif(input.keys['w']) Body.setVelocity(body, {x: body.velocity.x, y: -speed});\nif(input.keys['a']) Body.setVelocity(body, {x: -speed, y: body.velocity.y});\nif(input.keys['s']) Body.setVelocity(body, {x: body.velocity.x, y: speed});\nif(input.keys['d']) Body.setVelocity(body, {x: speed, y: body.velocity.y});`;
+                this.library['Gun'] = `// Click to Shoot\nif(input.mouseDown && time % 10 === 0) {\n    // Create bullet\n    const b = Bodies.circle(body.position.x, body.position.y, 5, { render: { fillStyle: 'yellow' }});\n    // Shoot towards mouse\n    const force = 0.02;\n    const dx = input.mouseX - body.position.x;\n    const dy = input.mouseY - body.position.y;\n    const mag = Math.sqrt(dx*dx + dy*dy);\n    Body.applyForce(b, b.position, { x: (dx/mag)*force, y: (dy/mag)*force });\n    Composite.add(engine.world, b);\n}`;
+                this.renderList();
+            },
 
-                if (Gizmos.dragMode === 'moveX') {
-                    Body.setPosition(AppState.selectedBody, { 
-                        x: Gizmos.initialObjState.x + dx, 
-                        y: AppState.selectedBody.position.y 
-                    });
-                } else if (Gizmos.dragMode === 'moveY') {
-                    Body.setPosition(AppState.selectedBody, { 
-                        x: AppState.selectedBody.position.x, 
-                        y: Gizmos.initialObjState.y + dy 
-                    });
-                } else if (Gizmos.dragMode === 'scale') {
-                    // Simple uniform scaling factor based on drag
-                    const scaleFactor = 1 + (dx / 100);
-                    // Reset scale logic is complex in Matter, simple approximation:
-                    // Only apply delta scaling if moving slowly, usually better to reconstruct body, 
-                    // but for this demo, we use Body.scale (cumulative)
-                    // A safe way:
-                    if(Math.abs(dx) > 1 || Math.abs(dy) > 1) {
-                         const s = 1 + (dx * 0.005);
-                         Body.scale(AppState.selectedBody, s, s);
-                         Gizmos.dragStartPos = {x: mx, y: my}; // Reset to avoid exponential growth
+            createNew: function() {
+                const name = prompt("Script Name:", "NewScript");
+                if(name) {
+                    this.library[name] = "// Write your code here.\n// Available: body, engine, input, time, Body, Composite, Bodies";
+                    this.renderList();
+                    this.edit(name);
+                }
+            },
+
+            edit: function(name) {
+                this.currentEdit = name;
+                document.getElementById('script-editor-title').innerText = "Editing: " + name;
+                const area = document.getElementById('code-editor');
+                area.value = this.library[name];
+                area.disabled = false;
+            },
+
+            saveCurrent: function() {
+                if(this.currentEdit) {
+                    this.library[this.currentEdit] = document.getElementById('code-editor').value;
+                    // Recompile
+                    try {
+                        // Validate syntax
+                        new Function('body', 'engine', 'input', 'time', 'Body', 'Composite', 'Bodies', this.library[this.currentEdit]);
+                        alert("Script Saved & Compiled!");
+                    } catch(e) {
+                        alert("Error in script: " + e.message);
                     }
                 }
-                Inspector.updateUI(); // Live update inspector
-            }
-        });
-
-        window.addEventListener('mouseup', () => {
-            Gizmos.dragActive = false;
-        });
-        
-        // Key Tracking for Scripts
-        window.addEventListener('keydown', e => AppState.input.keys[e.key] = true);
-        window.addEventListener('keyup', e => AppState.input.keys[e.key] = false);
-
-
-        // --- 4. INSPECTOR & HIERARCHY ---
-
-        const Inspector = {
-            ui: {
-                name: document.getElementById('insp-name'),
-                id: document.getElementById('insp-id'),
-                x: document.getElementById('insp-x'),
-                y: document.getElementById('insp-y'),
-                angle: document.getElementById('insp-angle'),
-                static: document.getElementById('insp-static'),
-                friction: document.getElementById('insp-friction'),
-                restitution: document.getElementById('insp-restitution'),
-                color: document.getElementById('insp-color'),
-                texture: document.getElementById('insp-texture'),
-                script: document.getElementById('insp-script'),
-                content: document.getElementById('inspector-content'),
-                empty: document.getElementById('inspector-empty')
             },
 
-            select: function(body) {
-                AppState.selectedBody = body;
-                this.ui.content.classList.remove('hidden');
-                this.ui.empty.classList.add('hidden');
-                
-                // Init custom props if missing
-                if(!body.custom) body.custom = { script: "", textureUrl: "" };
-                
-                this.updateUI();
-                Hierarchy.highlight(body.id);
-            },
-
-            deselect: function() {
-                AppState.selectedBody = null;
-                this.ui.content.classList.add('hidden');
-                this.ui.empty.classList.remove('hidden');
-                Hierarchy.render();
-            },
-
-            updateUI: function() {
-                if (!AppState.selectedBody) return;
-                const b = AppState.selectedBody;
-                
-                // Prevent updating if focused to allow typing
-                if (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA') return;
-
-                this.ui.name.value = b.label;
-                this.ui.id.value = b.id;
-                this.ui.x.value = Math.round(b.position.x);
-                this.ui.y.value = Math.round(b.position.y);
-                this.ui.angle.value = b.angle.toFixed(2);
-                this.ui.static.checked = b.isStatic;
-                this.ui.friction.value = b.friction;
-                this.ui.restitution.value = b.restitution;
-                this.ui.color.value = b.render.fillStyle;
-                this.ui.texture.value = b.custom.textureUrl || "";
-                this.ui.script.value = b.custom.script || "";
-            },
-
-            applyChanges: function() {
-                if (!AppState.selectedBody) return;
-                const b = AppState.selectedBody;
-                
-                b.label = this.ui.name.value;
-                Body.setPosition(b, { x: parseFloat(this.ui.x.value), y: parseFloat(this.ui.y.value) });
-                Body.setAngle(b, parseFloat(this.ui.angle.value));
-                Body.setStatic(b, this.ui.static.checked);
-                b.friction = parseFloat(this.ui.friction.value);
-                b.restitution = parseFloat(this.ui.restitution.value);
-                b.render.fillStyle = this.ui.color.value;
-
-                // Texture Logic
-                const texUrl = this.ui.texture.value;
-                if (texUrl && texUrl !== b.custom.textureUrl) {
-                    b.custom.textureUrl = texUrl;
-                    b.render.sprite.texture = texUrl;
-                    // Reset sprite scale slightly to make it visible
-                    b.render.sprite.xScale = 1; 
-                    b.render.sprite.yScale = 1; 
-                } else if (!texUrl) {
-                    b.render.sprite.texture = null;
-                }
-
-                Hierarchy.render(); // Update name in list
-            },
-            
-            applyScript: function() {
-                if (AppState.selectedBody) {
-                    AppState.selectedBody.custom.script = this.ui.script.value;
-                    logConsole("Script updated for " + AppState.selectedBody.label);
-                }
-            }
-        };
-
-        // Bind Inputs
-        ['change', 'input'].forEach(evt => {
-            Object.values(Inspector.ui).forEach(el => {
-                if(el && el.tagName !== 'DIV') el.addEventListener(evt, () => Inspector.applyChanges());
-            });
-        });
-
-        const Hierarchy = {
-            list: document.getElementById('hierarchy-list'),
-            
-            render: function() {
-                this.list.innerHTML = '';
-                Composite.allBodies(world).forEach(b => {
+            renderList: function() {
+                const list = document.getElementById('script-list-content');
+                list.innerHTML = '';
+                Object.keys(this.library).forEach(name => {
                     const div = document.createElement('div');
-                    div.className = 'list-item';
-                    if (AppState.selectedBody === b) div.classList.add('selected');
-                    div.innerText = b.label || `Body ${b.id}`;
-                    div.onclick = () => Inspector.select(b);
-                    this.list.appendChild(div);
+                    div.className = 'tree-item';
+                    div.innerText = "📜 " + name;
+                    div.onclick = () => this.edit(name);
+                    list.appendChild(div);
                 });
+                
+                // Update Inspector Dropdown
+                const sel = document.getElementById('insp-script-select');
+                const currentVal = sel.value;
+                sel.innerHTML = '<option value="">(None)</option>';
+                Object.keys(this.library).forEach(name => {
+                    const opt = document.createElement('option');
+                    opt.value = name;
+                    opt.innerText = name;
+                    sel.appendChild(opt);
+                });
+                sel.value = currentVal;
             },
 
-            highlight: function(id) {
-                // Quick style update without full rerender
-                Array.from(this.list.children).forEach(child => child.classList.remove('selected'));
-                this.render(); // lazy full render to ensure sync
+            run: function(body) {
+                if(!body.sakoar || !body.sakoar.script) return;
+                const name = body.sakoar.script;
+                const code = this.library[name];
+                if(!code) return;
+
+                if(!this.compiled[name]) {
+                    try {
+                        this.compiled[name] = new Function('body', 'engine', 'input', 'time', 'Body', 'Composite', 'Bodies', code);
+                    } catch(e) { console.error(e); return; }
+                }
+                
+                try {
+                    this.compiled[name](body, engine, Game.input, Game.frameCount, Body, Composite, Bodies);
+                } catch(e) {
+                    console.error("Runtime Error in " + name, e);
+                }
             }
         };
 
-        // --- 5. SCRIPTING SYSTEM ---
-        
-        const ScriptSystem = {
-            update: function() {
-                Composite.allBodies(world).forEach(b => {
-                    if (b.custom && b.custom.script && b.custom.script.trim() !== "") {
-                        try {
-                            // Create a safe-ish function
-                            // We pass: body, engine, input
-                            const func = new Function('body', 'engine', 'input', b.custom.script);
-                            func(b, engine, AppState.input);
-                        } catch (e) {
-                            // Rate limit errors to avoid console flood
-                            if (Math.random() < 0.01) logConsole(`Script Error (${b.label}): ${e.message}`);
-                        }
-                    }
-                });
-            }
-        };
+        // --- EDITOR LOGIC ---
+        const Editor = {
+            selected: null,
+            clipboard: null,
 
-        function logConsole(msg) {
-            const c = document.getElementById('console-log');
-            const d = document.createElement('div');
-            d.innerText = `> ${msg}`;
-            c.prepend(d);
-        }
-
-        // --- 6. UTILS & HELPERS ---
-
-        const Spawner = {
-            create: function(type) {
-                const x = container.clientWidth / 2;
-                const y = container.clientHeight / 2;
+            spawn: function(type) {
+                if(!type) return;
+                const cx = container.clientWidth/2;
+                const cy = container.clientHeight/2;
                 let b;
 
-                if (type === 'box') {
-                    b = Bodies.rectangle(x, y, 50, 50, { label: 'Box', render: { fillStyle: '#007acc' } });
-                } else if (type === 'circle') {
-                    b = Bodies.circle(x, y, 25, { label: 'Circle', render: { fillStyle: '#e06c75' } });
-                } else if (type === 'car') {
-                    // Simple prefab
-                    const chassis = Bodies.rectangle(x, y, 100, 30, { label: 'Car Chassis' });
-                    const w1 = Bodies.circle(x - 35, y + 20, 15, { friction: 0.8, label: 'Wheel L' });
-                    const w2 = Bodies.circle(x + 35, y + 20, 15, { friction: 0.8, label: 'Wheel R' });
-                    const ax1 = Matter.Constraint.create({ bodyA: chassis, bodyB: w1, pointA: {x:-35, y:20}, stiffness: 0.5 });
-                    const ax2 = Matter.Constraint.create({ bodyA: chassis, bodyB: w2, pointA: {x:35, y:20}, stiffness: 0.5 });
-                    Composite.add(world, [chassis, w1, w2, ax1, ax2]);
-                    Hierarchy.render();
+                if(type === 'group') {
+                    // Logic group
+                    b = Composite.create({ label: 'New Group' });
+                    Composite.add(world, b);
+                    this.refreshHierarchy();
                     return;
                 }
+                else if(type === 'box') {
+                    b = Bodies.rectangle(cx, cy, 50, 50, { render: { fillStyle: '#3498db' } });
+                }
+                else if(type === 'circle') {
+                    b = Bodies.circle(cx, cy, 30, { render: { fillStyle: '#e74c3c' } });
+                }
+                else if(type === 'sprite') {
+                    b = Bodies.rectangle(cx, cy, 64, 64, { 
+                        render: { 
+                            sprite: { texture: 'https://labs.phaser.io/assets/sprites/phaser-dude.png', xScale:1, yScale:1 } 
+                        } 
+                    });
+                }
+                else if(type === 'weapon') {
+                    b = Bodies.rectangle(cx, cy, 40, 10, { render: { fillStyle: '#2ecc71' } });
+                    b.sakoar = { script: 'Gun' }; // Auto attach script
+                }
 
-                if (b) {
-                    b.custom = { script: "", textureUrl: "" };
+                if(b) {
+                    b.label = "New " + type;
+                    b.sakoar = b.sakoar || { script: "" }; // Custom data container
                     Composite.add(world, b);
-                    Inspector.select(b);
-                    Hierarchy.render();
+                    this.select(b);
+                    this.refreshHierarchy();
                 }
             },
-            
-            deleteSelected: function() {
-                if(AppState.selectedBody) {
-                    Composite.remove(world, AppState.selectedBody);
-                    Inspector.deselect();
+
+            select: function(obj) {
+                this.selected = obj;
+                const ui = document.getElementById('insp-content');
+                const empty = document.getElementById('insp-empty');
+                
+                if(!obj) { ui.classList.add('hidden'); empty.classList.remove('hidden'); return; }
+                
+                ui.classList.remove('hidden');
+                empty.classList.add('hidden');
+
+                // Populate UI
+                const isBody = obj.type === 'body';
+                
+                document.getElementById('insp-name').value = obj.label || 'Unnamed';
+                
+                if(isBody) {
+                    document.getElementById('insp-x').value = Math.round(obj.position.x);
+                    document.getElementById('insp-y').value = Math.round(obj.position.y);
+                    document.getElementById('insp-angle').value = obj.angle.toFixed(2);
+                    document.getElementById('insp-scale').value = obj.render.sprite.xScale || 1;
+                    document.getElementById('insp-color').value = obj.render.fillStyle;
+                    document.getElementById('insp-texture').value = obj.render.sprite ? (obj.render.sprite.texture || "") : "";
+                    
+                    // Script
+                    obj.sakoar = obj.sakoar || {};
+                    document.getElementById('insp-script-select').value = obj.sakoar.script || "";
                 }
+                
+                // Parent selector
+                const pSel = document.getElementById('insp-parent');
+                pSel.innerHTML = '<option value="world">World</option>';
+                // Find all composites
+                const traverse = (comp) => {
+                    if(comp.id !== world.id) {
+                         const opt = document.createElement('option');
+                         opt.value = comp.id;
+                         opt.innerText = comp.label;
+                         pSel.appendChild(opt);
+                    }
+                    comp.composites.forEach(traverse);
+                };
+                traverse(world);
+            },
+
+            applyProp: function(key, val) {
+                if(!this.selected || this.selected.type !== 'body') return;
+                const b = this.selected;
+
+                if(key === 'name') { b.label = val; this.refreshHierarchy(); }
+                if(key === 'x') Body.setPosition(b, { x: parseFloat(val), y: b.position.y });
+                if(key === 'y') Body.setPosition(b, { x: b.position.x, y: parseFloat(val) });
+                if(key === 'angle') Body.setAngle(b, parseFloat(val));
+                if(key === 'scale') { 
+                    const s = parseFloat(val); 
+                    // Matter.js scaling is permanent, so we need a base. simplified here:
+                    // For sprites, we adjust texture scale
+                    if(b.render.sprite) { b.render.sprite.xScale = s; b.render.sprite.yScale = s; }
+                }
+                if(key === 'color') b.render.fillStyle = val;
+                if(key === 'texture') {
+                    if(val) { b.render.sprite.texture = val; b.render.sprite.xScale = 1; b.render.sprite.yScale = 1; }
+                    else { b.render.sprite.texture = null; }
+                }
+                if(key === 'script') b.sakoar.script = val;
+            },
+
+            deleteSelected: function() {
+                if(this.selected) {
+                    Composite.remove(world, this.selected, true); // Deep remove
+                    this.selected = null;
+                    this.select(null);
+                    this.refreshHierarchy();
+                }
+            },
+
+            refreshHierarchy: function() {
+                const h = document.getElementById('hierarchy-content');
+                h.innerHTML = '';
+                
+                const buildTree = (comp, depth) => {
+                    // Items in this composite
+                    const items = [...comp.composites, ...comp.bodies];
+                    
+                    items.forEach(item => {
+                        if(item.id === mouseConstraint.constraint.bodyB?.id) return; // Skip mouse tool
+                        if(item === mouseConstraint.body) return;
+
+                        const div = document.createElement('div');
+                        div.className = 'tree-item ' + (item.type === 'composite' ? 'group' : '');
+                        if(this.selected && this.selected.id === item.id) div.classList.add('selected');
+                        div.style.paddingLeft = (depth * 15 + 5) + 'px';
+                        
+                        const icon = item.type === 'composite' ? '📁 ' : (item.render.sprite && item.render.sprite.texture ? '🖼️ ' : '🧊 ');
+                        div.innerText = icon + (item.label || item.type);
+                        
+                        div.onclick = (e) => {
+                            e.stopPropagation();
+                            this.select(item);
+                            this.refreshHierarchy(); // re-render to show selection state
+                        };
+                        h.appendChild(div);
+
+                        if(item.type === 'composite') buildTree(item, depth + 1);
+                    });
+                };
+                
+                buildTree(world, 0);
+            },
+
+            saveProject: function() {
+                // We need to serialize the world + scripts
+                // Matter.js serialization is basic, let's do a custom one for our needs
+                const data = {
+                    scripts: Scripts.library,
+                    objects: []
+                };
+
+                const serializeBody = (b) => {
+                    return {
+                        id: b.id,
+                        label: b.label,
+                        x: b.position.x,
+                        y: b.position.y,
+                        angle: b.angle,
+                        color: b.render.fillStyle,
+                        texture: b.render.sprite ? b.render.sprite.texture : null,
+                        isStatic: b.isStatic,
+                        script: b.sakoar ? b.sakoar.script : ""
+                    };
+                };
+
+                Composite.allBodies(world).forEach(b => {
+                    // Filter out boundaries/mouse
+                    if(b.label !== "Ground" && b.label !== "Wall" && b.id !== mouseConstraint.body?.id) {
+                         data.objects.push(serializeBody(b));
+                    }
+                });
+
+                const json = JSON.stringify(data, null, 2);
+                const blob = new Blob([json], {type: "application/json"});
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = "MyGame.json";
+                a.click();
+            },
+
+            loadProject: function(input) {
+                const file = input.files[0];
+                if(!file) return;
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    try {
+                        const data = JSON.parse(e.target.result);
+                        
+                        // Clear World
+                        Composite.clear(world);
+                        Composite.add(world, mouseConstraint);
+                        Game.setupBoundaries();
+
+                        // Load Scripts
+                        if(data.scripts) {
+                            Scripts.library = data.scripts;
+                            Scripts.renderList();
+                        }
+
+                        // Load Objects
+                        if(data.objects) {
+                            data.objects.forEach(obj => {
+                                let b = Bodies.rectangle(obj.x, obj.y, 50, 50); // generic size
+                                
+                                // Restore props
+                                b.label = obj.label;
+                                Body.setAngle(b, obj.angle);
+                                Body.setStatic(b, obj.isStatic || false);
+                                b.render.fillStyle = obj.color;
+                                if(obj.texture) {
+                                    b.render.sprite.texture = obj.texture;
+                                    b.render.sprite.xScale = 1;
+                                    b.render.sprite.yScale = 1;
+                                }
+                                b.sakoar = { script: obj.script || "" };
+                                
+                                Composite.add(world, b);
+                            });
+                        }
+                        this.refreshHierarchy();
+                        alert("Project Loaded!");
+                    } catch(err) {
+                        alert("Failed to load: " + err);
+                    }
+                };
+                reader.readAsText(file);
             }
         };
 
-        function setMode(mode) {
-            AppState.mode = mode;
-            document.getElementById('btn-play').classList.toggle('active', mode === 'play');
-            document.getElementById('btn-edit').classList.toggle('active', mode === 'edit');
-            
-            // In Edit Mode, remove gravity temporarily or freeze? 
-            // Matter.js is hard to 'pause' perfectly without stopping the runner.
-            // Our custom loop handles the update logic stop.
-            
-            if (mode === 'edit') {
-                // Optional: Reset scene physics if desired, but for now we just pause.
+        // --- GAME LOGIC ---
+        const Game = {
+            running: false,
+            runner: Runner.create(),
+            frameCount: 0,
+            input: { keys: {}, mouseX: 0, mouseY: 0, mouseDown: false },
+
+            init: function() {
+                Scripts.init();
+                this.setupBoundaries();
+                
+                // Gizmo Loop
+                Events.on(render, 'afterRender', () => {
+                    const ctx = document.getElementById('gizmo-layer').getContext('2d');
+                    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+                    
+                    // Draw selection box
+                    if(Editor.selected && Editor.selected.type === 'body') {
+                        const b = Editor.selected;
+                        ctx.strokeStyle = '#d35400';
+                        ctx.lineWidth = 2;
+                        ctx.beginPath();
+                        ctx.translate(b.position.x, b.position.y);
+                        ctx.rotate(b.angle);
+                        // Approximate bounds based on verts (simplified for gizmo)
+                        ctx.rect(-25, -25, 50, 50); 
+                        ctx.stroke();
+                        ctx.setTransform(1,0,0,1,0,0);
+                    }
+                });
+
+                // Selection Click
+                Events.on(mouseConstraint, 'mousedown', (e) => {
+                    const mousePos = e.mouse.position;
+                    const bodies = Composite.allBodies(world);
+                    const clicked = Matter.Query.point(bodies, mousePos);
+                    
+                    if(clicked.length > 0) {
+                        // ignore walls
+                        if(clicked[0].label === "Wall" || clicked[0].label === "Ground") {
+                             Editor.select(null);
+                        } else {
+                             Editor.select(clicked[0]);
+                        }
+                    } else {
+                        Editor.select(null);
+                    }
+                    Editor.refreshHierarchy();
+                });
+
+                // Input Listeners
+                window.addEventListener('keydown', e => this.input.keys[e.key] = true);
+                window.addEventListener('keyup', e => this.input.keys[e.key] = false);
+                window.addEventListener('mousemove', e => {
+                    const rect = container.getBoundingClientRect();
+                    this.input.mouseX = e.clientX - rect.left;
+                    this.input.mouseY = e.clientY - rect.top;
+                });
+                container.addEventListener('mousedown', () => this.input.mouseDown = true);
+                window.addEventListener('mouseup', () => this.input.mouseDown = false);
+
+                // Run Render
+                Render.run(render);
+                Editor.refreshHierarchy();
+            },
+
+            setupBoundaries: function() {
+                const w = container.clientWidth;
+                const h = container.clientHeight;
+                const ground = Bodies.rectangle(w/2, h+30, w, 60, { isStatic: true, label: "Ground", render:{fillStyle:'#333'} });
+                const left = Bodies.rectangle(-30, h/2, 60, h, { isStatic: true, label: "Wall" });
+                const right = Bodies.rectangle(w+30, h/2, 60, h, { isStatic: true, label: "Wall" });
+                Composite.add(world, [ground, left, right]);
+            },
+
+            togglePlay: function() {
+                this.running = !this.running;
+                if(this.running) {
+                    document.getElementById('btn-play').innerText = "❚❚ Pause";
+                    Runner.run(this.runner, engine);
+                    // Add update hook for scripts
+                    Events.on(engine, 'beforeUpdate', this.updateLoop);
+                } else {
+                    document.getElementById('btn-play').innerText = "▶ Play";
+                    Runner.stop(this.runner);
+                    Events.off(engine, 'beforeUpdate', this.updateLoop);
+                }
+            },
+
+            stop: function() {
+                this.running = false;
+                document.getElementById('btn-play').innerText = "▶ Play";
+                Runner.stop(this.runner);
+                Events.off(engine, 'beforeUpdate', this.updateLoop);
+                
+                // Reset (Simple reload for now to reset positions, in a full engine we'd store initial states)
+                // For this demo, we just stop physics.
+                alert("Simulation Stopped. (Note: To reset positions fully, click Reload or Load JSON)");
+            },
+
+            updateLoop: function() {
+                Game.frameCount++;
+                Composite.allBodies(world).forEach(b => Scripts.run(b));
             }
-        }
+        };
 
-        function setTool(tool) {
-            AppState.tool = tool;
-            document.getElementById('tool-move').classList.toggle('active', tool === 'move');
-            document.getElementById('tool-scale').classList.toggle('active', tool === 'scale');
-        }
+        // UI Binds
+        ['name','x','y','angle','scale','color','texture','script-select'].forEach(id => {
+            const el = document.getElementById('insp-'+id);
+            if(el) {
+                el.addEventListener(el.tagName==='SELECT'?'change':'input', (e) => {
+                    const key = id === 'script-select' ? 'script' : id;
+                    Editor.applyProp(key, e.target.value);
+                });
+            }
+        });
 
-        // --- INIT ---
-        EngineCore.createFloor();
-        EngineCore.loop(0);
+        // Start
+        Game.init();
 
     </script>
 </body>
