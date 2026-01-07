@@ -2,189 +2,282 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Sakoar Sandbox</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebPhys Engine 2.0</title>
     <style>
         :root {
-            --bg: #1a1a1a;
-            --panel: #2d2d2d;
-            --accent: #e67e22; /* Sakoar Orange */
-            --text: #ffffff;
-            --btn: #3d3d3d;
+            --bg-dark: #202124;
+            --bg-panel: #2d2e32;
+            --bg-header: #38393e;
+            --accent: #00bcd4;
+            --text-main: #e8eaed;
+            --text-muted: #9aa0a6;
+            --border: #45474d;
         }
 
         body {
             margin: 0;
-            overflow: hidden;
-            background: var(--bg);
-            color: var(--text);
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            user-select: none;
-        }
-
-        /* UI LAYOUT */
-        #ui-layer {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
+            padding: 0;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            font-family: 'Segoe UI', sans-serif;
+            height: 100vh;
             display: flex;
             flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* --- HEADER --- */
+        #header {
+            height: 40px;
+            background-color: var(--bg-header);
+            display: flex;
+            align-items: center;
+            padding: 0 15px;
+            border-bottom: 1px solid var(--border);
             justify-content: space-between;
         }
 
-        .hud-panel {
-            pointer-events: auto;
-            background: rgba(45, 45, 45, 0.9);
-            backdrop-filter: blur(5px);
-            padding: 10px;
-            border: 1px solid #444;
+        .brand { font-weight: bold; color: var(--accent); letter-spacing: 1px; }
+
+        .play-controls {
             display: flex;
             gap: 10px;
-            align-items: center;
-        }
-
-        /* TOP BAR: TOOLS & SETTINGS */
-        #top-bar {
-            margin: 10px;
-            border-radius: 8px;
-            justify-content: space-between;
-        }
-
-        /* LEFT BAR: SPAWN MENU */
-        #left-bar {
-            position: absolute;
-            left: 10px;
-            top: 70px;
-            bottom: 10px;
-            width: 140px;
-            flex-direction: column;
-            border-radius: 8px;
-            overflow-y: auto;
-            align-items: stretch;
-        }
-
-        /* CONTROLS */
-        button {
-            background: var(--btn);
-            border: 1px solid #555;
-            color: white;
-            padding: 8px 12px;
-            cursor: pointer;
+            background: #202124;
+            padding: 4px;
             border-radius: 4px;
+        }
+
+        .control-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-main);
+            cursor: pointer;
+            padding: 4px 12px;
+            border-radius: 3px;
+            font-size: 14px;
+        }
+        .control-btn:hover { background: #444; }
+        .control-btn.active { background: var(--accent); color: #000; }
+
+        /* --- MAIN LAYOUT --- */
+        #workspace {
+            display: flex;
+            flex: 1;
+            height: calc(100vh - 40px);
+        }
+
+        /* LEFT SIDEBAR (TOOLS) */
+        #hierarchy {
+            width: 200px;
+            background-color: var(--bg-panel);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            padding: 10px;
+            overflow-y: auto;
+        }
+
+        .panel-header {
+            font-size: 12px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 10px;
             font-weight: bold;
-            transition: all 0.1s;
+        }
+
+        .tool-btn {
+            background-color: #3c4043;
+            border: 1px solid transparent;
+            color: #fff;
+            padding: 10px;
+            margin-bottom: 5px;
             text-align: left;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 13px;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
         }
 
-        button:hover { background: #555; transform: translateX(2px); }
-        button:active { transform: scale(0.98); }
-        
-        button.active-tool {
-            background: var(--accent);
-            border-color: var(--accent);
-            color: black;
+        .tool-btn:hover { background-color: #505459; }
+        .tool-btn:active { transform: translateY(1px); }
+
+        /* CENTER (SCENE) */
+        #scene-view {
+            flex: 1;
+            position: relative;
+            background-color: #1a1a1a;
+            /* Grid Pattern */
+            background-image: linear-gradient(#333 1px, transparent 1px), linear-gradient(90deg, #333 1px, transparent 1px);
+            background-size: 40px 40px;
+            overflow: hidden;
         }
 
-        .category-header {
-            font-size: 10px;
-            text-transform: uppercase;
-            color: #aaa;
+        canvas { display: block; }
+
+        /* RIGHT SIDEBAR (INSPECTOR) */
+        #inspector {
+            width: 260px;
+            background-color: var(--bg-panel);
+            border-left: 1px solid var(--border);
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .inspector-group {
+            background: #38393e;
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        .prop-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            font-size: 13px;
+        }
+
+        .prop-row label { color: var(--text-muted); }
+
+        input[type="number"], input[type="text"], select {
+            background: #202124;
+            border: 1px solid #45474d;
+            color: white;
+            padding: 4px;
+            border-radius: 3px;
+            width: 60px;
+        }
+
+        input[type="color"] {
+            background: transparent;
+            border: none;
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+        }
+
+        .full-btn {
+            width: 100%;
+            padding: 8px;
+            background: #d93025;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
             margin-top: 10px;
-            margin-bottom: 5px;
-            font-weight: bold;
+        }
+        .full-btn:hover { background: #b0271f; }
+
+        #no-selection {
+            color: var(--text-muted);
+            font-style: italic;
+            text-align: center;
+            margin-top: 20px;
         }
 
-        input[type=range] { width: 100px; }
-
-        /* SCENE */
-        #scene {
-            width: 100vw;
-            height: 100vh;
-            background: radial-gradient(circle at center, #222 0%, #111 100%);
-            cursor: crosshair;
-        }
-        
-        /* INSTRUCTIONS */
-        #controls-hint {
-            position: absolute;
-            bottom: 20px;
-            right: 20px;
-            color: rgba(255,255,255,0.3);
-            text-align: right;
-            font-size: 12px;
-        }
+        .hidden { display: none; }
     </style>
 </head>
 <body>
 
-    <!-- CANVAS -->
-    <div id="scene"></div>
-
-    <!-- UI OVERLAY -->
-    <div id="ui-layer">
-        
-        <!-- TOP: TOOLS -->
-        <div id="top-bar" class="hud-panel">
-            <div style="display:flex; gap:5px; align-items:center;">
-                <span style="font-weight:800; color:var(--accent); margin-right:10px;">SAKOAR SANDBOX</span>
-                
-                <div style="width:1px; height:20px; background:#555;"></div>
-
-                <!-- Tools -->
-                <button class="active-tool" onclick="Tools.set('drag')" id="btn-drag">✋ Drag</button>
-                <button onclick="Tools.set('gun')" id="btn-gun">🔫 Gun</button>
-                <button onclick="Tools.set('delete')" id="btn-delete">❌ Delete</button>
-                <button onclick="Tools.set('explode')" id="btn-explode">💣 Boom</button>
-            </div>
-
-            <div style="display:flex; gap:15px; align-items:center;">
-                <div>
-                    <div style="font-size:10px; color:#aaa;">Time Scale</div>
-                    <input type="range" min="0.1" max="2" step="0.1" value="1" oninput="Sandbox.setTimeScale(this.value)">
-                </div>
-                <button onclick="Sandbox.clear()" style="background:#c0392b;">🗑 Clear All</button>
-            </div>
+    <!-- Top Toolbar -->
+    <div id="header">
+        <div class="brand">PHYSICS ENGINE 2.0</div>
+        <div class="play-controls">
+            <button id="btn-play" class="control-btn" onclick="togglePlayState()">▶ Play</button>
+            <button id="btn-pause" class="control-btn active" onclick="togglePlayState()">❚❚ Edit</button>
+            <button class="control-btn" onclick="clearWorld()">🗑 Clear Scene</button>
         </div>
-
-        <!-- LEFT: SPAWN MENU -->
-        <div id="left-bar" class="hud-panel">
-            
-            <div class="category-header">Characters</div>
-            <button onclick="Spawner.ragdoll()">🏃 Ragdoll</button>
-            <button onclick="Spawner.boxMan()">🤖 Box Bot</button>
-
-            <div class="category-header">Vehicles</div>
-            <button onclick="Spawner.car()">🏎️ Sport Car</button>
-            <button onclick="Spawner.truck()">🚚 Truck</button>
-
-            <div class="category-header">Props</div>
-            <button onclick="Spawner.crate()">📦 Crate</button>
-            <button onclick="Spawner.plank()">📏 Plank</button>
-            <button onclick="Spawner.tnt()">🧨 TNT Block</button>
-            
-            <div class="category-header">Weapons</div>
-            <button onclick="Spawner.weapon('ak')">🔫 AK-47 Item</button>
-
-        </div>
-
-        <div id="controls-hint">
-            <b>Controls:</b><br>
-            Left Click: Use Tool<br>
-            Right Click: Drag Objects<br>
-            Arrow Keys: Drive Vehicle
-        </div>
-
+        <div style="font-size:12px; color:#aaa;">Unity-Style Web Editor</div>
     </div>
 
-    <!-- PHYSICS LIBRARY -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
+    <!-- Main Workspace -->
+    <div id="workspace">
+        
+        <!-- Hierarchy / Create Menu -->
+        <div id="hierarchy">
+            <div class="panel-header">Create Objects</div>
+            <button class="tool-btn" onclick="spawn('box')">⬜ Box</button>
+            <button class="tool-btn" onclick="spawn('circle')">⚪ Circle</button>
+            <button class="tool-btn" onclick="spawn('poly')">⬡ Polygon</button>
+            
+            <div class="panel-header" style="margin-top:20px;">Prefabs</div>
+            <button class="tool-btn" onclick="spawn('stack')">📦 Stack</button>
+            <button class="tool-btn" onclick="spawn('ragdoll')">🏃 Ragdoll</button>
+            <button class="tool-btn" onclick="spawn('car')">🚗 Car</button>
+        </div>
+
+        <!-- Scene View -->
+        <div id="scene-view">
+            <!-- Canvas is injected here by Matter.js -->
+        </div>
+
+        <!-- Inspector -->
+        <div id="inspector">
+            <div class="panel-header">Inspector</div>
+            
+            <div id="no-selection">Select an object to edit properties</div>
+
+            <div id="inspector-content" class="hidden">
+                <div class="inspector-group">
+                    <div class="prop-row">
+                        <label>Type</label>
+                        <span id="insp-type" style="color:var(--accent)">Body</span>
+                    </div>
+                </div>
+
+                <div class="inspector-group">
+                    <div class="panel-header">Transform</div>
+                    <div class="prop-row">
+                        <label>Pos X</label>
+                        <input type="number" id="insp-x" step="1">
+                    </div>
+                    <div class="prop-row">
+                        <label>Pos Y</label>
+                        <input type="number" id="insp-y" step="1">
+                    </div>
+                    <div class="prop-row">
+                        <label>Rotation</label>
+                        <input type="number" id="insp-angle" step="0.1">
+                    </div>
+                </div>
+
+                <div class="inspector-group">
+                    <div class="panel-header">Material</div>
+                    <div class="prop-row">
+                        <label>Color</label>
+                        <input type="color" id="insp-color">
+                    </div>
+                    <div class="prop-row">
+                        <label>Is Static</label>
+                        <input type="checkbox" id="insp-static">
+                    </div>
+                    <div class="prop-row">
+                        <label>Bounciness</label>
+                        <input type="number" id="insp-restitution" step="0.1" min="0" max="1.5">
+                    </div>
+                    <div class="prop-row">
+                        <label>Friction</label>
+                        <input type="number" id="insp-friction" step="0.01" min="0" max="1">
+                    </div>
+                </div>
+
+                <button class="full-btn" onclick="deleteSelected()">Delete Object</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Matter.js Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.18.0/matter.min.js"></script>
 
     <script>
+        // --- ENGINE SETUP ---
         const Engine = Matter.Engine,
               Render = Matter.Render,
               Runner = Matter.Runner,
@@ -195,385 +288,331 @@
               Mouse = Matter.Mouse,
               MouseConstraint = Matter.MouseConstraint,
               Events = Matter.Events,
-              Body = Matter.Body,
-              Vector = Matter.Vector;
+              Body = Matter.Body;
 
-        // --- SANDBOX CORE ---
-        const Sandbox = {
-            engine: Engine.create(),
-            runner: Runner.create(),
-            render: null,
-            width: window.innerWidth,
-            height: window.innerHeight,
-            activeCar: null, // The car currently controlled by keys
-
-            init: function() {
-                // Setup Render
-                const container = document.getElementById('scene');
-                this.render = Render.create({
-                    element: container,
-                    engine: this.engine,
-                    options: {
-                        width: this.width,
-                        height: this.height,
-                        wireframes: false,
-                        background: 'transparent',
-                        showAngleIndicator: true,
-                        showCollisions: false
-                    }
-                });
-
-                // Boundaries
-                this.createBoundaries();
-
-                // Mouse Handling
-                const mouse = Mouse.create(this.render.canvas);
-                
-                // Allow right-click dragging regardless of tool
-                const mouseConstraint = MouseConstraint.create(this.engine, {
-                    mouse: mouse,
-                    constraint: { stiffness: 0.1, render: { visible: false } }
-                });
-                // Custom mouse filtering logic in Tools object
-                Composite.add(this.engine.world, mouseConstraint);
-                this.mouseConstraint = mouseConstraint;
-
-                // Event Listeners
-                window.addEventListener('resize', () => {
-                    this.width = window.innerWidth;
-                    this.height = window.innerHeight;
-                    this.render.canvas.width = this.width;
-                    this.render.canvas.height = this.height;
-                    this.createBoundaries(); // Rebuild floor
-                });
-
-                // Key Input (Driving)
-                window.addEventListener('keydown', (e) => this.handleKeys(e, true));
-                window.addEventListener('keyup', (e) => this.handleKeys(e, false));
-
-                // Tool Input
-                Events.on(mouseConstraint, 'mousedown', (e) => Tools.onMouseDown(e));
-
-                // Start
-                Render.run(this.render);
-                Runner.run(this.runner, this.engine);
-            },
-
-            createBoundaries: function() {
-                Composite.remove(this.engine.world, this.walls || []);
-                const t = 100; // thickness
-                this.walls = [
-                    Bodies.rectangle(this.width/2, this.height + t/2 - 20, this.width*2, t, { isStatic: true, render: { fillStyle: '#444' } }), // Floor
-                    Bodies.rectangle(-t/2, this.height/2, t, this.height*2, { isStatic: true }), // Left
-                    Bodies.rectangle(this.width + t/2, this.height/2, t, this.height*2, { isStatic: true }) // Right
-                ];
-                Composite.add(this.engine.world, this.walls);
-            },
-
-            handleKeys: function(e, isDown) {
-                if(!this.activeCar) return;
-                
-                const speed = 0.3;
-                if(e.key === 'ArrowRight' || e.key === 'd') {
-                    this.activeCar.gas = isDown ? speed : 0;
-                }
-                if(e.key === 'ArrowLeft' || e.key === 'a') {
-                    this.activeCar.gas = isDown ? -speed : 0;
-                }
-            },
-
-            updateCars: function() {
-                // Apply torque to active car wheels
-                if(this.activeCar) {
-                    const car = this.activeCar;
-                    if(car.gas !== 0) {
-                        Body.setAngularVelocity(car.w1, car.gas);
-                        Body.setAngularVelocity(car.w2, car.gas);
-                    }
-                }
-            },
-
-            clear: function() {
-                Composite.clear(this.engine.world);
-                this.createBoundaries();
-                Composite.add(this.engine.world, this.mouseConstraint);
-                this.activeCar = null;
-            },
-
-            setTimeScale: function(val) {
-                this.engine.timing.timeScale = parseFloat(val);
+        // Init Engine
+        const engine = Engine.create();
+        const world = engine.world;
+        
+        // Setup Render
+        const sceneView = document.getElementById('scene-view');
+        const render = Render.create({
+            element: sceneView,
+            engine: engine,
+            options: {
+                width: sceneView.clientWidth,
+                height: sceneView.clientHeight,
+                wireframes: false,
+                background: 'transparent', // Using CSS grid background
+                showAngleIndicator: true
             }
-        };
-
-        // --- TOOLS ---
-        const Tools = {
-            current: 'drag', // drag, gun, delete, explode
-            
-            set: function(name) {
-                this.current = name;
-                document.querySelectorAll('.active-tool').forEach(el => el.classList.remove('active-tool'));
-                document.getElementById('btn-'+name).classList.add('active-tool');
-
-                // Enable/Disable mouse constraint based on tool
-                // We actually keep mouse constraint for Right Click, 
-                // but Left Click behavior changes.
-            },
-
-            onMouseDown: function(e) {
-                const mousePos = e.mouse.position;
-                
-                // Only act on left click (button 0)
-                if(e.mouse.button !== 0) return;
-
-                if(this.current === 'delete') {
-                    const bodies = Composite.allBodies(Sandbox.engine.world);
-                    const clicked = Matter.Query.point(bodies, mousePos);
-                    // Don't delete walls
-                    const target = clicked.find(b => !b.isStatic);
-                    if(target) {
-                        // We need to find if it belongs to a composite (like a car or ragdoll)
-                        // A simple way is to remove the body, but for ragdolls, it leaves constraints floating.
-                        // For a sandbox, just removing the body is usually fine and funny.
-                        Composite.remove(Sandbox.engine.world, target);
-                        createExplosionParticle(target.position.x, target.position.y, 5, '#fff');
-                    }
-                }
-
-                if(this.current === 'gun') {
-                    Spawner.bullet(mousePos.x, mousePos.y);
-                    // Shake screen slightly
-                    const canvas = Sandbox.render.canvas;
-                    canvas.style.transform = `translate(${Math.random()*4-2}px, ${Math.random()*4-2}px)`;
-                    setTimeout(()=>canvas.style.transform='none', 50);
-                }
-
-                if(this.current === 'explode') {
-                    Spawner.explosion(mousePos.x, mousePos.y, 150, 0.5);
-                }
-
-                // Drag is handled natively by MouseConstraint if no other logic interferes
-                if(this.current !== 'drag') {
-                    // Temporarily disable drag for the click frame if using a tool
-                    // (Handled by checking mouse button in logic usually, but Matter's constraint grabs aggressively)
-                }
-            }
-        };
-
-        // --- SPAWNER (PREFABS) ---
-        const Spawner = {
-            
-            crate: function() {
-                const b = Bodies.rectangle(400, 200, 60, 60, { 
-                    render: { fillStyle: '#8e44ad' },
-                    restitution: 0.5
-                });
-                Composite.add(Sandbox.engine.world, b);
-            },
-
-            plank: function() {
-                const b = Bodies.rectangle(400, 200, 200, 20, { 
-                    render: { fillStyle: '#d35400' },
-                    density: 0.002
-                });
-                Composite.add(Sandbox.engine.world, b);
-            },
-
-            tnt: function() {
-                const b = Bodies.rectangle(400, 200, 40, 40, { 
-                    render: { fillStyle: '#c0392b', strokeStyle: '#fff', lineWidth: 2 },
-                    label: 'TNT'
-                });
-                // Add click listener logic later or use tool to explode
-                Composite.add(Sandbox.engine.world, b);
-            },
-
-            bullet: function(tx, ty) {
-                // Spawn at screen center bottom or just offset from mouse?
-                // Let's spawn from a theoretical "camera" position (center screen) toward mouse
-                // Or if we want "God Mode" shooting, spawn at mouse and shoot forward?
-                
-                // Let's do: Spawn exactly where clicked, but add impulse
-                // Actually better: Raycast style. 
-                // Sandbox style: Spawn a small fast ball at mouse location traveling in direction of movement?
-                // No, usually you click to shoot AT that spot. 
-                // Let's spawn bullet at Top Left moving toward mouse.
-                
-                const sx = 100, sy = 100; // source
-                const angle = Math.atan2(ty - sy, tx - sx);
-                const speed = 30;
-                
-                const b = Bodies.circle(sx, sy, 5, { 
-                    render: { fillStyle: 'yellow' },
-                    density: 0.01,
-                    frictionAir: 0
-                });
-                Body.setVelocity(b, {
-                    x: Math.cos(angle) * speed,
-                    y: Math.sin(angle) * speed
-                });
-                Composite.add(Sandbox.engine.world, b);
-                
-                // Cleanup bullet after 2 seconds
-                setTimeout(() => Composite.remove(Sandbox.engine.world, b), 2000);
-            },
-
-            explosion: function(x, y, radius, force) {
-                const bodies = Composite.allBodies(Sandbox.engine.world);
-                bodies.forEach(b => {
-                    if(b.isStatic) return;
-                    const d = Vector.sub(b.position, {x:x, y:y});
-                    const dist = Vector.magnitude(d);
-                    if(dist < radius) {
-                        const normal = Vector.normalise(d);
-                        const appliedForce = Vector.mult(normal, force * (1 - dist/radius) * b.mass);
-                        Body.applyForce(b, b.position, appliedForce);
-                    }
-                });
-                
-                // Visual FX
-                createExplosionParticle(x, y, 20, 'orange');
-            },
-
-            ragdoll: function() {
-                const x = 400, y = 200;
-                const group = Body.nextGroup(true);
-                const head = Bodies.circle(x, y-25, 15, { collisionFilter: { group: group }, render: { fillStyle: '#f1c40f' } });
-                const chest = Bodies.rectangle(x, y, 30, 40, { collisionFilter: { group: group }, render: { fillStyle: '#e74c3c' } });
-                
-                // Limbs
-                const rArm = Bodies.rectangle(x+20, y-10, 10, 30, { collisionFilter: { group: group }, render: { fillStyle: '#e67e22' } });
-                const lArm = Bodies.rectangle(x-20, y-10, 10, 30, { collisionFilter: { group: group }, render: { fillStyle: '#e67e22' } });
-                const rLeg = Bodies.rectangle(x+10, y+40, 10, 40, { collisionFilter: { group: group }, render: { fillStyle: '#2980b9' } });
-                const lLeg = Bodies.rectangle(x-10, y+40, 10, 40, { collisionFilter: { group: group }, render: { fillStyle: '#2980b9' } });
-
-                // Constraints (Joints)
-                const neck = Constraint.create({ bodyA: head, bodyB: chest, pointA: {x:0, y:15}, pointB: {x:0, y:-20}, stiffness: 0.5 });
-                const cRArm = Constraint.create({ bodyA: chest, bodyB: rArm, pointA: {x:15, y:-15}, pointB: {x:0, y:-12}, stiffness: 0.5 });
-                const cLArm = Constraint.create({ bodyA: chest, bodyB: lArm, pointA: {x:-15, y:-15}, pointB: {x:0, y:-12}, stiffness: 0.5 });
-                const cRLeg = Constraint.create({ bodyA: chest, bodyB: rLeg, pointA: {x:10, y:20}, pointB: {x:0, y:-18}, stiffness: 0.5 });
-                const cLLeg = Constraint.create({ bodyA: chest, bodyB: lLeg, pointA: {x:-10, y:20}, pointB: {x:0, y:-18}, stiffness: 0.5 });
-
-                Composite.add(Sandbox.engine.world, [head, chest, rArm, lArm, rLeg, lLeg, neck, cRArm, cLArm, cRLeg, cLLeg]);
-            },
-
-            boxMan: function() {
-                // A simpler, sturdier NPC
-                const x = 500, y = 200;
-                const box = Bodies.rectangle(x, y, 40, 80, { 
-                    render: { fillStyle: '#2ecc71' },
-                    chamfer: { radius: 10 }
-                });
-                Composite.add(Sandbox.engine.world, box);
-            },
-
-            car: function() {
-                const x = 300, y = 300;
-                const group = Body.nextGroup(true);
-                
-                const chassis = Bodies.rectangle(x, y, 140, 30, { 
-                    collisionFilter: { group: group },
-                    render: { fillStyle: '#c0392b' },
-                    chamfer: { radius: 5 },
-                    density: 0.004
-                });
-                
-                const w1 = Bodies.circle(x-40, y+20, 18, { 
-                    collisionFilter: { group: group },
-                    friction: 0.8,
-                    render: { fillStyle: '#222' },
-                    density: 0.01
-                });
-                
-                const w2 = Bodies.circle(x+40, y+20, 18, { 
-                    collisionFilter: { group: group },
-                    friction: 0.8,
-                    render: { fillStyle: '#222' },
-                    density: 0.01
-                });
-
-                const ax1 = Constraint.create({
-                    bodyA: chassis, bodyB: w1,
-                    pointA: {x:-40, y:15}, stiffness: 0.2, length: 0, damping: 0.1
-                });
-
-                const ax2 = Constraint.create({
-                    bodyA: chassis, bodyB: w2,
-                    pointA: {x:40, y:15}, stiffness: 0.2, length: 0, damping: 0.1
-                });
-
-                Composite.add(Sandbox.engine.world, [chassis, w1, w2, ax1, ax2]);
-
-                // Set as active car for controls
-                Sandbox.activeCar = { w1: w1, w2: w2, gas: 0 };
-            },
-
-            truck: function() {
-                const x = 400, y = 300;
-                const group = Body.nextGroup(true);
-                
-                const cab = Bodies.rectangle(x, y, 60, 50, { collisionFilter: { group: group }, render: { fillStyle: '#34495e' } });
-                const bed = Bodies.rectangle(x-60, y+10, 100, 30, { collisionFilter: { group: group }, render: { fillStyle: '#95a5a6' } });
-                Body.setDensity(cab, 0.01);
-
-                // Attach bed to cab
-                const join = Constraint.create({ bodyA: cab, bodyB: bed, pointA: {x:-30, y:10}, pointB: {x:50, y:0}, stiffness: 1 });
-
-                const w1 = Bodies.circle(x+15, y+25, 20, { collisionFilter: { group: group }, friction: 0.9, render: { fillStyle: '#222' } });
-                const w2 = Bodies.circle(x-90, y+25, 20, { collisionFilter: { group: group }, friction: 0.9, render: { fillStyle: '#222' } });
-
-                const ax1 = Constraint.create({ bodyA: cab, bodyB: w1, pointA: {x:15, y:25}, stiffness: 0.2, length:0 });
-                const ax2 = Constraint.create({ bodyA: bed, bodyB: w2, pointA: {x:-30, y:15}, stiffness: 0.2, length:0 });
-
-                Composite.add(Sandbox.engine.world, [cab, bed, w1, w2, join, ax1, ax2]);
-                Sandbox.activeCar = { w1: w1, w2: w2, gas: 0 };
-            },
-
-            weapon: function(type) {
-                // Spawns a physical gun object
-                // In a true sandbox, this would be holdable. 
-                // Here we just make a gun-shaped object that looks cool.
-                const x = 500, y = 200;
-                const stock = Bodies.rectangle(x-20, y+5, 10, 20, { render: {fillStyle: '#8e44ad'} });
-                const barrel = Bodies.rectangle(x, y, 40, 8, { render: {fillStyle: '#333'} });
-                const gun = Body.create({
-                    parts: [stock, barrel],
-                    render: { fillStyle: '#333' }
-                });
-                Composite.add(Sandbox.engine.world, gun);
-            }
-        };
-
-        // --- VISUAL FX ---
-        function createExplosionParticle(x, y, size, color) {
-            // A visual only particle using DOM or Canvas overlay would be best, 
-            // but we can spawn a short-lived physical body that doesn't collide
-            const p = Bodies.circle(x, y, size, { 
-                isStatic: true,
-                render: { fillStyle: color, opacity: 0.8 },
-                collisionFilter: { mask: 0 } // No collision
-            });
-            Composite.add(Sandbox.engine.world, p);
-            
-            let scale = 1;
-            const grow = setInterval(() => {
-                scale += 0.2;
-                Body.scale(p, 1.1, 1.1);
-                p.render.opacity -= 0.1;
-                if(p.render.opacity <= 0) {
-                    clearInterval(grow);
-                    Composite.remove(Sandbox.engine.world, p);
-                }
-            }, 50);
-        }
-
-        // --- LOOP HOOKS ---
-        Events.on(Sandbox.engine, 'beforeUpdate', () => {
-            Sandbox.updateCars();
         });
 
-        // Init
-        Sandbox.init();
+        // Setup Resize Handler for Full Screen
+        window.addEventListener('resize', () => {
+            render.canvas.width = sceneView.clientWidth;
+            render.canvas.height = sceneView.clientHeight;
+            // Update boundaries if needed (we will use a floor for this demo)
+            updateGround();
+        });
 
+        // Add Boundaries (Floor and Sides)
+        let ground, wallLeft, wallRight;
+        function createBoundaries() {
+            const w = sceneView.clientWidth;
+            const h = sceneView.clientHeight;
+            const thickness = 100;
+
+            ground = Bodies.rectangle(w/2, h + 35, w * 2, 100, { isStatic: true, render: { fillStyle: '#333' } });
+            wallLeft = Bodies.rectangle(-50, h/2, 100, h * 4, { isStatic: true, render: { visible: false } });
+            wallRight = Bodies.rectangle(w + 50, h/2, 100, h * 4, { isStatic: true, render: { visible: false } });
+            
+            Composite.add(world, [ground, wallLeft, wallRight]);
+        }
+
+        function updateGround() {
+            const w = sceneView.clientWidth;
+            const h = sceneView.clientHeight;
+            Body.setPosition(ground, { x: w/2, y: h + 35 });
+            Body.setPosition(wallLeft, { x: -50, y: h/2 });
+            Body.setPosition(wallRight, { x: w + 50, y: h/2 });
+        }
+
+        createBoundaries();
+
+        // --- INTERACTION & SELECTION SYSTEM ---
+
+        const mouse = Mouse.create(render.canvas);
+        const mouseConstraint = MouseConstraint.create(engine, {
+            mouse: mouse,
+            constraint: {
+                stiffness: 0.2,
+                render: { visible: false }
+            }
+        });
+        Composite.add(world, mouseConstraint);
+
+        // Allow scrolling inside the canvas without zooming the page
+        mouse.element.removeEventListener("mousewheel", mouse.mousewheel);
+        mouse.element.removeEventListener("DOMMouseScroll", mouse.mousewheel);
+
+        let selectedBody = null;
+        const inspectorContent = document.getElementById('inspector-content');
+        const noSelection = document.getElementById('no-selection');
+
+        // Custom Render Loop to draw Selection Outline (Gizmo)
+        Events.on(render, 'afterRender', function() {
+            if (selectedBody) {
+                const ctx = render.context;
+                ctx.beginPath();
+                // Draw a simple bounding box or circle around selected item
+                const b = selectedBody.bounds;
+                const pad = 5;
+                ctx.rect(b.min.x - pad, b.min.y - pad, (b.max.x - b.min.x) + pad*2, (b.max.y - b.min.y) + pad*2);
+                ctx.strokeStyle = '#00bcd4';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+            }
+        });
+
+        // Click Handler for Selection
+        Events.on(mouseConstraint, 'mousedown', function(event) {
+            const mousePosition = event.mouse.position;
+            const bodies = Composite.allBodies(world);
+            
+            // Filter out walls/ground from selection
+            const candidateBodies = bodies.filter(b => b !== ground && b !== wallLeft && b !== wallRight);
+            const clicked = Matter.Query.point(candidateBodies, mousePosition);
+
+            if (clicked.length > 0) {
+                selectObject(clicked[0]);
+            } else {
+                deselectObject();
+            }
+        });
+
+        // Sync Inspector values while dragging
+        Events.on(engine, 'afterUpdate', function() {
+            if (selectedBody && !isPlaying) {
+                // If in Edit mode (paused), we still want to move things with mouse, 
+                // but physics calculation step is manual. 
+                // Matter.js 'Runner' usually stops physics updates when stopped.
+                // So this event fires only when running.
+            }
+            // For continuous update of inspector UI during play
+            if (selectedBody) {
+                updateInspectorValues();
+            }
+        });
+
+        function selectObject(body) {
+            selectedBody = body;
+            noSelection.classList.add('hidden');
+            inspectorContent.classList.remove('hidden');
+            updateInspectorUI();
+        }
+
+        function deselectObject() {
+            selectedBody = null;
+            noSelection.classList.remove('hidden');
+            inspectorContent.classList.add('hidden');
+        }
+
+        // --- INSPECTOR LOGIC ---
+
+        const inputs = {
+            x: document.getElementById('insp-x'),
+            y: document.getElementById('insp-y'),
+            angle: document.getElementById('insp-angle'),
+            color: document.getElementById('insp-color'),
+            static: document.getElementById('insp-static'),
+            restitution: document.getElementById('insp-restitution'),
+            friction: document.getElementById('insp-friction'),
+        };
+
+        // Update UI inputs from Body data
+        function updateInspectorUI() {
+            if (!selectedBody) return;
+            inputs.x.value = Math.round(selectedBody.position.x);
+            inputs.y.value = Math.round(selectedBody.position.y);
+            inputs.angle.value = selectedBody.angle.toFixed(2);
+            inputs.color.value = selectedBody.render.fillStyle;
+            inputs.static.checked = selectedBody.isStatic;
+            inputs.restitution.value = selectedBody.restitution;
+            inputs.friction.value = selectedBody.friction;
+        }
+        
+        // Used in Loop
+        function updateInspectorValues() {
+            if(document.activeElement.tagName === 'INPUT') return; // Don't overwrite if user is typing
+            updateInspectorUI();
+        }
+
+        // Apply Input changes to Body
+        inputs.x.addEventListener('change', e => Body.setPosition(selectedBody, { x: parseFloat(e.target.value), y: selectedBody.position.y }));
+        inputs.y.addEventListener('change', e => Body.setPosition(selectedBody, { x: selectedBody.position.x, y: parseFloat(e.target.value) }));
+        inputs.angle.addEventListener('change', e => Body.setAngle(selectedBody, parseFloat(e.target.value)));
+        inputs.color.addEventListener('input', e => selectedBody.render.fillStyle = e.target.value);
+        inputs.static.addEventListener('change', e => Body.setStatic(selectedBody, e.target.checked));
+        inputs.restitution.addEventListener('change', e => selectedBody.restitution = parseFloat(e.target.value));
+        inputs.friction.addEventListener('change', e => selectedBody.friction = parseFloat(e.target.value));
+
+        function deleteSelected() {
+            if(selectedBody) {
+                Composite.remove(world, selectedBody);
+                deselectObject();
+            }
+        }
+
+        // --- GAME LOGIC (PLAY / EDIT) ---
+
+        let isPlaying = false;
+        const runner = Runner.create();
+        
+        // Start renderer immediately so we can see stuff
+        Render.run(render);
+
+        function togglePlayState() {
+            isPlaying = !isPlaying;
+            const btnPlay = document.getElementById('btn-play');
+            const btnPause = document.getElementById('btn-pause');
+
+            if (isPlaying) {
+                // Start Physics
+                Runner.run(runner, engine);
+                btnPlay.classList.add('active');
+                btnPause.classList.remove('active');
+            } else {
+                // Stop Physics
+                Runner.stop(runner);
+                btnPlay.classList.remove('active');
+                btnPause.classList.add('active');
+            }
+        }
+
+        function clearWorld() {
+            Composite.clear(world);
+            Composite.add(world, [ground, wallLeft, wallRight, mouseConstraint]);
+            deselectObject();
+        }
+
+        // --- OBJECT SPAWNING ---
+
+        function getRandomColor() {
+            return '#' + Math.floor(Math.random()*16777215).toString(16);
+        }
+
+        function spawn(type) {
+            const x = sceneView.clientWidth / 2;
+            const y = sceneView.clientHeight / 2 - 100;
+            const color = getRandomColor();
+            let body;
+
+            switch(type) {
+                case 'box':
+                    body = Bodies.rectangle(x, y, 60, 60, { render: { fillStyle: color }});
+                    break;
+                case 'circle':
+                    body = Bodies.circle(x, y, 35, { render: { fillStyle: color }});
+                    break;
+                case 'poly':
+                    body = Bodies.polygon(x, y, 5, 40, { render: { fillStyle: color }});
+                    break;
+                case 'stack':
+                    body = Composites.stack(x - 50, y - 50, 4, 4, 0, 0, function(bx, by) {
+                        return Bodies.rectangle(bx, by, 30, 30, { render: { fillStyle: getRandomColor() } });
+                    });
+                    break;
+                case 'ragdoll':
+                    spawnRagdoll(x, y);
+                    return; // Complex spawn, handled differently
+                case 'car':
+                    spawnCar(x, y);
+                    return;
+            }
+
+            if(body) {
+                Composite.add(world, body);
+            }
+        }
+
+        // --- PREFABS ---
+
+        function spawnRagdoll(x, y) {
+            const group = Body.nextGroup(true);
+            const head = Bodies.circle(x, y - 25, 15, { collisionFilter: { group: group }, render: { fillStyle: '#FFBC42' } });
+            const chest = Bodies.rectangle(x, y, 30, 40, { collisionFilter: { group: group }, render: { fillStyle: '#E04F5F' } });
+            const rightUpperArm = Bodies.rectangle(x + 18, y - 10, 10, 20, { collisionFilter: { group: group }, render: { fillStyle: '#E04F5F' } });
+            const rightLowerArm = Bodies.rectangle(x + 18, y + 15, 10, 20, { collisionFilter: { group: group }, render: { fillStyle: '#E04F5F' } });
+            const leftUpperArm = Bodies.rectangle(x - 18, y - 10, 10, 20, { collisionFilter: { group: group }, render: { fillStyle: '#E04F5F' } });
+            const leftLowerArm = Bodies.rectangle(x - 18, y + 15, 10, 20, { collisionFilter: { group: group }, render: { fillStyle: '#E04F5F' } });
+            const leftUpperLeg = Bodies.rectangle(x - 10, y + 30, 10, 25, { collisionFilter: { group: group }, render: { fillStyle: '#75CAE0' } });
+            const leftLowerLeg = Bodies.rectangle(x - 10, y + 60, 10, 25, { collisionFilter: { group: group }, render: { fillStyle: '#75CAE0' } });
+            const rightUpperLeg = Bodies.rectangle(x + 10, y + 30, 10, 25, { collisionFilter: { group: group }, render: { fillStyle: '#75CAE0' } });
+            const rightLowerLeg = Bodies.rectangle(x + 10, y + 60, 10, 25, { collisionFilter: { group: group }, render: { fillStyle: '#75CAE0' } });
+
+            const chestToHead = Constraint.create({ bodyA: chest, bodyB: head, pointA: { x: 0, y: -20 }, pointB: { x: 0, y: 10 }, stiffness: 0.6 });
+            const chestToRightUpperArm = Constraint.create({ bodyA: chest, bodyB: rightUpperArm, pointA: { x: 15, y: -10 }, pointB: { x: 0, y: -10 }, stiffness: 0.6 });
+            const chestToLeftUpperArm = Constraint.create({ bodyA: chest, bodyB: leftUpperArm, pointA: { x: -15, y: -10 }, pointB: { x: 0, y: -10 }, stiffness: 0.6 });
+            const upperToLowerRightArm = Constraint.create({ bodyA: rightUpperArm, bodyB: rightLowerArm, pointA: { x: 0, y: 10 }, pointB: { x: 0, y: -10 }, stiffness: 0.6 });
+            const upperToLowerLeftArm = Constraint.create({ bodyA: leftUpperArm, bodyB: leftLowerArm, pointA: { x: 0, y: 10 }, pointB: { x: 0, y: -10 }, stiffness: 0.6 });
+            const chestToLeftLeg = Constraint.create({ bodyA: chest, bodyB: leftUpperLeg, pointA: { x: -10, y: 20 }, pointB: { x: 0, y: -12 }, stiffness: 0.6 });
+            const chestToRightLeg = Constraint.create({ bodyA: chest, bodyB: rightUpperLeg, pointA: { x: 10, y: 20 }, pointB: { x: 0, y: -12 }, stiffness: 0.6 });
+            const upperToLowerLeftLeg = Constraint.create({ bodyA: leftUpperLeg, bodyB: leftLowerLeg, pointA: { x: 0, y: 12 }, pointB: { x: 0, y: -12 }, stiffness: 0.6 });
+            const upperToLowerRightLeg = Constraint.create({ bodyA: rightUpperLeg, bodyB: rightLowerLeg, pointA: { x: 0, y: 12 }, pointB: { x: 0, y: -12 }, stiffness: 0.6 });
+
+            Composite.add(world, [
+                head, chest, rightUpperArm, rightLowerArm, leftUpperArm, leftLowerArm, leftUpperLeg, leftLowerLeg, rightUpperLeg, rightLowerLeg,
+                chestToHead, chestToRightUpperArm, chestToLeftUpperArm, upperToLowerRightArm, upperToLowerLeftArm, chestToLeftLeg, chestToRightLeg, upperToLowerLeftLeg, upperToLowerRightLeg
+            ]);
+        }
+
+        function spawnCar(x, y) {
+            const group = Body.nextGroup(true);
+            const wheelBase = 20;
+            const wheelAOffset = -40;
+            const wheelBOffset = 40;
+            const wheelYOffset = 20;
+
+            const chassis = Bodies.rectangle(x, y, 120, 30, { 
+                collisionFilter: { group: group },
+                render: { fillStyle: '#C63D3D' }
+            });
+
+            const wheelA = Bodies.circle(x + wheelAOffset, y + wheelYOffset, 15, { 
+                collisionFilter: { group: group },
+                friction: 0.8,
+                render: { fillStyle: '#333' }
+            });
+
+            const wheelB = Bodies.circle(x + wheelBOffset, y + wheelYOffset, 15, { 
+                collisionFilter: { group: group },
+                friction: 0.8,
+                render: { fillStyle: '#333' }
+            });
+
+            const axelA = Constraint.create({
+                bodyB: chassis,
+                pointB: { x: wheelAOffset, y: wheelYOffset },
+                bodyA: wheelA,
+                stiffness: 1,
+                length: 0
+            });
+
+            const axelB = Constraint.create({
+                bodyB: chassis,
+                pointB: { x: wheelBOffset, y: wheelYOffset },
+                bodyA: wheelB,
+                stiffness: 1,
+                length: 0
+            });
+
+            Composite.add(world, [chassis, wheelA, wheelB, axelA, axelB]);
+        }
+
+        // Start in Edit Mode (Paused)
+        togglePlayState(); // This actually starts it
+        togglePlayState(); // Toggle back to Pause
     </script>
 </body>
 </html>
