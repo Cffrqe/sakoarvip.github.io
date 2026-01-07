@@ -3,616 +3,789 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WebPhys Engine</title>
+    <title>WebPhys Engine 3.0</title>
     <style>
         :root {
-            --bg-dark: #202124;
-            --bg-panel: #2d2e32;
-            --bg-header: #38393e;
-            --accent: #00bcd4;
-            --text-main: #e8eaed;
-            --text-muted: #9aa0a6;
-            --border: #45474d;
+            --bg-dark: #1e1e1e;
+            --bg-panel: #252526;
+            --bg-header: #333333;
+            --accent: #007acc;
+            --accent-hover: #0098ff;
+            --text-main: #cccccc;
+            --text-highlight: #ffffff;
+            --border: #3e3e42;
+            --input-bg: #3c3c3c;
+            --success: #4ec9b0;
+            --x-axis: #ff5555;
+            --y-axis: #55ff55;
         }
 
         body {
             margin: 0;
-            padding: 0;
+            overflow: hidden;
             background-color: var(--bg-dark);
             color: var(--text-main);
-            font-family: 'Segoe UI', sans-serif;
-            height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 13px;
             display: flex;
             flex-direction: column;
-            overflow: hidden;
+            height: 100vh;
         }
 
-        /* --- HEADER --- */
-        #header {
-            height: 40px;
+        /* LAYOUT */
+        #toolbar {
+            height: 45px;
             background-color: var(--bg-header);
             display: flex;
             align-items: center;
             padding: 0 15px;
             border-bottom: 1px solid var(--border);
-            justify-content: space-between;
-        }
-
-        .brand { font-weight: bold; color: var(--accent); letter-spacing: 1px; }
-
-        .play-controls {
-            display: flex;
-            gap: 10px;
-            background: #202124;
-            padding: 4px;
-            border-radius: 4px;
-        }
-
-        .control-btn {
-            background: transparent;
-            border: none;
-            color: var(--text-main);
-            cursor: pointer;
-            padding: 4px 12px;
-            border-radius: 3px;
-            font-size: 14px;
-        }
-        .control-btn:hover { background: #444; }
-        .control-btn.active { background: var(--accent); color: #000; }
-
-        /* --- MAIN LAYOUT --- */
-        #workspace {
-            display: flex;
-            flex: 1;
-            height: calc(100vh - 40px);
-        }
-
-        /* LEFT SIDEBAR (TOOLS) */
-        #hierarchy {
-            width: 200px;
-            background-color: var(--bg-panel);
-            border-right: 1px solid var(--border);
-            display: flex;
-            flex-direction: column;
-            padding: 10px;
-            overflow-y: auto;
-        }
-
-        .panel-header {
-            font-size: 12px;
-            text-transform: uppercase;
-            color: var(--text-muted);
-            margin-bottom: 10px;
-            font-weight: bold;
-        }
-
-        .tool-btn {
-            background-color: #3c4043;
-            border: 1px solid transparent;
-            color: #fff;
-            padding: 10px;
-            margin-bottom: 5px;
-            text-align: left;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: all 0.2s;
-            font-size: 13px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .tool-btn:hover { background-color: #505459; }
-        .tool-btn:active { transform: translateY(1px); }
-
-        /* CENTER (SCENE) */
-        #scene-view {
-            flex: 1;
-            position: relative;
-            background-color: #1a1a1a;
-            /* Grid Pattern */
-            background-image: linear-gradient(#333 1px, transparent 1px), linear-gradient(90deg, #333 1px, transparent 1px);
-            background-size: 40px 40px;
-            overflow: hidden;
-        }
-
-        canvas { display: block; }
-
-        /* RIGHT SIDEBAR (INSPECTOR) */
-        #inspector {
-            width: 260px;
-            background-color: var(--bg-panel);
-            border-left: 1px solid var(--border);
-            padding: 15px;
-            display: flex;
-            flex-direction: column;
             gap: 15px;
+            user-select: none;
         }
 
-        .inspector-group {
-            background: #38393e;
-            padding: 10px;
-            border-radius: 5px;
-        }
-
-        .prop-row {
+        #main-area {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 8px;
-            font-size: 13px;
+            flex: 1;
+            height: calc(100vh - 45px);
         }
 
-        .prop-row label { color: var(--text-muted); }
+        .panel {
+            background-color: var(--bg-panel);
+            display: flex;
+            flex-direction: column;
+        }
 
-        input[type="number"], input[type="text"], select {
-            background: #202124;
-            border: 1px solid #45474d;
-            color: white;
-            padding: 4px;
+        #hierarchy { width: 220px; border-right: 1px solid var(--border); }
+        #scene-container { flex: 1; position: relative; background: #111; overflow: hidden; }
+        #inspector { width: 300px; border-left: 1px solid var(--border); overflow-y: auto; }
+
+        /* UI ELEMENTS */
+        .panel-header {
+            padding: 8px 12px;
+            font-weight: 600;
+            background: #2d2d30;
+            border-bottom: 1px solid var(--border);
+            text-transform: uppercase;
+            font-size: 11px;
+            letter-spacing: 0.5px;
+        }
+
+        button {
+            background: #444;
+            color: var(--text-highlight);
+            border: 1px solid transparent;
+            padding: 5px 10px;
+            cursor: pointer;
             border-radius: 3px;
-            width: 60px;
+            font-size: 12px;
         }
+        button:hover { background: #555; }
+        button.active { background: var(--accent); }
+        button.danger { background: #d93025; }
 
-        input[type="color"] {
-            background: transparent;
-            border: none;
-            width: 30px;
-            height: 30px;
-            cursor: pointer;
-        }
-
-        .full-btn {
-            width: 100%;
-            padding: 8px;
-            background: #d93025;
+        input, select, textarea {
+            background: var(--input-bg);
+            border: 1px solid var(--border);
             color: white;
-            border: none;
-            border-radius: 4px;
+            padding: 4px 6px;
+            border-radius: 2px;
+            width: 100%;
+            box-sizing: border-box;
+            font-family: monospace;
+        }
+        
+        .row { display: flex; align-items: center; margin-bottom: 8px; gap: 8px; }
+        .row label { width: 70px; flex-shrink: 0; color: #aaa; }
+        
+        /* HIERARCHY LIST */
+        .list-item {
+            padding: 4px 12px;
             cursor: pointer;
-            margin-top: 10px;
+            display: flex;
+            align-items: center;
         }
-        .full-btn:hover { background: #b0271f; }
+        .list-item:hover { background: #2a2d2e; }
+        .list-item.selected { background: #37373d; color: var(--accent); border-left: 2px solid var(--accent); }
 
-        #no-selection {
-            color: var(--text-muted);
-            font-style: italic;
-            text-align: center;
-            margin-top: 20px;
+        /* TOOL GROUPS */
+        .tool-group { display: flex; gap: 2px; background: #222; padding: 2px; border-radius: 4px; }
+        .separator { width: 1px; height: 20px; background: var(--border); margin: 0 5px; }
+
+        /* SCRIPT EDITOR */
+        .code-editor {
+            background: #1e1e1e;
+            border: 1px solid var(--border);
+            color: #d4d4d4;
+            font-family: 'Consolas', monospace;
+            min-height: 150px;
+            resize: vertical;
+            font-size: 12px;
+            line-height: 1.4;
+            tab-size: 4;
         }
 
-        .hidden { display: none; }
+        /* CANVAS OVERLAY (GIZMOS) */
+        #gizmo-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            pointer-events: none; /* Let clicks pass through unless on a handle */
+            width: 100%;
+            height: 100%;
+        }
+
+        .hidden { display: none !important; }
+        
+        /* CONSOLE */
+        #console-log {
+            font-family: monospace;
+            font-size: 11px;
+            color: #aaa;
+            padding: 10px;
+            border-top: 1px solid var(--border);
+            max-height: 100px;
+            overflow-y: auto;
+            background: #1e1e1e;
+        }
     </style>
 </head>
 <body>
 
-    <!-- Top Toolbar -->
-    <div id="header">
-        <div class="brand">PHYSICS ENGINE 2.0</div>
-        <div class="play-controls">
-            <button id="btn-play" class="control-btn" onclick="togglePlayState()">▶ Play</button>
-            <button id="btn-pause" class="control-btn active" onclick="togglePlayState()">❚❚ Edit</button>
-            <button class="control-btn" onclick="clearWorld()">🗑 Clear Scene</button>
+    <!-- TOOLBAR -->
+    <div id="toolbar">
+        <div style="font-weight:bold; color:var(--accent);">WebPhys 3.0</div>
+        
+        <div class="separator"></div>
+
+        <!-- Play Controls -->
+        <div class="tool-group">
+            <button id="btn-play" onclick="setMode('play')">▶ Play</button>
+            <button id="btn-edit" class="active" onclick="setMode('edit')">❚❚ Edit</button>
         </div>
-        <div style="font-size:12px; color:#aaa;">Unity-Style Web Editor</div>
+
+        <div class="separator"></div>
+
+        <!-- Transform Tools -->
+        <div class="tool-group">
+            <button id="tool-move" class="active" onclick="setTool('move')">✚ Move</button>
+            <button id="tool-scale" onclick="setTool('scale')">⤢ Scale</button>
+        </div>
+
+        <div class="separator"></div>
+
+        <!-- Create -->
+        <div class="tool-group">
+            <button onclick="Spawner.create('box')">+ Box</button>
+            <button onclick="Spawner.create('circle')">+ Circle</button>
+            <button onclick="Spawner.create('car')">+ Car</button>
+        </div>
+
+        <div class="separator"></div>
+
+        <!-- Settings -->
+        <div style="display:flex; align-items:center; gap:5px;">
+            <label>FPS:</label>
+            <select id="fps-select" style="width:70px" onchange="EngineCore.setFPS(this.value)">
+                <option value="30">30</option>
+                <option value="60" selected>60</option>
+                <option value="120">120</option>
+                <option value="0">Max</option>
+            </select>
+        </div>
+
+        <div style="flex:1"></div>
+        <button class="danger" onclick="EngineCore.clearScene()">Clear Scene</button>
     </div>
 
-    <!-- Main Workspace -->
-    <div id="workspace">
+    <!-- MAIN WORKSPACE -->
+    <div id="main-area">
         
-        <!-- Hierarchy / Create Menu -->
-        <div id="hierarchy">
-            <div class="panel-header">Create Objects</div>
-            <button class="tool-btn" onclick="spawn('box')">⬜ Box</button>
-            <button class="tool-btn" onclick="spawn('circle')">⚪ Circle</button>
-            <button class="tool-btn" onclick="spawn('poly')">⬡ Polygon</button>
-            
-            <div class="panel-header" style="margin-top:20px;">Prefabs</div>
-            <button class="tool-btn" onclick="spawn('stack')">📦 Stack</button>
-            <button class="tool-btn" onclick="spawn('ragdoll')">🏃 Ragdoll</button>
-            <button class="tool-btn" onclick="spawn('car')">🚗 Car</button>
+        <!-- LEFT: HIERARCHY -->
+        <div id="hierarchy" class="panel">
+            <div class="panel-header">Hierarchy</div>
+            <div id="hierarchy-list" style="flex:1; overflow-y:auto;">
+                <!-- List items injected here -->
+            </div>
+            <div id="console-log">Console Ready...</div>
         </div>
 
-        <!-- Scene View -->
-        <div id="scene-view">
-            <!-- Canvas is injected here by Matter.js -->
+        <!-- CENTER: SCENE -->
+        <div id="scene-container">
+            <!-- Matter.js Canvas injected here -->
+            <canvas id="gizmo-canvas"></canvas> <!-- Overlay for tools -->
         </div>
 
-        <!-- Inspector -->
-        <div id="inspector">
+        <!-- RIGHT: INSPECTOR -->
+        <div id="inspector" class="panel">
             <div class="panel-header">Inspector</div>
             
-            <div id="no-selection">Select an object to edit properties</div>
+            <div id="inspector-empty" style="padding:20px; color:#666; text-align:center;">
+                No object selected
+            </div>
 
-            <div id="inspector-content" class="hidden">
-                <div class="inspector-group">
-                    <div class="prop-row">
-                        <label>Type</label>
-                        <span id="insp-type" style="color:var(--accent)">Body</span>
-                    </div>
+            <div id="inspector-content" class="hidden" style="padding:15px;">
+                
+                <!-- Identity -->
+                <div class="row">
+                    <label>Name</label>
+                    <input type="text" id="insp-name">
+                </div>
+                <div class="row">
+                    <label>ID</label>
+                    <input type="text" id="insp-id" disabled style="color:#666">
                 </div>
 
-                <div class="inspector-group">
-                    <div class="panel-header">Transform</div>
-                    <div class="prop-row">
-                        <label>Pos X</label>
-                        <input type="number" id="insp-x" step="1">
-                    </div>
-                    <div class="prop-row">
-                        <label>Pos Y</label>
-                        <input type="number" id="insp-y" step="1">
-                    </div>
-                    <div class="prop-row">
-                        <label>Rotation</label>
-                        <input type="number" id="insp-angle" step="0.1">
-                    </div>
+                <hr style="border:0; border-top:1px solid #444; margin:15px 0;">
+
+                <!-- Transform -->
+                <div style="font-weight:bold; margin-bottom:10px;">Transform</div>
+                <div class="row">
+                    <label>Pos X</label>
+                    <input type="number" id="insp-x">
+                </div>
+                <div class="row">
+                    <label>Pos Y</label>
+                    <input type="number" id="insp-y">
+                </div>
+                <div class="row">
+                    <label>Angle</label>
+                    <input type="number" id="insp-angle">
                 </div>
 
-                <div class="inspector-group">
-                    <div class="panel-header">Material</div>
-                    <div class="prop-row">
-                        <label>Color</label>
-                        <input type="color" id="insp-color">
-                    </div>
-                    <div class="prop-row">
-                        <label>Is Static</label>
-                        <input type="checkbox" id="insp-static">
-                    </div>
-                    <div class="prop-row">
-                        <label>Bounciness</label>
-                        <input type="number" id="insp-restitution" step="0.1" min="0" max="1.5">
-                    </div>
-                    <div class="prop-row">
-                        <label>Friction</label>
-                        <input type="number" id="insp-friction" step="0.01" min="0" max="1">
-                    </div>
+                <hr style="border:0; border-top:1px solid #444; margin:15px 0;">
+
+                <!-- Physics Material -->
+                <div style="font-weight:bold; margin-bottom:10px;">Physics</div>
+                <div class="row">
+                    <label>Static</label>
+                    <input type="checkbox" id="insp-static" style="width:auto;">
+                </div>
+                <div class="row">
+                    <label>Friction</label>
+                    <input type="number" step="0.1" id="insp-friction">
+                </div>
+                <div class="row">
+                    <label>Bounce</label>
+                    <input type="number" step="0.1" id="insp-restitution">
                 </div>
 
-                <button class="full-btn" onclick="deleteSelected()">Delete Object</button>
+                <hr style="border:0; border-top:1px solid #444; margin:15px 0;">
+
+                <!-- Visuals -->
+                <div style="font-weight:bold; margin-bottom:10px;">Visuals</div>
+                <div class="row">
+                    <label>Color</label>
+                    <input type="color" id="insp-color" style="height:30px;">
+                </div>
+                <div class="row">
+                    <label>Texture URL</label>
+                    <input type="text" id="insp-texture" placeholder="http://...">
+                </div>
+
+                <hr style="border:0; border-top:1px solid #444; margin:15px 0;">
+
+                <!-- Scripting -->
+                <div style="font-weight:bold; margin-bottom:10px; color:var(--success)">Script (Update Loop)</div>
+                <div style="font-size:10px; color:#888; margin-bottom:5px;">
+                    Available: <code>body</code>, <code>engine</code>, <code>input</code>
+                </div>
+                <textarea id="insp-script" class="code-editor" placeholder="// body.position.x += 1;"></textarea>
+                <button onclick="Inspector.applyScript()" style="width:100%; margin-top:5px;">Apply Script</button>
+
+                <hr style="border:0; border-top:1px solid #444; margin:15px 0;">
+                
+                <button class="danger" style="width:100%" onclick="Spawner.deleteSelected()">Delete Object</button>
             </div>
         </div>
     </div>
 
-    <!-- Matter.js Library -->
+    <!-- LIBRARIES -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.18.0/matter.min.js"></script>
 
+    <!-- ENGINE LOGIC -->
     <script>
-        // --- ENGINE SETUP ---
+        // --- 1. CORE SETUP ---
         const Engine = Matter.Engine,
               Render = Matter.Render,
               Runner = Matter.Runner,
               Bodies = Matter.Bodies,
               Composite = Matter.Composite,
-              Composites = Matter.Composites,
-              Constraint = Matter.Constraint,
-              Mouse = Matter.Mouse,
-              MouseConstraint = Matter.MouseConstraint,
               Events = Matter.Events,
-              Body = Matter.Body;
+              Body = Matter.Body,
+              Vector = Matter.Vector,
+              Mouse = Matter.Mouse;
 
-        // Init Engine
+        const container = document.getElementById('scene-container');
+        const gizmoCanvas = document.getElementById('gizmo-canvas');
+        
+        // Setup Matter Engine
         const engine = Engine.create();
         const world = engine.world;
-        
-        // Setup Render
-        const sceneView = document.getElementById('scene-view');
+
+        // Render Setup
         const render = Render.create({
-            element: sceneView,
+            element: container,
             engine: engine,
             options: {
-                width: sceneView.clientWidth,
-                height: sceneView.clientHeight,
+                width: container.clientWidth,
+                height: container.clientHeight,
                 wireframes: false,
-                background: 'transparent', // Using CSS grid background
-                showAngleIndicator: true
+                background: '#1a1a1a',
+                pixelRatio: 1
             }
         });
 
-        // Setup Resize Handler for Full Screen
-        window.addEventListener('resize', () => {
-            render.canvas.width = sceneView.clientWidth;
-            render.canvas.height = sceneView.clientHeight;
-            // Update boundaries if needed (we will use a floor for this demo)
-            updateGround();
-        });
-
-        // Add Boundaries (Floor and Sides)
-        let ground, wallLeft, wallRight;
-        function createBoundaries() {
-            const w = sceneView.clientWidth;
-            const h = sceneView.clientHeight;
-            const thickness = 100;
-
-            ground = Bodies.rectangle(w/2, h + 35, w * 2, 100, { isStatic: true, render: { fillStyle: '#333' } });
-            wallLeft = Bodies.rectangle(-50, h/2, 100, h * 4, { isStatic: true, render: { visible: false } });
-            wallRight = Bodies.rectangle(w + 50, h/2, 100, h * 4, { isStatic: true, render: { visible: false } });
-            
-            Composite.add(world, [ground, wallLeft, wallRight]);
+        // Resize Handling
+        function handleResize() {
+            render.canvas.width = container.clientWidth;
+            render.canvas.height = container.clientHeight;
+            gizmoCanvas.width = container.clientWidth;
+            gizmoCanvas.height = container.clientHeight;
         }
+        window.addEventListener('resize', handleResize);
+        handleResize();
 
-        function updateGround() {
-            const w = sceneView.clientWidth;
-            const h = sceneView.clientHeight;
-            Body.setPosition(ground, { x: w/2, y: h + 35 });
-            Body.setPosition(wallLeft, { x: -50, y: h/2 });
-            Body.setPosition(wallRight, { x: w + 50, y: h/2 });
-        }
-
-        createBoundaries();
-
-        // --- INTERACTION & SELECTION SYSTEM ---
-
+        // Mouse Input for Raycasting
         const mouse = Mouse.create(render.canvas);
-        const mouseConstraint = MouseConstraint.create(engine, {
-            mouse: mouse,
-            constraint: {
-                stiffness: 0.2,
-                render: { visible: false }
+        
+        // State
+        const AppState = {
+            mode: 'edit', // 'edit' or 'play'
+            tool: 'move', // 'move', 'scale'
+            selectedBody: null,
+            targetFPS: 60,
+            frameCount: 0,
+            input: {
+                keys: {}
             }
-        });
-        Composite.add(world, mouseConstraint);
-
-        // Allow scrolling inside the canvas without zooming the page
-        mouse.element.removeEventListener("mousewheel", mouse.mousewheel);
-        mouse.element.removeEventListener("DOMMouseScroll", mouse.mousewheel);
-
-        let selectedBody = null;
-        const inspectorContent = document.getElementById('inspector-content');
-        const noSelection = document.getElementById('no-selection');
-
-        // Custom Render Loop to draw Selection Outline (Gizmo)
-        Events.on(render, 'afterRender', function() {
-            if (selectedBody) {
-                const ctx = render.context;
-                ctx.beginPath();
-                // Draw a simple bounding box or circle around selected item
-                const b = selectedBody.bounds;
-                const pad = 5;
-                ctx.rect(b.min.x - pad, b.min.y - pad, (b.max.x - b.min.x) + pad*2, (b.max.y - b.min.y) + pad*2);
-                ctx.strokeStyle = '#00bcd4';
-                ctx.lineWidth = 2;
-                ctx.stroke();
-            }
-        });
-
-        // Click Handler for Selection
-        Events.on(mouseConstraint, 'mousedown', function(event) {
-            const mousePosition = event.mouse.position;
-            const bodies = Composite.allBodies(world);
-            
-            // Filter out walls/ground from selection
-            const candidateBodies = bodies.filter(b => b !== ground && b !== wallLeft && b !== wallRight);
-            const clicked = Matter.Query.point(candidateBodies, mousePosition);
-
-            if (clicked.length > 0) {
-                selectObject(clicked[0]);
-            } else {
-                deselectObject();
-            }
-        });
-
-        // Sync Inspector values while dragging
-        Events.on(engine, 'afterUpdate', function() {
-            if (selectedBody && !isPlaying) {
-                // If in Edit mode (paused), we still want to move things with mouse, 
-                // but physics calculation step is manual. 
-                // Matter.js 'Runner' usually stops physics updates when stopped.
-                // So this event fires only when running.
-            }
-            // For continuous update of inspector UI during play
-            if (selectedBody) {
-                updateInspectorValues();
-            }
-        });
-
-        function selectObject(body) {
-            selectedBody = body;
-            noSelection.classList.add('hidden');
-            inspectorContent.classList.remove('hidden');
-            updateInspectorUI();
-        }
-
-        function deselectObject() {
-            selectedBody = null;
-            noSelection.classList.remove('hidden');
-            inspectorContent.classList.add('hidden');
-        }
-
-        // --- INSPECTOR LOGIC ---
-
-        const inputs = {
-            x: document.getElementById('insp-x'),
-            y: document.getElementById('insp-y'),
-            angle: document.getElementById('insp-angle'),
-            color: document.getElementById('insp-color'),
-            static: document.getElementById('insp-static'),
-            restitution: document.getElementById('insp-restitution'),
-            friction: document.getElementById('insp-friction'),
         };
 
-        // Update UI inputs from Body data
-        function updateInspectorUI() {
-            if (!selectedBody) return;
-            inputs.x.value = Math.round(selectedBody.position.x);
-            inputs.y.value = Math.round(selectedBody.position.y);
-            inputs.angle.value = selectedBody.angle.toFixed(2);
-            inputs.color.value = selectedBody.render.fillStyle;
-            inputs.static.checked = selectedBody.isStatic;
-            inputs.restitution.value = selectedBody.restitution;
-            inputs.friction.value = selectedBody.friction;
-        }
-        
-        // Used in Loop
-        function updateInspectorValues() {
-            if(document.activeElement.tagName === 'INPUT') return; // Don't overwrite if user is typing
-            updateInspectorUI();
-        }
+        // --- 2. GAME LOOP (Custom for FPS Control) ---
+        const EngineCore = {
+            lastTime: 0,
+            accumulatedTime: 0,
+            
+            setFPS: function(val) {
+                AppState.targetFPS = parseInt(val);
+                console.log("FPS Set to:", AppState.targetFPS);
+            },
 
-        // Apply Input changes to Body
-        inputs.x.addEventListener('change', e => Body.setPosition(selectedBody, { x: parseFloat(e.target.value), y: selectedBody.position.y }));
-        inputs.y.addEventListener('change', e => Body.setPosition(selectedBody, { x: selectedBody.position.x, y: parseFloat(e.target.value) }));
-        inputs.angle.addEventListener('change', e => Body.setAngle(selectedBody, parseFloat(e.target.value)));
-        inputs.color.addEventListener('input', e => selectedBody.render.fillStyle = e.target.value);
-        inputs.static.addEventListener('change', e => Body.setStatic(selectedBody, e.target.checked));
-        inputs.restitution.addEventListener('change', e => selectedBody.restitution = parseFloat(e.target.value));
-        inputs.friction.addEventListener('change', e => selectedBody.friction = parseFloat(e.target.value));
+            clearScene: function() {
+                Composite.clear(world);
+                EngineCore.createFloor();
+                AppState.selectedBody = null;
+                Inspector.updateUI();
+                Hierarchy.render();
+            },
 
-        function deleteSelected() {
-            if(selectedBody) {
-                Composite.remove(world, selectedBody);
-                deselectObject();
+            createFloor: function() {
+                const floor = Bodies.rectangle(400, 600, 2000, 60, { 
+                    isStatic: true, 
+                    label: "Ground",
+                    render: { fillStyle: '#444' } 
+                });
+                Composite.add(world, floor);
+            },
+
+            loop: function(timestamp) {
+                requestAnimationFrame(EngineCore.loop);
+
+                const deltaTime = timestamp - EngineCore.lastTime;
+                
+                // FPS Throttling
+                const interval = AppState.targetFPS > 0 ? (1000 / AppState.targetFPS) : 0;
+                
+                if (deltaTime > interval) {
+                    EngineCore.lastTime = timestamp - (deltaTime % interval);
+                    
+                    // LOGIC STEP
+                    if (AppState.mode === 'play') {
+                        Engine.update(engine, 1000 / 60); // Physics step fixed at 60hz for stability
+                        ScriptSystem.update();
+                    }
+
+                    // RENDER STEP
+                    Render.world(render);
+                    Gizmos.draw(); // Draw Editor Tools
+                }
             }
-        }
+        };
 
-        // --- GAME LOGIC (PLAY / EDIT) ---
-
-        let isPlaying = false;
-        const runner = Runner.create();
+        // --- 3. INPUT SYSTEM & GIZMOS ---
         
-        // Start renderer immediately so we can see stuff
-        Render.run(render);
+        const Gizmos = {
+            dragActive: false,
+            dragMode: null, // 'x', 'y', 'scale'
+            dragStartPos: { x: 0, y: 0 },
+            initialObjState: null, // {x, y, scale}
 
-        function togglePlayState() {
-            isPlaying = !isPlaying;
-            const btnPlay = document.getElementById('btn-play');
-            const btnPause = document.getElementById('btn-pause');
+            draw: function() {
+                const ctx = gizmoCanvas.getContext('2d');
+                ctx.clearRect(0, 0, gizmoCanvas.width, gizmoCanvas.height);
 
-            if (isPlaying) {
-                // Start Physics
-                Runner.run(runner, engine);
-                btnPlay.classList.add('active');
-                btnPause.classList.remove('active');
+                if (!AppState.selectedBody) return;
+                
+                const b = AppState.selectedBody;
+                const pos = b.position;
+
+                ctx.lineWidth = 2;
+
+                // Draw Selection Box
+                ctx.strokeStyle = '#007acc';
+                ctx.beginPath();
+                ctx.moveTo(b.bounds.min.x, b.bounds.min.y);
+                ctx.lineTo(b.bounds.max.x, b.bounds.min.y);
+                ctx.lineTo(b.bounds.max.x, b.bounds.max.y);
+                ctx.lineTo(b.bounds.min.x, b.bounds.max.y);
+                ctx.closePath();
+                ctx.stroke();
+
+                if (AppState.mode !== 'edit') return;
+
+                // MOVE TOOL
+                if (AppState.tool === 'move') {
+                    // X Axis (Red)
+                    ctx.strokeStyle = '#ff5555';
+                    ctx.fillStyle = '#ff5555';
+                    ctx.beginPath();
+                    ctx.moveTo(pos.x, pos.y);
+                    ctx.lineTo(pos.x + 60, pos.y);
+                    ctx.stroke();
+                    // Arrowhead
+                    ctx.beginPath();
+                    ctx.moveTo(pos.x + 60, pos.y - 5);
+                    ctx.lineTo(pos.x + 70, pos.y);
+                    ctx.lineTo(pos.x + 60, pos.y + 5);
+                    ctx.fill();
+
+                    // Y Axis (Green)
+                    ctx.strokeStyle = '#55ff55';
+                    ctx.fillStyle = '#55ff55';
+                    ctx.beginPath();
+                    ctx.moveTo(pos.x, pos.y);
+                    ctx.lineTo(pos.x, pos.y - 60); // Up
+                    ctx.stroke();
+                    // Arrowhead
+                    ctx.beginPath();
+                    ctx.moveTo(pos.x - 5, pos.y - 60);
+                    ctx.lineTo(pos.x, pos.y - 70);
+                    ctx.lineTo(pos.x + 5, pos.y - 60);
+                    ctx.fill();
+                } 
+                // SCALE TOOL
+                else if (AppState.tool === 'scale') {
+                    ctx.fillStyle = '#ffffff';
+                    // Draw a box at corners
+                    const size = 10;
+                    ctx.fillRect(b.bounds.max.x - size/2, b.bounds.max.y - size/2, size, size);
+                }
+            },
+
+            checkHit: function(mx, my) {
+                if (!AppState.selectedBody || AppState.mode !== 'edit') return null;
+                const pos = AppState.selectedBody.position;
+                
+                if (AppState.tool === 'move') {
+                    // Check X Arrow
+                    if (mx > pos.x && mx < pos.x + 70 && Math.abs(my - pos.y) < 10) return 'moveX';
+                    // Check Y Arrow
+                    if (my < pos.y && my > pos.y - 70 && Math.abs(mx - pos.x) < 10) return 'moveY';
+                }
+                if (AppState.tool === 'scale') {
+                    const b = AppState.selectedBody.bounds;
+                    const dist = Math.hypot(mx - b.max.x, my - b.max.y);
+                    if (dist < 15) return 'scale';
+                }
+                return null;
+            }
+        };
+
+        // Input Event Listeners
+        gizmoCanvas.addEventListener('mousedown', e => {
+            const rect = gizmoCanvas.getBoundingClientRect();
+            const mx = e.clientX - rect.left;
+            const my = e.clientY - rect.top;
+
+            // 1. Check Gizmo Hit
+            const gizmoHit = Gizmos.checkHit(mx, my);
+            if (gizmoHit) {
+                Gizmos.dragActive = true;
+                Gizmos.dragMode = gizmoHit;
+                Gizmos.dragStartPos = { x: mx, y: my };
+                Gizmos.initialObjState = { ...AppState.selectedBody.position, bounds: AppState.selectedBody.bounds };
+                return;
+            }
+
+            // 2. Check Object Hit (Raycast)
+            const bodies = Composite.allBodies(world);
+            const clicked = Matter.Query.point(bodies, { x: mx, y: my });
+            
+            if (clicked.length > 0) {
+                Inspector.select(clicked[0]);
             } else {
-                // Stop Physics
-                Runner.stop(runner);
-                btnPlay.classList.remove('active');
-                btnPause.classList.add('active');
+                Inspector.deselect();
             }
-        }
+        });
 
-        function clearWorld() {
-            Composite.clear(world);
-            Composite.add(world, [ground, wallLeft, wallRight, mouseConstraint]);
-            deselectObject();
-        }
+        window.addEventListener('mousemove', e => {
+            const rect = gizmoCanvas.getBoundingClientRect();
+            const mx = e.clientX - rect.left;
+            const my = e.clientY - rect.top;
 
-        // --- OBJECT SPAWNING ---
+            if (Gizmos.dragActive && AppState.selectedBody) {
+                const dx = mx - Gizmos.dragStartPos.x;
+                const dy = my - Gizmos.dragStartPos.y;
 
-        function getRandomColor() {
-            return '#' + Math.floor(Math.random()*16777215).toString(16);
-        }
-
-        function spawn(type) {
-            const x = sceneView.clientWidth / 2;
-            const y = sceneView.clientHeight / 2 - 100;
-            const color = getRandomColor();
-            let body;
-
-            switch(type) {
-                case 'box':
-                    body = Bodies.rectangle(x, y, 60, 60, { render: { fillStyle: color }});
-                    break;
-                case 'circle':
-                    body = Bodies.circle(x, y, 35, { render: { fillStyle: color }});
-                    break;
-                case 'poly':
-                    body = Bodies.polygon(x, y, 5, 40, { render: { fillStyle: color }});
-                    break;
-                case 'stack':
-                    body = Composites.stack(x - 50, y - 50, 4, 4, 0, 0, function(bx, by) {
-                        return Bodies.rectangle(bx, by, 30, 30, { render: { fillStyle: getRandomColor() } });
+                if (Gizmos.dragMode === 'moveX') {
+                    Body.setPosition(AppState.selectedBody, { 
+                        x: Gizmos.initialObjState.x + dx, 
+                        y: AppState.selectedBody.position.y 
                     });
-                    break;
-                case 'ragdoll':
-                    spawnRagdoll(x, y);
-                    return; // Complex spawn, handled differently
-                case 'car':
-                    spawnCar(x, y);
+                } else if (Gizmos.dragMode === 'moveY') {
+                    Body.setPosition(AppState.selectedBody, { 
+                        x: AppState.selectedBody.position.x, 
+                        y: Gizmos.initialObjState.y + dy 
+                    });
+                } else if (Gizmos.dragMode === 'scale') {
+                    // Simple uniform scaling factor based on drag
+                    const scaleFactor = 1 + (dx / 100);
+                    // Reset scale logic is complex in Matter, simple approximation:
+                    // Only apply delta scaling if moving slowly, usually better to reconstruct body, 
+                    // but for this demo, we use Body.scale (cumulative)
+                    // A safe way:
+                    if(Math.abs(dx) > 1 || Math.abs(dy) > 1) {
+                         const s = 1 + (dx * 0.005);
+                         Body.scale(AppState.selectedBody, s, s);
+                         Gizmos.dragStartPos = {x: mx, y: my}; // Reset to avoid exponential growth
+                    }
+                }
+                Inspector.updateUI(); // Live update inspector
+            }
+        });
+
+        window.addEventListener('mouseup', () => {
+            Gizmos.dragActive = false;
+        });
+        
+        // Key Tracking for Scripts
+        window.addEventListener('keydown', e => AppState.input.keys[e.key] = true);
+        window.addEventListener('keyup', e => AppState.input.keys[e.key] = false);
+
+
+        // --- 4. INSPECTOR & HIERARCHY ---
+
+        const Inspector = {
+            ui: {
+                name: document.getElementById('insp-name'),
+                id: document.getElementById('insp-id'),
+                x: document.getElementById('insp-x'),
+                y: document.getElementById('insp-y'),
+                angle: document.getElementById('insp-angle'),
+                static: document.getElementById('insp-static'),
+                friction: document.getElementById('insp-friction'),
+                restitution: document.getElementById('insp-restitution'),
+                color: document.getElementById('insp-color'),
+                texture: document.getElementById('insp-texture'),
+                script: document.getElementById('insp-script'),
+                content: document.getElementById('inspector-content'),
+                empty: document.getElementById('inspector-empty')
+            },
+
+            select: function(body) {
+                AppState.selectedBody = body;
+                this.ui.content.classList.remove('hidden');
+                this.ui.empty.classList.add('hidden');
+                
+                // Init custom props if missing
+                if(!body.custom) body.custom = { script: "", textureUrl: "" };
+                
+                this.updateUI();
+                Hierarchy.highlight(body.id);
+            },
+
+            deselect: function() {
+                AppState.selectedBody = null;
+                this.ui.content.classList.add('hidden');
+                this.ui.empty.classList.remove('hidden');
+                Hierarchy.render();
+            },
+
+            updateUI: function() {
+                if (!AppState.selectedBody) return;
+                const b = AppState.selectedBody;
+                
+                // Prevent updating if focused to allow typing
+                if (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA') return;
+
+                this.ui.name.value = b.label;
+                this.ui.id.value = b.id;
+                this.ui.x.value = Math.round(b.position.x);
+                this.ui.y.value = Math.round(b.position.y);
+                this.ui.angle.value = b.angle.toFixed(2);
+                this.ui.static.checked = b.isStatic;
+                this.ui.friction.value = b.friction;
+                this.ui.restitution.value = b.restitution;
+                this.ui.color.value = b.render.fillStyle;
+                this.ui.texture.value = b.custom.textureUrl || "";
+                this.ui.script.value = b.custom.script || "";
+            },
+
+            applyChanges: function() {
+                if (!AppState.selectedBody) return;
+                const b = AppState.selectedBody;
+                
+                b.label = this.ui.name.value;
+                Body.setPosition(b, { x: parseFloat(this.ui.x.value), y: parseFloat(this.ui.y.value) });
+                Body.setAngle(b, parseFloat(this.ui.angle.value));
+                Body.setStatic(b, this.ui.static.checked);
+                b.friction = parseFloat(this.ui.friction.value);
+                b.restitution = parseFloat(this.ui.restitution.value);
+                b.render.fillStyle = this.ui.color.value;
+
+                // Texture Logic
+                const texUrl = this.ui.texture.value;
+                if (texUrl && texUrl !== b.custom.textureUrl) {
+                    b.custom.textureUrl = texUrl;
+                    b.render.sprite.texture = texUrl;
+                    // Reset sprite scale slightly to make it visible
+                    b.render.sprite.xScale = 1; 
+                    b.render.sprite.yScale = 1; 
+                } else if (!texUrl) {
+                    b.render.sprite.texture = null;
+                }
+
+                Hierarchy.render(); // Update name in list
+            },
+            
+            applyScript: function() {
+                if (AppState.selectedBody) {
+                    AppState.selectedBody.custom.script = this.ui.script.value;
+                    logConsole("Script updated for " + AppState.selectedBody.label);
+                }
+            }
+        };
+
+        // Bind Inputs
+        ['change', 'input'].forEach(evt => {
+            Object.values(Inspector.ui).forEach(el => {
+                if(el && el.tagName !== 'DIV') el.addEventListener(evt, () => Inspector.applyChanges());
+            });
+        });
+
+        const Hierarchy = {
+            list: document.getElementById('hierarchy-list'),
+            
+            render: function() {
+                this.list.innerHTML = '';
+                Composite.allBodies(world).forEach(b => {
+                    const div = document.createElement('div');
+                    div.className = 'list-item';
+                    if (AppState.selectedBody === b) div.classList.add('selected');
+                    div.innerText = b.label || `Body ${b.id}`;
+                    div.onclick = () => Inspector.select(b);
+                    this.list.appendChild(div);
+                });
+            },
+
+            highlight: function(id) {
+                // Quick style update without full rerender
+                Array.from(this.list.children).forEach(child => child.classList.remove('selected'));
+                this.render(); // lazy full render to ensure sync
+            }
+        };
+
+        // --- 5. SCRIPTING SYSTEM ---
+        
+        const ScriptSystem = {
+            update: function() {
+                Composite.allBodies(world).forEach(b => {
+                    if (b.custom && b.custom.script && b.custom.script.trim() !== "") {
+                        try {
+                            // Create a safe-ish function
+                            // We pass: body, engine, input
+                            const func = new Function('body', 'engine', 'input', b.custom.script);
+                            func(b, engine, AppState.input);
+                        } catch (e) {
+                            // Rate limit errors to avoid console flood
+                            if (Math.random() < 0.01) logConsole(`Script Error (${b.label}): ${e.message}`);
+                        }
+                    }
+                });
+            }
+        };
+
+        function logConsole(msg) {
+            const c = document.getElementById('console-log');
+            const d = document.createElement('div');
+            d.innerText = `> ${msg}`;
+            c.prepend(d);
+        }
+
+        // --- 6. UTILS & HELPERS ---
+
+        const Spawner = {
+            create: function(type) {
+                const x = container.clientWidth / 2;
+                const y = container.clientHeight / 2;
+                let b;
+
+                if (type === 'box') {
+                    b = Bodies.rectangle(x, y, 50, 50, { label: 'Box', render: { fillStyle: '#007acc' } });
+                } else if (type === 'circle') {
+                    b = Bodies.circle(x, y, 25, { label: 'Circle', render: { fillStyle: '#e06c75' } });
+                } else if (type === 'car') {
+                    // Simple prefab
+                    const chassis = Bodies.rectangle(x, y, 100, 30, { label: 'Car Chassis' });
+                    const w1 = Bodies.circle(x - 35, y + 20, 15, { friction: 0.8, label: 'Wheel L' });
+                    const w2 = Bodies.circle(x + 35, y + 20, 15, { friction: 0.8, label: 'Wheel R' });
+                    const ax1 = Matter.Constraint.create({ bodyA: chassis, bodyB: w1, pointA: {x:-35, y:20}, stiffness: 0.5 });
+                    const ax2 = Matter.Constraint.create({ bodyA: chassis, bodyB: w2, pointA: {x:35, y:20}, stiffness: 0.5 });
+                    Composite.add(world, [chassis, w1, w2, ax1, ax2]);
+                    Hierarchy.render();
                     return;
+                }
+
+                if (b) {
+                    b.custom = { script: "", textureUrl: "" };
+                    Composite.add(world, b);
+                    Inspector.select(b);
+                    Hierarchy.render();
+                }
+            },
+            
+            deleteSelected: function() {
+                if(AppState.selectedBody) {
+                    Composite.remove(world, AppState.selectedBody);
+                    Inspector.deselect();
+                }
             }
+        };
 
-            if(body) {
-                Composite.add(world, body);
+        function setMode(mode) {
+            AppState.mode = mode;
+            document.getElementById('btn-play').classList.toggle('active', mode === 'play');
+            document.getElementById('btn-edit').classList.toggle('active', mode === 'edit');
+            
+            // In Edit Mode, remove gravity temporarily or freeze? 
+            // Matter.js is hard to 'pause' perfectly without stopping the runner.
+            // Our custom loop handles the update logic stop.
+            
+            if (mode === 'edit') {
+                // Optional: Reset scene physics if desired, but for now we just pause.
             }
         }
 
-        // --- PREFABS ---
-
-        function spawnRagdoll(x, y) {
-            const group = Body.nextGroup(true);
-            const head = Bodies.circle(x, y - 25, 15, { collisionFilter: { group: group }, render: { fillStyle: '#FFBC42' } });
-            const chest = Bodies.rectangle(x, y, 30, 40, { collisionFilter: { group: group }, render: { fillStyle: '#E04F5F' } });
-            const rightUpperArm = Bodies.rectangle(x + 18, y - 10, 10, 20, { collisionFilter: { group: group }, render: { fillStyle: '#E04F5F' } });
-            const rightLowerArm = Bodies.rectangle(x + 18, y + 15, 10, 20, { collisionFilter: { group: group }, render: { fillStyle: '#E04F5F' } });
-            const leftUpperArm = Bodies.rectangle(x - 18, y - 10, 10, 20, { collisionFilter: { group: group }, render: { fillStyle: '#E04F5F' } });
-            const leftLowerArm = Bodies.rectangle(x - 18, y + 15, 10, 20, { collisionFilter: { group: group }, render: { fillStyle: '#E04F5F' } });
-            const leftUpperLeg = Bodies.rectangle(x - 10, y + 30, 10, 25, { collisionFilter: { group: group }, render: { fillStyle: '#75CAE0' } });
-            const leftLowerLeg = Bodies.rectangle(x - 10, y + 60, 10, 25, { collisionFilter: { group: group }, render: { fillStyle: '#75CAE0' } });
-            const rightUpperLeg = Bodies.rectangle(x + 10, y + 30, 10, 25, { collisionFilter: { group: group }, render: { fillStyle: '#75CAE0' } });
-            const rightLowerLeg = Bodies.rectangle(x + 10, y + 60, 10, 25, { collisionFilter: { group: group }, render: { fillStyle: '#75CAE0' } });
-
-            const chestToHead = Constraint.create({ bodyA: chest, bodyB: head, pointA: { x: 0, y: -20 }, pointB: { x: 0, y: 10 }, stiffness: 0.6 });
-            const chestToRightUpperArm = Constraint.create({ bodyA: chest, bodyB: rightUpperArm, pointA: { x: 15, y: -10 }, pointB: { x: 0, y: -10 }, stiffness: 0.6 });
-            const chestToLeftUpperArm = Constraint.create({ bodyA: chest, bodyB: leftUpperArm, pointA: { x: -15, y: -10 }, pointB: { x: 0, y: -10 }, stiffness: 0.6 });
-            const upperToLowerRightArm = Constraint.create({ bodyA: rightUpperArm, bodyB: rightLowerArm, pointA: { x: 0, y: 10 }, pointB: { x: 0, y: -10 }, stiffness: 0.6 });
-            const upperToLowerLeftArm = Constraint.create({ bodyA: leftUpperArm, bodyB: leftLowerArm, pointA: { x: 0, y: 10 }, pointB: { x: 0, y: -10 }, stiffness: 0.6 });
-            const chestToLeftLeg = Constraint.create({ bodyA: chest, bodyB: leftUpperLeg, pointA: { x: -10, y: 20 }, pointB: { x: 0, y: -12 }, stiffness: 0.6 });
-            const chestToRightLeg = Constraint.create({ bodyA: chest, bodyB: rightUpperLeg, pointA: { x: 10, y: 20 }, pointB: { x: 0, y: -12 }, stiffness: 0.6 });
-            const upperToLowerLeftLeg = Constraint.create({ bodyA: leftUpperLeg, bodyB: leftLowerLeg, pointA: { x: 0, y: 12 }, pointB: { x: 0, y: -12 }, stiffness: 0.6 });
-            const upperToLowerRightLeg = Constraint.create({ bodyA: rightUpperLeg, bodyB: rightLowerLeg, pointA: { x: 0, y: 12 }, pointB: { x: 0, y: -12 }, stiffness: 0.6 });
-
-            Composite.add(world, [
-                head, chest, rightUpperArm, rightLowerArm, leftUpperArm, leftLowerArm, leftUpperLeg, leftLowerLeg, rightUpperLeg, rightLowerLeg,
-                chestToHead, chestToRightUpperArm, chestToLeftUpperArm, upperToLowerRightArm, upperToLowerLeftArm, chestToLeftLeg, chestToRightLeg, upperToLowerLeftLeg, upperToLowerRightLeg
-            ]);
+        function setTool(tool) {
+            AppState.tool = tool;
+            document.getElementById('tool-move').classList.toggle('active', tool === 'move');
+            document.getElementById('tool-scale').classList.toggle('active', tool === 'scale');
         }
 
-        function spawnCar(x, y) {
-            const group = Body.nextGroup(true);
-            const wheelBase = 20;
-            const wheelAOffset = -40;
-            const wheelBOffset = 40;
-            const wheelYOffset = 20;
+        // --- INIT ---
+        EngineCore.createFloor();
+        EngineCore.loop(0);
 
-            const chassis = Bodies.rectangle(x, y, 120, 30, { 
-                collisionFilter: { group: group },
-                render: { fillStyle: '#C63D3D' }
-            });
-
-            const wheelA = Bodies.circle(x + wheelAOffset, y + wheelYOffset, 15, { 
-                collisionFilter: { group: group },
-                friction: 0.8,
-                render: { fillStyle: '#333' }
-            });
-
-            const wheelB = Bodies.circle(x + wheelBOffset, y + wheelYOffset, 15, { 
-                collisionFilter: { group: group },
-                friction: 0.8,
-                render: { fillStyle: '#333' }
-            });
-
-            const axelA = Constraint.create({
-                bodyB: chassis,
-                pointB: { x: wheelAOffset, y: wheelYOffset },
-                bodyA: wheelA,
-                stiffness: 1,
-                length: 0
-            });
-
-            const axelB = Constraint.create({
-                bodyB: chassis,
-                pointB: { x: wheelBOffset, y: wheelYOffset },
-                bodyA: wheelB,
-                stiffness: 1,
-                length: 0
-            });
-
-            Composite.add(world, [chassis, wheelA, wheelB, axelA, axelB]);
-        }
-
-        // Start in Edit Mode (Paused)
-        togglePlayState(); // This actually starts it
-        togglePlayState(); // Toggle back to Pause
     </script>
 </body>
 </html>
