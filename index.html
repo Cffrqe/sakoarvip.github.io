@@ -370,16 +370,25 @@
         let camZoom = 1;
         const camPos = { x: 0, y: 300 };
         
-        function updateCamera() {
-            // Center the view on camPos with current zoom
-            const viewWidth = sceneView.clientWidth * camZoom;
-            const viewHeight = sceneView.clientHeight * camZoom;
-            
-            Render.lookAt(render, {
-                min: { x: camPos.x - viewWidth/2, y: camPos.y - viewHeight/2 },
-                max: { x: camPos.x + viewWidth/2, y: camPos.y + viewHeight/2 }
-            });
-        }
+        // --- REPLACEMENT CAMERA FUNCTION ---
+function updateCamera() {
+    // 1. Calculate the view area
+    const viewWidth = sceneView.clientWidth * camZoom;
+    const viewHeight = sceneView.clientHeight * camZoom;
+    
+    const bounds = {
+        min: { x: camPos.x - viewWidth/2, y: camPos.y - viewHeight/2 },
+        max: { x: camPos.x + viewWidth/2, y: camPos.y + viewHeight/2 }
+    };
+
+    // 2. Move the Render View
+    Render.lookAt(render, bounds);
+    
+    // 3. FIX: Sync the Mouse with the Camera!
+    // This ensures clicks happen where the camera is looking
+    Mouse.setScale(mouse, { x: camZoom, y: camZoom });
+    Mouse.setOffset(mouse, bounds.min);
+}
 
         // Camera Input Handlers
         let isRightDrag = false;
@@ -445,56 +454,55 @@
             if(btn) btn.classList.add('active-tool');
         }
 
-        Events.on(mouseConstraint, 'mousedown', function(event) {
-            const mousePos = event.mouse.absolute;
-            
-            if (event.mouse.button !== 0) return; // Only Left Click
+        // --- REPLACEMENT CLICK HANDLER ---
+Events.on(mouseConstraint, 'mousedown', function(event) {
+    // FIX: Use 'position' (World Coords) instead of 'absolute' (Screen Coords)
+    const mousePos = event.mouse.position;
+    
+    if (event.mouse.button !== 0) return; // Only Left Click
 
-            // If we are clicking on a body, 'drag' is handled by mouseConstraint automatically
-            // But for guns/tools, we might want to override or augment
-            
-            switch(currentTool) {
-                case 'delete':
-                    const bodies = Query.point(Composite.allBodies(world), mousePos);
-                    bodies.forEach(b => {
-                        if(!b.isStatic) removeBodySmart(b);
-                    });
-                    break;
-                case 'pistol':
-                    fireProjectile(mousePos, 15, 5, 60, '#ffcc00');
-                    break;
-                case 'shotgun':
-                    for(let i=0; i<5; i++) {
-                        let spread = { x: mousePos.x + (Math.random()-0.5)*50, y: mousePos.y + (Math.random()-0.5)*50 };
-                        fireProjectile(spread, 8, 3, 45, '#aaa');
-                    }
-                    break;
-                case 'rpg':
-                    fireRocket(mousePos);
-                    break;
-                case 'laser':
-                    fireLaser(mousePos);
-                    break;
-                case 'clone':
-                    const toClone = Query.point(Composite.allBodies(world), mousePos)[0];
-                    if(toClone && !toClone.isStatic) {
-                        spawnClone(toClone);
-                    }
-                    break;
-                case 'zerog':
-                    const hit = Query.point(Composite.allBodies(world), mousePos)[0];
-                    if(hit) {
-                        // Toggle local gravity scale
-                        hit.gravityScale = hit.gravityScale === 0 ? 1 : 0;
-                        // Color change to indicate
-                        hit.render.fillStyle = hit.gravityScale === 0 ? '#88ffff' : getRandomColor();
-                        // Wake it up
-                        Body.setAngularVelocity(hit, 0.01);
-                    }
-                    break;
+    switch(currentTool) {
+        case 'delete':
+            // Use Query.point on the world coordinates
+            const bodies = Query.point(Composite.allBodies(world), mousePos);
+            bodies.forEach(b => {
+                // Don't delete walls/ground
+                if(!b.isStatic && b.label !== 'Ground') removeBodySmart(b);
+            });
+            break;
+        case 'pistol':
+            fireProjectile(mousePos, 10, 5, 60, '#ffcc00');
+            break;
+        case 'shotgun':
+            for(let i=0; i<5; i++) {
+                let spread = { x: mousePos.x + (Math.random()-0.5)*50, y: mousePos.y + (Math.random()-0.5)*50 };
+                fireProjectile(spread, 6, 3, 45, '#aaa');
             }
-        });
-
+            break;
+        case 'rpg':
+            fireRocket(mousePos);
+            break;
+        case 'laser':
+            fireLaser(mousePos);
+            break;
+        case 'clone':
+            const hits = Query.point(Composite.allBodies(world), mousePos);
+            if(hits.length > 0) {
+                const toClone = hits[0];
+                if(!toClone.isStatic) spawnClone(toClone);
+            }
+            break;
+        case 'zerog':
+            const zHits = Query.point(Composite.allBodies(world), mousePos);
+            if(zHits.length > 0) {
+                const hit = zHits[0];
+                hit.gravityScale = hit.gravityScale === 0 ? 1 : 0;
+                hit.render.fillStyle = hit.gravityScale === 0 ? '#88ffff' : getRandomColor();
+                Body.setAngularVelocity(hit, 0.01);
+            }
+            break;
+    }
+});
         // Prevent dragging when using weapons (optional, usually preferred)
         Events.on(mouseConstraint, 'startdrag', function(event) {
             if (['pistol', 'shotgun', 'rpg', 'laser'].includes(currentTool)) {
@@ -966,3 +974,4 @@
     </script>
 </body>
 </html>
+
