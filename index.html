@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WebPhys Ultimate 3.0</title>
+    <title>WebPhys</title>
     <style>
         :root {
             --bg-dark: #121212;
@@ -193,7 +193,7 @@
     <!-- Header -->
     <div id="header">
         <div class="brand">
-            <span>⚛️ WEBPHYS 3.0</span>
+            <span>⚛️ WEBPHYS</span>
             <span class="stats-display" id="obj-count">Obj: 0</span>
             <span class="stats-display" id="fps-count">FPS: 60</span>
         </div>
@@ -209,9 +209,9 @@
         <!-- Sidebar -->
         <div id="sidebar">
             <div class="tabs">
-                <div class="tab active" onclick="switchTab('spawn')">SPAWN</div>
-                <div class="tab" onclick="switchTab('weapons')">WEAPONS</div>
-                <div class="tab" onclick="switchTab('env')">WORLD</div>
+                <div class="tab active" onclick="switchTab('spawn', event)">SPAWN</div>
+                <div class="tab" onclick="switchTab('weapons', event)">WEAPONS</div>
+                <div class="tab" onclick="switchTab('env', event)">WORLD</div>
             </div>
 
             <div id="tab-spawn" class="sidebar-content">
@@ -309,23 +309,22 @@
 
     <!-- Matter.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.map"></script>
 
     <script>
         // --- 1. ENGINE CONFIGURATION ---
         const Engine = Matter.Engine,
-              Render = Matter.Render,
-              Runner = Matter.Runner,
-              Bodies = Matter.Bodies,
-              Composite = Matter.Composite,
-              Composites = Matter.Composites,
-              Constraint = Matter.Constraint,
-              Mouse = Matter.Mouse,
-              MouseConstraint = Matter.MouseConstraint,
-              Events = Matter.Events,
-              Body = Matter.Body,
-              Vector = Matter.Vector,
-              Query = Matter.Query;
+            Render = Matter.Render,
+            Runner = Matter.Runner,
+            Bodies = Matter.Bodies,
+            Composite = Matter.Composite,
+            Composites = Matter.Composites,
+            Constraint = Matter.Constraint,
+            Mouse = Matter.Mouse,
+            MouseConstraint = Matter.MouseConstraint,
+            Events = Matter.Events,
+            Body = Matter.Body,
+            Vector = Matter.Vector,
+            Query = Matter.Query;
 
         // Create Engine with high iteration for stability
         const engine = Engine.create({
@@ -358,9 +357,9 @@
             const h = 50000;
             
             ground = Bodies.rectangle(0, 1000 + t/2, w, t, { isStatic: true, render: { fillStyle: '#222' }, label: 'Ground' });
-            ceil = Bodies.rectangle(0, -5000 - t/2, w, t, { isStatic: true });
-            lWall = Bodies.rectangle(-2000 - t/2, 0, t, h, { isStatic: true, render: {fillStyle: '#222'} });
-            rWall = Bodies.rectangle(2000 + t/2, 0, t, h, { isStatic: true, render: {fillStyle: '#222'} });
+            ceil = Bodies.rectangle(0, -5000 - t/2, w, t, { isStatic: true, render: { fillStyle: '#222' } });
+            lWall = Bodies.rectangle(-2000 - t/2, 0, t, h, { isStatic: true, render: { fillStyle: '#222' } });
+            rWall = Bodies.rectangle(2000 + t/2, 0, t, h, { isStatic: true, render: { fillStyle: '#222' } });
 
             Composite.add(world, [ground, ceil, lWall, rWall]);
         }
@@ -370,25 +369,26 @@
         let camZoom = 1;
         const camPos = { x: 0, y: 300 };
         
-        // --- REPLACEMENT CAMERA FUNCTION ---
-function updateCamera() {
-    // 1. Calculate the view area
-    const viewWidth = sceneView.clientWidth * camZoom;
-    const viewHeight = sceneView.clientHeight * camZoom;
-    
-    const bounds = {
-        min: { x: camPos.x - viewWidth/2, y: camPos.y - viewHeight/2 },
-        max: { x: camPos.x + viewWidth/2, y: camPos.y + viewHeight/2 }
-    };
+        // --- [FIXED] CAMERA FUNCTION ---
+        function updateCamera() {
+            // 1. Calculate the view area based on canvas size and zoom
+            const viewWidth = sceneView.clientWidth * camZoom;
+            const viewHeight = sceneView.clientHeight * camZoom;
 
-    // 2. Move the Render View
-    Render.lookAt(render, bounds);
-    
-    // 3. FIX: Sync the Mouse with the Camera!
-    // This ensures clicks happen where the camera is looking
-    Mouse.setScale(mouse, { x: camZoom, y: camZoom });
-    Mouse.setOffset(mouse, bounds.min);
-}
+            const bounds = {
+                min: { x: camPos.x - viewWidth / 2, y: camPos.y - viewHeight / 2 },
+                max: { x: camPos.x + viewWidth / 2, y: camPos.y + viewHeight / 2 }
+            };
+
+            // 2. Move the Render View to look at the calculated bounds
+            Render.lookAt(render, bounds);
+
+            // 3. Sync the Mouse with the Camera!
+            // This is the crucial step that ensures clicks happen where the camera is looking.
+            // It tells the mouse how to scale and offset screen coordinates to find the correct world coordinates.
+            Mouse.setScale(mouse, { x: camZoom, y: camZoom });
+            Mouse.setOffset(mouse, bounds.min);
+        }
 
         // Camera Input Handlers
         let isRightDrag = false;
@@ -418,6 +418,7 @@ function updateCamera() {
         });
 
         sceneView.addEventListener('wheel', (e) => {
+            e.preventDefault(); // Prevent page scrolling
             const zoomFactor = 0.1;
             if (e.deltaY > 0) {
                 camZoom *= (1 + zoomFactor);
@@ -427,7 +428,7 @@ function updateCamera() {
             // Clamp Zoom
             camZoom = Math.min(Math.max(camZoom, 0.2), 5);
             updateCamera();
-        });
+        }, { passive: false });
         
         // Initial Cam
         updateCamera();
@@ -437,7 +438,10 @@ function updateCamera() {
         const mouse = Mouse.create(render.canvas);
         const mouseConstraint = MouseConstraint.create(engine, {
             mouse: mouse,
-            constraint: { stiffness: 0.2, render: { visible: false } }
+            constraint: { 
+                stiffness: 0.2, 
+                render: { visible: false } 
+            }
         });
         
         // Remove default wheel capture by Matter mouse so we can zoom
@@ -454,80 +458,83 @@ function updateCamera() {
             if(btn) btn.classList.add('active-tool');
         }
 
-        // --- REPLACEMENT CLICK HANDLER ---
-Events.on(mouseConstraint, 'mousedown', function(event) {
-    // FIX: Use 'position' (World Coords) instead of 'absolute' (Screen Coords)
-    const mousePos = event.mouse.position;
-    
-    if (event.mouse.button !== 0) return; // Only Left Click
+        // --- [FIXED] CLICK HANDLER ---
+        Events.on(mouseConstraint, 'mousedown', function(event) {
+            // Use 'event.mouse.position' which now correctly gives WORLD coordinates
+            // because we are updating the mouse scale/offset in updateCamera().
+            const mousePos = event.mouse.position;
 
-    switch(currentTool) {
-        case 'delete':
-            // Use Query.point on the world coordinates
-            const bodies = Query.point(Composite.allBodies(world), mousePos);
-            bodies.forEach(b => {
-                // Don't delete walls/ground
-                if(!b.isStatic && b.label !== 'Ground') removeBodySmart(b);
-            });
-            break;
-        case 'pistol':
-            fireProjectile(mousePos, 10, 5, 60, '#ffcc00');
-            break;
-        case 'shotgun':
-            for(let i=0; i<5; i++) {
-                let spread = { x: mousePos.x + (Math.random()-0.5)*50, y: mousePos.y + (Math.random()-0.5)*50 };
-                fireProjectile(spread, 6, 3, 45, '#aaa');
+            if (event.mouse.button !== 0) return; // Only handle Left Click for tools
+
+            switch(currentTool) {
+                case 'delete':
+                    const bodies = Query.point(Composite.allBodies(world), mousePos);
+                    bodies.forEach(b => {
+                        if(!b.isStatic && b.label !== 'Ground') removeBodySmart(b);
+                    });
+                    break;
+                case 'pistol':
+                    fireProjectile(mousePos, 10, 5, 60, '#ffcc00');
+                    break;
+                case 'shotgun':
+                    for(let i=0; i<5; i++) {
+                        let spread = { x: mousePos.x + (Math.random()-0.5)*50, y: mousePos.y + (Math.random()-0.5)*50 };
+                        fireProjectile(spread, 6, 3, 45, '#aaa');
+                    }
+                    break;
+                case 'rpg':
+                    fireRocket(mousePos);
+                    break;
+                case 'laser':
+                    fireLaser(mousePos);
+                    break;
+                case 'clone':
+                    const hits = Query.point(Composite.allBodies(world), mousePos);
+                    if(hits.length > 0) {
+                        const toClone = hits[0];
+                        if(!toClone.isStatic) spawnClone(toClone);
+                    }
+                    break;
+                case 'zerog':
+                    const zHits = Query.point(Composite.allBodies(world), mousePos);
+                    if(zHits.length > 0) {
+                        const hit = zHits[0];
+                        // Toggle gravity scale for the specific object
+                        hit.gravityScale = hit.gravityScale === 0 ? 1 : 0; 
+                        hit.render.fillStyle = hit.gravityScale === 0 ? '#88ffff' : getRandomColor();
+                        Body.setAngularVelocity(hit, 0.01); // Give it a slight spin
+                    }
+                    break;
             }
-            break;
-        case 'rpg':
-            fireRocket(mousePos);
-            break;
-        case 'laser':
-            fireLaser(mousePos);
-            break;
-        case 'clone':
-            const hits = Query.point(Composite.allBodies(world), mousePos);
-            if(hits.length > 0) {
-                const toClone = hits[0];
-                if(!toClone.isStatic) spawnClone(toClone);
-            }
-            break;
-        case 'zerog':
-            const zHits = Query.point(Composite.allBodies(world), mousePos);
-            if(zHits.length > 0) {
-                const hit = zHits[0];
-                hit.gravityScale = hit.gravityScale === 0 ? 1 : 0;
-                hit.render.fillStyle = hit.gravityScale === 0 ? '#88ffff' : getRandomColor();
-                Body.setAngularVelocity(hit, 0.01);
-            }
-            break;
-    }
-});
-        // Prevent dragging when using weapons (optional, usually preferred)
+        });
+
+        // Prevent dragging when using weapons, but allow it for interaction tools
         Events.on(mouseConstraint, 'startdrag', function(event) {
-            if (['pistol', 'shotgun', 'rpg', 'laser'].includes(currentTool)) {
-                event.constraint.body = null; // Cancel drag
+            if (['pistol', 'shotgun', 'rpg', 'laser', 'delete', 'clone', 'zerog'].includes(currentTool)) {
+                event.constraint.body = null; // Cancel the drag
             } else {
+                // For 'drag' tool, allow dragging and select the body for the inspector
                 selectBody(event.body);
             }
         });
 
+        // Deselect when dragging stops
+        Events.on(mouseConstraint, 'enddrag', function(event) {
+            deselect();
+        });
+
         // --- 5. VEHICLE SYSTEM (DRIVABLE) ---
         let activeCars = [];
-
-        // Input Tracking for driving
         const keys = { w: false, a: false, s: false, d: false };
         window.addEventListener('keydown', e => { if(keys.hasOwnProperty(e.key.toLowerCase())) keys[e.key.toLowerCase()] = true; });
         window.addEventListener('keyup', e => { if(keys.hasOwnProperty(e.key.toLowerCase())) keys[e.key.toLowerCase()] = false; });
 
         Events.on(engine, 'beforeUpdate', () => {
             activeCars.forEach(car => {
-                // Determine torque based on input
                 let torque = 0;
-                if (keys.w) torque = 0.5; // Forward
-                if (keys.s) torque = -0.5; // Reverse
+                if (keys.w) torque = 0.5;
+                if (keys.s) torque = -0.5;
                 
-                // Scale torque by mass to make it consistent
                 const wheelTorque = torque * car.speed;
 
                 if (torque !== 0) {
@@ -538,12 +545,8 @@ Events.on(mouseConstraint, 'mousedown', function(event) {
         });
 
         // --- 6. WEAPON & LOGIC FUNCTIONS ---
-        
         function fireProjectile(target, size, mass, speed, color) {
-            // Origin is roughly camera center or a fixed point? 
-            // Better: Origin is slightly off-screen or from "Player" position (center of screen)
             const origin = { x: camPos.x, y: camPos.y - 200 }; 
-            
             const angle = Math.atan2(target.y - origin.y, target.x - origin.x);
             const velocity = { x: Math.cos(angle) * speed, y: Math.sin(angle) * speed };
 
@@ -556,7 +559,6 @@ Events.on(mouseConstraint, 'mousedown', function(event) {
             Body.setVelocity(bullet, velocity);
             Composite.add(world, bullet);
 
-            // Cleanup after 2 seconds
             setTimeout(() => { Composite.remove(world, bullet); }, 3000);
         }
 
@@ -573,25 +575,20 @@ Events.on(mouseConstraint, 'mousedown', function(event) {
             });
             Body.setVelocity(rocket, velocity);
             Composite.add(world, rocket);
-
-            // Explode on impact logic handled in collision event
             rocket.isRocket = true;
         }
 
         function createExplosion(x, y, power) {
-            // Visual
             const blast = Bodies.circle(x, y, 10, { 
                 isStatic: true, 
-                render: { fillStyle: 'rgba(255,100,0,0.8)' },
-                collisionFilter: { group: -1 } // no collision
+                isSensor: true,
+                render: { fillStyle: 'rgba(255,100,0,0.8)' }
             });
             Composite.add(world, blast);
             
-            // Expand visual
             let frameCount = 0;
             const anim = setInterval(() => {
                 const scale = 1 + (frameCount * 0.5);
-                Body.scale(blast, 1.2, 1.2);
                 blast.render.opacity -= 0.1;
                 frameCount++;
                 if (frameCount > 10) {
@@ -600,8 +597,7 @@ Events.on(mouseConstraint, 'mousedown', function(event) {
                 }
             }, 30);
 
-            // Physics Force
-            const bodies = Composite.allBodies(world);
+            const bodies = Query.region(Composite.allBodies(world), {min:{x:x-300*power,y:y-300*power}, max:{x:x+300*power,y:y+300*power}});
             bodies.forEach(b => {
                 if (b.isStatic) return;
                 const dist = Vector.magnitude(Vector.sub(b.position, {x, y}));
@@ -617,53 +613,45 @@ Events.on(mouseConstraint, 'mousedown', function(event) {
         }
 
         function fireLaser(target) {
-            // Instant Raycast push
             const origin = { x: camPos.x, y: camPos.y - 200 };
             const ray = Query.ray(Composite.allBodies(world), origin, target);
             
-            // Draw Line
-            const ctx = render.context;
-            // We need to hook into rendering to draw this line, for now simple logic:
-            // Apply force to first hit
             if(ray.length > 0) {
                 const hit = ray[0];
                 const force = Vector.mult(Vector.normalise(Vector.sub(target, origin)), 0.5 * hit.body.mass);
                 Body.applyForce(hit.body, hit.point, force);
                 
-                // Visual Spark
                 const spark = Bodies.circle(hit.point.x, hit.point.y, 5, { isStatic:true, render:{fillStyle:'#0ff'} });
                 Composite.add(world, spark);
                 setTimeout(()=>Composite.remove(world, spark), 100);
             }
         }
 
-        // Rocket Collision Logic
         Events.on(engine, 'collisionStart', function(event) {
             const pairs = event.pairs;
             pairs.forEach(pair => {
-                const a = pair.bodyA;
-                const b = pair.bodyB;
+                const { bodyA, bodyB } = pair;
                 
-                // Check Rockets
-                if (a.isRocket || b.isRocket) {
-                    const rocket = a.isRocket ? a : b;
-                    createExplosion(rocket.position.x, rocket.position.y, 3);
-                    Composite.remove(world, rocket);
+                if (bodyA.isRocket || bodyB.isRocket) {
+                    const rocket = bodyA.isRocket ? bodyA : bodyB;
+                    if(Composite.get(world, rocket.id)) { // Check if not already removed
+                       createExplosion(rocket.position.x, rocket.position.y, 3);
+                       Composite.remove(world, rocket);
+                    }
                 }
 
-                // Check Proximity Mines (explode on touch)
-                if (a.label === 'Mine' || b.label === 'Mine') {
-                    const mine = a.label === 'Mine' ? a : b;
-                    createExplosion(mine.position.x, mine.position.y, 5);
-                    Composite.remove(world, mine);
+                if (bodyA.label === 'Mine' || bodyB.label === 'Mine') {
+                    const mine = bodyA.label === 'Mine' ? bodyA : bodyB;
+                    if(Composite.get(world, mine.id)) {
+                       createExplosion(mine.position.x, mine.position.y, 5);
+                       Composite.remove(world, mine);
+                    }
                 }
             });
         });
 
-
         // --- 7. SPAWNING SYSTEM (PREFABS) ---
-        
-        function getRandomColor() { return '#' + Math.floor(Math.random()*16777215).toString(16); }
+        function getRandomColor() { return '#' + Math.floor(Math.random()*16777215).toString(16).padStart(6, '0'); }
 
         function spawn(type) {
             const x = camPos.x;
@@ -683,7 +671,6 @@ Events.on(mouseConstraint, 'mousedown', function(event) {
                     break;
                 
                 case 'ragdoll': spawnRagdoll(x, y); return;
-                
                 case 'car_sedan': spawnCar(x, y, 1.5, 'sedan'); return;
                 case 'car_truck': spawnCar(x, y, 3.0, 'truck'); return;
                 
@@ -693,7 +680,6 @@ Events.on(mouseConstraint, 'mousedown', function(event) {
                         Bodies.rectangle(xx, yy, 50, 20, { collisionFilter: { group: group }, chamfer: 5, render:{fillStyle:'#8B4513'} }));
                     Composites.chain(bridge, 0.5, 0, -0.5, 0, { stiffness: 0.8, length: 2 });
                     Composite.add(world, bridge);
-                    // Anchors
                     const p1 = Bodies.rectangle(x-325, y, 50, 50, { isStatic: true, render:{visible:false}});
                     const p2 = Bodies.rectangle(x+325, y, 50, 50, { isStatic: true, render:{visible:false}});
                     Composite.add(world, [
@@ -722,19 +708,11 @@ Events.on(mouseConstraint, 'mousedown', function(event) {
                     return;
 
                 case 'barrel':
-                    b = Bodies.rectangle(x, y, 40, 60, { 
-                        render: { fillStyle: '#e67e22', strokeStyle:'#d35400', lineWidth:3 },
-                        label: 'Barrel' 
-                    });
-                    // Explode on high impact logic could be added
+                    b = Bodies.rectangle(x, y, 40, 60, { render: { fillStyle: '#e67e22', strokeStyle:'#d35400', lineWidth:3 }, label: 'Barrel' });
                     break;
 
                 case 'mine':
-                    b = Bodies.circle(x, y, 15, { 
-                        isStatic: false, 
-                        render: { fillStyle: '#f00' },
-                        label: 'Mine' 
-                    });
+                    b = Bodies.circle(x, y, 15, { isStatic: false, render: { fillStyle: '#f00' }, label: 'Mine' });
                     break;
                 
                 case 'wrecking':
@@ -752,79 +730,52 @@ Events.on(mouseConstraint, 'mousedown', function(event) {
             if(b) Composite.add(world, b);
         }
 
-        // --- Complex Spawners ---
-
         function spawnRagdoll(x, y) {
-            // Simplified version of Matter.js ragdoll example
             const group = Body.nextGroup(true);
             const chest = Bodies.rectangle(x, y, 30, 40, { collisionFilter: { group: group }, render:{fillStyle:'#E04F5F'} });
             const head = Bodies.circle(x, y - 30, 15, { collisionFilter: { group: group }, render:{fillStyle:'#FFBC42'} });
-            
             const headConst = Constraint.create({ bodyA: chest, bodyB: head, pointA: {x:0, y:-20}, pointB: {x:0, y:10}, stiffness:0.6 });
-            
-            // Arms and Legs would go here, simplified for brevity to a "Mini Ragdoll"
-            Composite.add(world, [chest, head, headConst]);
-            
-            // Add limbs quickly
             const limb = (xx, yy, w, h) => Bodies.rectangle(xx, yy, w, h, { collisionFilter: { group: group }, render:{fillStyle:'#E04F5F'} });
             const rArm = limb(x+20, y-10, 10, 30);
             const lArm = limb(x-20, y-10, 10, 30);
             const rLeg = limb(x+10, y+40, 10, 40);
             const lLeg = limb(x-10, y+40, 10, 40);
-
             const link = (bA, bB, pA, pB) => Constraint.create({bodyA: bA, bodyB: bB, pointA: pA, pointB: pB, stiffness:0.5});
-
             Composite.add(world, [
-                rArm, lArm, rLeg, lLeg,
-                link(chest, rArm, {x:15, y:-15}, {x:0, y:-10}),
-                link(chest, lArm, {x:-15, y:-15}, {x:0, y:-10}),
-                link(chest, rLeg, {x:10, y:20}, {x:0, y:-15}),
-                link(chest, lLeg, {x:-10, y:20}, {x:0, y:-15})
+                chest, head, headConst, rArm, lArm, rLeg, lLeg,
+                link(chest, rArm, {x:15, y:-15}, {x:0, y:-10}), link(chest, lArm, {x:-15, y:-15}, {x:0, y:-10}),
+                link(chest, rLeg, {x:10, y:20}, {x:0, y:-15}), link(chest, lLeg, {x:-10, y:20}, {x:0, y:-15})
             ]);
         }
 
         function spawnCar(x, y, scale, type) {
             const group = Body.nextGroup(true);
-            
-            const wW = (type=='truck'?40:20) * scale; // Wheel Width
-            const cW = 120 * scale; // Chassis Width
-            const cH = 30 * scale; // Chassis Height
-
+            const wW = (type=='truck'?40:20) * scale;
+            const cW = 120 * scale;
+            const cH = 30 * scale;
             const chassis = Bodies.rectangle(x, y-20, cW, cH, { collisionFilter: { group: group }, density: 0.002, render: { fillStyle: type=='truck'?'#444':'#C63D3D' } });
-            
             const wheelA = Bodies.circle(x - cW/2 + wW, y + cH/2, wW, { collisionFilter: { group: group }, friction: 0.8, density: 0.01 });
             const wheelB = Bodies.circle(x + cW/2 - wW, y + cH/2, wW, { collisionFilter: { group: group }, friction: 0.8, density: 0.01 });
-
             const axelA = Constraint.create({ bodyA: chassis, bodyB: wheelA, pointA: { x: -cW/2 + wW, y: cH/2 }, stiffness: 0.2, length: 0, damping: 0.1 });
             const axelB = Constraint.create({ bodyA: chassis, bodyB: wheelB, pointA: { x: cW/2 - wW, y: cH/2 }, stiffness: 0.2, length: 0, damping: 0.1 });
-
             const carObj = { chassis, wheel1: wheelA, wheel2: wheelB, speed: scale };
             activeCars.push(carObj);
-
             Composite.add(world, [chassis, wheelA, wheelB, axelA, axelB]);
         }
 
         function spawnClone(body) {
             const clone = Bodies.rectangle(body.position.x + 50, body.position.y, 
-                body.bounds.max.x - body.bounds.min.x, 
-                body.bounds.max.y - body.bounds.min.y, 
-                { 
-                    render: { fillStyle: body.render.fillStyle },
-                    angle: body.angle
-                }
+                body.bounds.max.x - body.bounds.min.x, body.bounds.max.y - body.bounds.min.y, 
+                { render: { fillStyle: body.render.fillStyle }, angle: body.angle }
             );
             Composite.add(world, clone);
         }
 
         // --- 8. ENV & TOOLS LOGIC ---
-
         function removeBodySmart(body) {
-            // If body is part of a composite (like a car), remove the whole thing
-            // For now, simple removal
             Composite.remove(world, body);
-            // Remove from active cars if wheels are gone
             activeCars = activeCars.filter(c => c.wheel1.id !== body.id && c.wheel2.id !== body.id && c.chassis.id !== body.id);
-            deselect();
+            if (selectedBody && selectedBody.id === body.id) deselect();
         }
 
         function setGravity(val) { engine.gravity.y = parseFloat(val); }
@@ -833,36 +784,25 @@ Events.on(mouseConstraint, 'mousedown', function(event) {
         function earthquake() {
             const bodies = Composite.allBodies(world);
             bodies.forEach(b => {
-                if(!b.isStatic) {
-                    Body.applyForce(b, b.position, { x: (Math.random()-0.5)*0.2 * b.mass, y: -0.1 * b.mass });
-                }
+                if(!b.isStatic) Body.applyForce(b, b.position, { x: (Math.random()-0.5)*0.2 * b.mass, y: -0.1 * b.mass });
             });
         }
 
-        function toggleZeroG() {
-            if(engine.gravity.y !== 0) {
-                engine.gravity.y = 0;
-            } else {
-                engine.gravity.y = 1;
-            }
-        }
+        function toggleZeroG() { engine.gravity.y = (engine.gravity.y !== 0) ? 0 : 1; }
 
         function explodeAll() {
             const bodies = Composite.allBodies(world);
             bodies.forEach(b => {
                 if(!b.isStatic) {
                     Body.setAngularVelocity(b, Math.random());
-                    Body.applyForce(b, b.position, { 
-                        x: (Math.random()-0.5) * 0.5 * b.mass, 
-                        y: (Math.random()-0.5) * 0.5 * b.mass 
-                    });
+                    Body.applyForce(b, b.position, { x: (Math.random()-0.5) * 0.5 * b.mass, y: (Math.random()-0.5) * 0.5 * b.mass });
                 }
             });
         }
 
-        // Black Hole Logic (Custom Update Loop)
         Events.on(engine, 'beforeUpdate', () => {
             const holes = Composite.allBodies(world).filter(b => b.label === 'BlackHole');
+            if (holes.length === 0) return;
             const others = Composite.allBodies(world).filter(b => b.label !== 'BlackHole' && !b.isStatic);
             
             holes.forEach(hole => {
@@ -881,20 +821,14 @@ Events.on(mouseConstraint, 'mousedown', function(event) {
         // --- 9. INSPECTOR UI UPDATES ---
         let selectedBody = null;
         const inspectorUI = {
-            panel: document.getElementById('insp-content'),
-            none: document.getElementById('insp-none'),
-            color: document.getElementById('insp-color'),
-            static: document.getElementById('insp-static'),
-            restitution: document.getElementById('insp-restitution'),
-            mass: document.getElementById('insp-mass'),
+            panel: document.getElementById('insp-content'), none: document.getElementById('insp-none'),
+            color: document.getElementById('insp-color'), static: document.getElementById('insp-static'),
+            restitution: document.getElementById('insp-restitution'), mass: document.getElementById('insp-mass'),
             angle: document.getElementById('insp-angle')
         };
 
         function selectBody(body) {
-            if(!body || body === ground || body === ceil || body === lWall || body === rWall) {
-                deselect();
-                return;
-            }
+            if(!body || body.isStatic) { deselect(); return; }
             selectedBody = body;
             inspectorUI.none.style.display = 'none';
             inspectorUI.panel.style.display = 'block';
@@ -916,27 +850,21 @@ Events.on(mouseConstraint, 'mousedown', function(event) {
             inspectorUI.angle.value = (selectedBody.angle * (180/Math.PI)).toFixed(0);
         }
         
-        // Listeners for Inspector Changes
-        inspectorUI.color.addEventListener('change', e => selectedBody.render.fillStyle = e.target.value);
-        inspectorUI.static.addEventListener('change', e => Body.setStatic(selectedBody, e.target.checked));
-        inspectorUI.restitution.addEventListener('change', e => selectedBody.restitution = parseFloat(e.target.value));
-        inspectorUI.mass.addEventListener('change', e => Body.setMass(selectedBody, parseFloat(e.target.value)));
-        inspectorUI.angle.addEventListener('change', e => Body.setAngle(selectedBody, parseFloat(e.target.value) * (Math.PI/180)));
+        inspectorUI.color.addEventListener('input', e => { if(selectedBody) selectedBody.render.fillStyle = e.target.value });
+        inspectorUI.static.addEventListener('change', e => { if(selectedBody) Body.setStatic(selectedBody, e.target.checked) });
+        inspectorUI.restitution.addEventListener('change', e => { if(selectedBody) selectedBody.restitution = parseFloat(e.target.value) });
+        inspectorUI.mass.addEventListener('change', e => { if(selectedBody) Body.setMass(selectedBody, parseFloat(e.target.value)) });
+        inspectorUI.angle.addEventListener('change', e => { if(selectedBody) Body.setAngle(selectedBody, parseFloat(e.target.value) * (Math.PI/180)) });
 
-        function deleteSelection() {
-            if(selectedBody) removeBodySmart(selectedBody);
-        }
+        function deleteSelection() { if(selectedBody) removeBodySmart(selectedBody); }
 
         // --- 10. UI & LOOP ---
-        
-        // Stats
         setInterval(() => {
-            const count = Composite.allBodies(world).length;
-            document.getElementById('obj-count').innerText = "Obj: " + count;
+            document.getElementById('obj-count').innerText = "Obj: " + Composite.allBodies(world).length;
             document.getElementById('fps-count').innerText = "FPS: " + Math.round(runner.fps);
         }, 500);
 
-        function switchTab(tabName) {
+        function switchTab(tabName, event) {
             ['spawn', 'weapons', 'env'].forEach(t => {
                 document.getElementById('tab-'+t).style.display = (t === tabName) ? 'block' : 'none';
             });
@@ -945,33 +873,33 @@ Events.on(mouseConstraint, 'mousedown', function(event) {
         }
 
         function togglePlay() {
+            runner.enabled = !runner.enabled;
+            const btn = document.getElementById('btn-play');
             if(runner.enabled) {
-                Runner.stop(runner);
-                document.getElementById('btn-play').innerText = "▶ Run";
-                document.getElementById('btn-play').classList.add('primary');
+                btn.innerText = "❚❚ Pause";
+                btn.classList.remove('primary');
             } else {
-                Runner.run(runner, engine);
-                document.getElementById('btn-play').innerText = "❚❚ Pause";
-                document.getElementById('btn-play').classList.remove('primary');
+                btn.innerText = "▶ Run";
+                btn.classList.add('primary');
             }
         }
 
         function resetWorld() {
-            Composite.clear(world);
-            engine.events = {}; // clear custom events
-            Composite.add(world, [ground, ceil, lWall, rWall, mouseConstraint]);
+            Composite.clear(world, false); // false = keepStatic
+            createBoundaries();
+            Composite.add(world, mouseConstraint);
             activeCars = [];
             deselect();
-            // Re-bind default engine events that might be lost? Actually Composite.clear doesn't remove engine events, 
-            // but we need to ensure our hooks (beforeUpdate) stay. They do stay attached to 'engine'.
         }
 
-        // Start
         const runner = Runner.create();
         Render.run(render);
         Runner.run(runner, engine);
+        
+        // Initial play button state
+        document.getElementById('btn-play').innerText = "❚❚ Pause";
+        document.getElementById('btn-play').classList.remove('primary');
 
     </script>
 </body>
 </html>
-
