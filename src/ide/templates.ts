@@ -1,0 +1,160 @@
+import type { ProjectTemplate } from './types';
+
+export const PROJECT_TEMPLATES: ProjectTemplate[] = [
+  {
+    id: 'html-css-js',
+    name: 'HTML/CSS/JS',
+    icon: '🌐',
+    category: 'Web Stack',
+    description: 'Modern web project with live preview',
+    language: 'html',
+    files: [
+      { id: 'f1', name: 'index.html', type: 'file', language: 'html', content: `<!DOCTYPE html>\n<html lang="en">\n<head>\n  <meta charset="UTF-8">\n  <meta name="viewport" content="width=device-width, initial-scale=1.0">\n  <title>My Web App</title>\n  <link rel="stylesheet" href="style.css">\n</head>\n<body>\n  <div class="container">\n    <h1>Hello, CloudFlow! 🚀</h1>\n    <p>Edit this file to see live changes.</p>\n    <button id="btn">Click Me</button>\n    <div id="output"></div>\n  </div>\n  <script src="app.js"><\/script>\n</body>\n</html>` },
+      { id: 'f2', name: 'style.css', type: 'file', language: 'css', content: `* {\n  margin: 0;\n  padding: 0;\n  box-sizing: border-box;\n}\n\nbody {\n  font-family: 'Segoe UI', sans-serif;\n  background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);\n  color: #e0e0e0;\n  min-height: 100vh;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n}\n\n.container {\n  text-align: center;\n  padding: 3rem;\n  background: rgba(255,255,255,0.05);\n  border-radius: 16px;\n  backdrop-filter: blur(10px);\n  border: 1px solid rgba(255,255,255,0.1);\n}\n\nh1 {\n  font-size: 2.5rem;\n  margin-bottom: 1rem;\n  background: linear-gradient(90deg, #667eea, #764ba2);\n  -webkit-background-clip: text;\n  -webkit-text-fill-color: transparent;\n}\n\np {\n  color: #aaa;\n  margin-bottom: 1.5rem;\n}\n\nbutton {\n  padding: 12px 32px;\n  font-size: 1rem;\n  border: none;\n  border-radius: 8px;\n  background: linear-gradient(90deg, #667eea, #764ba2);\n  color: white;\n  cursor: pointer;\n  transition: transform 0.2s, box-shadow 0.2s;\n}\n\nbutton:hover {\n  transform: translateY(-2px);\n  box-shadow: 0 8px 25px rgba(102,126,234,0.4);\n}\n\n#output {\n  margin-top: 1rem;\n  font-size: 1.2rem;\n  color: #667eea;\n}` },
+      { id: 'f3', name: 'app.js', type: 'file', language: 'javascript', content: `// CloudFlow - JavaScript\nlet count = 0;\n\nconst btn = document.getElementById('btn');\nconst output = document.getElementById('output');\n\nbtn.addEventListener('click', () => {\n  count++;\n  output.textContent = \`Clicked \${count} time\${count !== 1 ? 's' : ''}!\`;\n  console.log('Button clicked:', count);\n});\n\nconsole.log('App initialized successfully! 🚀');` },
+    ],
+  },
+  {
+    id: 'react-app',
+    name: 'React App',
+    icon: '⚛️',
+    category: 'Web Stack',
+    description: 'React component-based application',
+    language: 'javascript',
+    files: [
+      { id: 'f1', name: 'src', type: 'folder', children: [
+        { id: 'f2', name: 'App.jsx', type: 'file', language: 'javascript', content: `import React, { useState } from 'react';\nimport './App.css';\n\nfunction App() {\n  const [count, setCount] = useState(0);\n\n  return (\n    <div className="App">\n      <header>\n        <h1>⚛️ React CloudFlow App</h1>\n        <div className="card">\n          <button onClick={() => setCount(c => c + 1)}>\n            Count: {count}\n          </button>\n        </div>\n        <p>Edit <code>src/App.jsx</code> and save to see changes.</p>\n      </header>\n    </div>\n  );\n}\n\nexport default App;` },
+        { id: 'f3', name: 'App.css', type: 'file', language: 'css', content: `.App {\n  text-align: center;\n  padding: 2rem;\n}\n\n.card {\n  padding: 2rem;\n}\n\nbutton {\n  font-size: 1.2rem;\n  padding: 0.6em 1.2em;\n  border-radius: 8px;\n  border: 1px solid #646cff;\n  background: transparent;\n  color: #646cff;\n  cursor: pointer;\n}\n\nbutton:hover {\n  background: #646cff22;\n}` },
+        { id: 'f4', name: 'index.jsx', type: 'file', language: 'javascript', content: `import React from 'react';\nimport ReactDOM from 'react-dom/client';\nimport App from './App';\n\nReactDOM.createRoot(document.getElementById('root')).render(\n  <React.StrictMode>\n    <App />\n  </React.StrictMode>\n);` },
+      ]},
+      { id: 'f5', name: 'package.json', type: 'file', language: 'json', content: `{\n  "name": "react-cloudflow-app",\n  "version": "1.0.0",\n  "dependencies": {\n    "react": "^18.2.0",\n    "react-dom": "^18.2.0"\n  }\n}` },
+    ],
+  },
+  {
+    id: 'python',
+    name: 'Python',
+    icon: '🐍',
+    category: 'Scripting',
+    description: 'Python scripting project',
+    language: 'python',
+    files: [
+      { id: 'f1', name: 'main.py', type: 'file', language: 'python', content: `# CloudFlow - Python Project\nimport math\n\ndef fibonacci(n: int) -> list[int]:\n    """Generate fibonacci sequence up to n terms."""\n    if n <= 0:\n        return []\n    if n == 1:\n        return [0]\n    \n    fib = [0, 1]\n    for i in range(2, n):\n        fib.append(fib[i-1] + fib[i-2])\n    return fib\n\ndef is_prime(num: int) -> bool:\n    """Check if a number is prime."""\n    if num < 2:\n        return False\n    for i in range(2, int(math.sqrt(num)) + 1):\n        if num % i == 0:\n            return False\n    return True\n\ndef main():\n    print("=== Fibonacci Sequence ===")\n    fib = fibonacci(15)\n    print(f"First 15 terms: {fib}")\n    print(f"Sum: {sum(fib)}")\n    \n    print("\\n=== Prime Numbers ===")\n    primes = [n for n in range(2, 50) if is_prime(n)]\n    print(f"Primes up to 50: {primes}")\n    print(f"Count: {len(primes)}")\n    \n    print("\\n=== Math Constants ===")\n    print(f"Pi: {math.pi:.10f}")\n    print(f"Euler: {math.e:.10f}")\n    print(f"Tau: {math.tau:.10f}")\n\nif __name__ == "__main__":\n    main()` },
+      { id: 'f2', name: 'utils.py', type: 'file', language: 'python', content: `# Utility functions\n\ndef format_table(headers: list[str], rows: list[list]) -> str:\n    """Format data as a text table."""\n    widths = [len(h) for h in headers]\n    for row in rows:\n        for i, cell in enumerate(row):\n            widths[i] = max(widths[i], len(str(cell)))\n    \n    separator = "+" + "+".join("-" * (w + 2) for w in widths) + "+"\n    header_row = "|" + "|".join(f" {h:<{widths[i]}} " for i, h in enumerate(headers)) + "|"\n    \n    lines = [separator, header_row, separator]\n    for row in rows:\n        line = "|" + "|".join(f" {str(cell):<{widths[i]}} " for i, cell in enumerate(row)) + "|"\n        lines.append(line)\n    lines.append(separator)\n    \n    return "\\n".join(lines)` },
+      { id: 'f3', name: 'requirements.txt', type: 'file', language: 'text', content: `# Python dependencies\nnumpy>=1.24.0\nrequests>=2.28.0\npytest>=7.0.0` },
+    ],
+  },
+  {
+    id: 'nodejs',
+    name: 'Node.js',
+    icon: '💚',
+    category: 'Scripting',
+    description: 'Node.js server-side JavaScript',
+    language: 'javascript',
+    files: [
+      { id: 'f1', name: 'index.js', type: 'file', language: 'javascript', content: `// CloudFlow - Node.js Server\nconst http = require('http');\n\nconst PORT = 3000;\n\nconst server = http.createServer((req, res) => {\n  console.log(\`\${req.method} \${req.url}\`);\n  \n  res.writeHead(200, { 'Content-Type': 'application/json' });\n  res.end(JSON.stringify({\n    message: 'Hello from CloudFlow Node.js!',\n    timestamp: new Date().toISOString(),\n    path: req.url,\n  }));\n});\n\nserver.listen(PORT, () => {\n  console.log(\`Server running at http://localhost:\${PORT}\`);\n  console.log('Press Ctrl+C to stop.');\n});` },
+      { id: 'f2', name: 'package.json', type: 'file', language: 'json', content: `{\n  "name": "cloudflow-node-app",\n  "version": "1.0.0",\n  "main": "index.js",\n  "scripts": {\n    "start": "node index.js",\n    "dev": "node --watch index.js"\n  }\n}` },
+    ],
+  },
+  {
+    id: 'typescript',
+    name: 'TypeScript',
+    icon: '🔷',
+    category: 'Web Stack',
+    description: 'TypeScript with full type support',
+    language: 'typescript',
+    files: [
+      { id: 'f1', name: 'src', type: 'folder', children: [
+        { id: 'f2', name: 'index.ts', type: 'file', language: 'typescript', content: `// CloudFlow - TypeScript Project\n\ninterface User {\n  id: number;\n  name: string;\n  email: string;\n  role: 'admin' | 'user' | 'guest';\n}\n\ninterface ApiResponse<T> {\n  data: T;\n  status: number;\n  message: string;\n}\n\nclass UserService {\n  private users: Map<number, User> = new Map();\n  private nextId = 1;\n\n  createUser(name: string, email: string, role: User['role'] = 'user'): User {\n    const user: User = { id: this.nextId++, name, email, role };\n    this.users.set(user.id, user);\n    return user;\n  }\n\n  getUser(id: number): ApiResponse<User | null> {\n    const user = this.users.get(id) ?? null;\n    return {\n      data: user,\n      status: user ? 200 : 404,\n      message: user ? 'Success' : 'User not found',\n    };\n  }\n\n  listUsers(): ApiResponse<User[]> {\n    return {\n      data: Array.from(this.users.values()),\n      status: 200,\n      message: 'Success',\n    };\n  }\n}\n\nconst service = new UserService();\nservice.createUser('Alice', 'alice@example.com', 'admin');\nservice.createUser('Bob', 'bob@example.com');\nservice.createUser('Charlie', 'charlie@example.com', 'guest');\n\nconsole.log('Users:', JSON.stringify(service.listUsers(), null, 2));\nconsole.log('Find #1:', service.getUser(1));\nconsole.log('Find #99:', service.getUser(99));` },
+      ]},
+      { id: 'f3', name: 'tsconfig.json', type: 'file', language: 'json', content: `{\n  "compilerOptions": {\n    "target": "ES2022",\n    "module": "ESNext",\n    "strict": true,\n    "outDir": "./dist",\n    "rootDir": "./src"\n  },\n  "include": ["src/**/*"]\n}` },
+    ],
+  },
+  {
+    id: 'csharp-xaml',
+    name: 'C# / XAML',
+    icon: '🟣',
+    category: 'Desktop/Mobile',
+    description: 'WPF desktop application with XAML',
+    language: 'csharp',
+    files: [
+      { id: 'f1', name: 'MainWindow.xaml', type: 'file', language: 'xml', content: `<Window x:Class="CloudFlowApp.MainWindow"\n        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"\n        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"\n        Title="CloudFlow WPF App" Height="450" Width="800"\n        Background="#1e1e1e">\n    <Grid>\n        <Grid.RowDefinitions>\n            <RowDefinition Height="Auto"/>\n            <RowDefinition Height="*"/>\n            <RowDefinition Height="Auto"/>\n        </Grid.RowDefinitions>\n        \n        <TextBlock Grid.Row="0" Text="CloudFlow Desktop App"\n                   Foreground="#d4d4d4" FontSize="24"\n                   HorizontalAlignment="Center" Margin="20"/>\n        \n        <StackPanel Grid.Row="1" VerticalAlignment="Center"\n                    HorizontalAlignment="Center">\n            <TextBox x:Name="InputField" Width="300" Margin="10"\n                     Padding="8" FontSize="14"/>\n            <Button Content="Submit" Click="OnSubmit"\n                    Width="200" Padding="10" Margin="10"\n                    Background="#007acc" Foreground="White"/>\n            <TextBlock x:Name="ResultText" Foreground="#569cd6"\n                       FontSize="16" HorizontalAlignment="Center"\n                       Margin="10"/>\n        </StackPanel>\n        \n        <StatusBar Grid.Row="2" Background="#007acc">\n            <StatusBarItem Content="Ready" Foreground="White"/>\n        </StatusBar>\n    </Grid>\n</Window>` },
+      { id: 'f2', name: 'MainWindow.xaml.cs', type: 'file', language: 'csharp', content: `using System.Windows;\n\nnamespace CloudFlowApp\n{\n    public partial class MainWindow : Window\n    {\n        private int _clickCount = 0;\n\n        public MainWindow()\n        {\n            InitializeComponent();\n        }\n\n        private void OnSubmit(object sender, RoutedEventArgs e)\n        {\n            _clickCount++;\n            string input = InputField.Text;\n            ResultText.Text = string.IsNullOrEmpty(input)\n                ? $"Button clicked {_clickCount} times"\n                : $"Hello, {input}! (Click #{_clickCount})";\n        }\n    }\n}` },
+      { id: 'f3', name: 'App.xaml', type: 'file', language: 'xml', content: `<Application x:Class="CloudFlowApp.App"\n             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"\n             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"\n             StartupUri="MainWindow.xaml">\n    <Application.Resources>\n    </Application.Resources>\n</Application>` },
+    ],
+  },
+  {
+    id: 'kotlin-android',
+    name: 'Kotlin (Android)',
+    icon: '🤖',
+    category: 'Desktop/Mobile',
+    description: 'Android app with Kotlin',
+    language: 'kotlin',
+    files: [
+      { id: 'f1', name: 'MainActivity.kt', type: 'file', language: 'kotlin', content: `package com.cloudflow.myapp\n\nimport android.os.Bundle\nimport android.widget.Toast\nimport androidx.appcompat.app.AppCompatActivity\nimport com.cloudflow.myapp.databinding.ActivityMainBinding\n\nclass MainActivity : AppCompatActivity() {\n    private lateinit var binding: ActivityMainBinding\n    private var counter = 0\n\n    override fun onCreate(savedInstanceState: Bundle?) {\n        super.onCreate(savedInstanceState)\n        binding = ActivityMainBinding.inflate(layoutInflater)\n        setContentView(binding.root)\n\n        binding.btnClick.setOnClickListener {\n            counter++\n            binding.tvResult.text = "Clicked $counter times"\n            \n            if (counter % 10 == 0) {\n                Toast.makeText(this, "Milestone: $counter clicks!", Toast.LENGTH_SHORT).show()\n            }\n        }\n    }\n}` },
+      { id: 'f2', name: 'activity_main.xml', type: 'file', language: 'xml', content: `<?xml version="1.0" encoding="utf-8"?>\n<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"\n    android:layout_width="match_parent"\n    android:layout_height="match_parent"\n    android:gravity="center"\n    android:orientation="vertical"\n    android:background="#1E1E1E"\n    android:padding="32dp">\n\n    <TextView\n        android:layout_width="wrap_content"\n        android:layout_height="wrap_content"\n        android:text="CloudFlow Android"\n        android:textColor="#D4D4D4"\n        android:textSize="28sp"\n        android:layout_marginBottom="24dp"/>\n\n    <Button\n        android:id="@+id/btnClick"\n        android:layout_width="wrap_content"\n        android:layout_height="wrap_content"\n        android:text="Click Me"\n        android:padding="16dp"/>\n\n    <TextView\n        android:id="@+id/tvResult"\n        android:layout_width="wrap_content"\n        android:layout_height="wrap_content"\n        android:text="No clicks yet"\n        android:textColor="#569CD6"\n        android:textSize="18sp"\n        android:layout_marginTop="16dp"/>\n</LinearLayout>` },
+      { id: 'f3', name: 'build.gradle.kts', type: 'file', language: 'kotlin', content: `plugins {\n    id("com.android.application")\n    id("org.jetbrains.kotlin.android")\n}\n\nandroid {\n    namespace = "com.cloudflow.myapp"\n    compileSdk = 34\n\n    defaultConfig {\n        applicationId = "com.cloudflow.myapp"\n        minSdk = 24\n        targetSdk = 34\n        versionCode = 1\n        versionName = "1.0"\n    }\n\n    buildFeatures {\n        viewBinding = true\n    }\n}` },
+    ],
+  },
+  {
+    id: 'swift',
+    name: 'Swift (iOS)',
+    icon: '🍎',
+    category: 'Desktop/Mobile',
+    description: 'iOS app with SwiftUI',
+    language: 'swift',
+    files: [
+      { id: 'f1', name: 'ContentView.swift', type: 'file', language: 'swift', content: `import SwiftUI\n\nstruct ContentView: View {\n    @State private var count = 0\n    @State private var message = "Welcome to CloudFlow!"\n    \n    var body: some View {\n        VStack(spacing: 24) {\n            Text("🍎 CloudFlow iOS")\n                .font(.largeTitle)\n                .fontWeight(.bold)\n            \n            Text(message)\n                .foregroundColor(.secondary)\n            \n            Button(action: {\n                count += 1\n                message = "Tapped \\(count) time\\(count == 1 ? "" : "s")"\n            }) {\n                Text("Tap Me")\n                    .padding(.horizontal, 32)\n                    .padding(.vertical, 12)\n                    .background(Color.blue)\n                    .foregroundColor(.white)\n                    .cornerRadius(10)\n            }\n            \n            Text("Count: \\(count)")\n                .font(.title2)\n                .foregroundColor(.blue)\n        }\n        .padding()\n    }\n}\n\nstruct ContentView_Previews: PreviewProvider {\n    static var previews: some View {\n        ContentView()\n    }\n}` },
+      { id: 'f2', name: 'CloudFlowApp.swift', type: 'file', language: 'swift', content: `import SwiftUI\n\n@main\nstruct CloudFlowApp: App {\n    var body: some Scene {\n        WindowGroup {\n            ContentView()\n        }\n    }\n}` },
+    ],
+  },
+  {
+    id: 'ruby',
+    name: 'Ruby',
+    icon: '💎',
+    category: 'Scripting',
+    description: 'Ruby scripting project',
+    language: 'ruby',
+    files: [
+      { id: 'f1', name: 'main.rb', type: 'file', language: 'ruby', content: `# CloudFlow - Ruby Project\n\nclass Calculator\n  def add(a, b) = a + b\n  def subtract(a, b) = a - b\n  def multiply(a, b) = a * b\n  def divide(a, b)\n    raise ArgumentError, "Cannot divide by zero" if b.zero?\n    a.to_f / b\n  end\nend\n\nclass FizzBuzz\n  def self.run(n)\n    (1..n).map do |i|\n      if (i % 15).zero? then "FizzBuzz"\n      elsif (i % 3).zero? then "Fizz"\n      elsif (i % 5).zero? then "Buzz"\n      else i.to_s\n      end\n    end\n  end\nend\n\nputs "=== Calculator ==="\ncalc = Calculator.new\nputs "10 + 5 = #{calc.add(10, 5)}"\nputs "10 - 5 = #{calc.subtract(10, 5)}"\nputs "10 * 5 = #{calc.multiply(10, 5)}"\nputs "10 / 3 = #{calc.divide(10, 3).round(4)}"\n\nputs "\\n=== FizzBuzz (1-30) ==="\nputs FizzBuzz.run(30).join(", ")` },
+      { id: 'f2', name: 'Gemfile', type: 'file', language: 'ruby', content: `source 'https://rubygems.org'\n\ngem 'rake'\ngem 'rspec'\ngem 'rubocop'` },
+    ],
+  },
+  {
+    id: 'cpp',
+    name: 'C++',
+    icon: '⚡',
+    category: 'Systems',
+    description: 'C++ systems programming',
+    language: 'cpp',
+    files: [
+      { id: 'f1', name: 'main.cpp', type: 'file', language: 'cpp', content: `// CloudFlow - C++ Project\n#include <iostream>\n#include <vector>\n#include <algorithm>\n#include <numeric>\n#include <cmath>\n\ntemplate<typename T>\nvoid printVector(const std::vector<T>& vec, const std::string& label) {\n    std::cout << label << ": [";\n    for (size_t i = 0; i < vec.size(); ++i) {\n        std::cout << vec[i];\n        if (i < vec.size() - 1) std::cout << ", ";\n    }\n    std::cout << "]" << std::endl;\n}\n\nint main() {\n    std::cout << "=== CloudFlow C++ ===" << std::endl;\n    \n    // Vector operations\n    std::vector<int> numbers = {5, 2, 8, 1, 9, 3, 7, 4, 6};\n    printVector(numbers, "Original");\n    \n    std::sort(numbers.begin(), numbers.end());\n    printVector(numbers, "Sorted");\n    \n    int sum = std::accumulate(numbers.begin(), numbers.end(), 0);\n    double avg = static_cast<double>(sum) / numbers.size();\n    \n    std::cout << "Sum: " << sum << std::endl;\n    std::cout << "Average: " << avg << std::endl;\n    std::cout << "Min: " << *std::min_element(numbers.begin(), numbers.end()) << std::endl;\n    std::cout << "Max: " << *std::max_element(numbers.begin(), numbers.end()) << std::endl;\n    \n    // Math\n    std::cout << "\\n=== Math ===" << std::endl;\n    std::cout << "sqrt(144) = " << std::sqrt(144) << std::endl;\n    std::cout << "pow(2, 10) = " << std::pow(2, 10) << std::endl;\n    \n    return 0;\n}` },
+      { id: 'f2', name: 'CMakeLists.txt', type: 'file', language: 'text', content: `cmake_minimum_required(VERSION 3.20)\nproject(CloudFlowApp LANGUAGES CXX)\n\nset(CMAKE_CXX_STANDARD 20)\nset(CMAKE_CXX_STANDARD_REQUIRED ON)\n\nadd_executable(app main.cpp)` },
+    ],
+  },
+  {
+    id: 'rust',
+    name: 'Rust',
+    icon: '🦀',
+    category: 'Systems',
+    description: 'Rust systems programming',
+    language: 'rust',
+    files: [
+      { id: 'f1', name: 'src', type: 'folder', children: [
+        { id: 'f2', name: 'main.rs', type: 'file', language: 'rust', content: `// CloudFlow - Rust Project\nuse std::collections::HashMap;\n\n#[derive(Debug)]\nstruct Student {\n    name: String,\n    grades: Vec<f64>,\n}\n\nimpl Student {\n    fn new(name: &str, grades: Vec<f64>) -> Self {\n        Student {\n            name: name.to_string(),\n            grades,\n        }\n    }\n\n    fn average(&self) -> f64 {\n        if self.grades.is_empty() {\n            return 0.0;\n        }\n        self.grades.iter().sum::<f64>() / self.grades.len() as f64\n    }\n\n    fn grade_letter(&self) -> &str {\n        match self.average() as u32 {\n            90..=100 => "A",\n            80..=89 => "B",\n            70..=79 => "C",\n            60..=69 => "D",\n            _ => "F",\n        }\n    }\n}\n\nfn main() {\n    println!("=== CloudFlow Rust ===\\n");\n\n    let students = vec![\n        Student::new("Alice", vec![95.0, 88.0, 92.0]),\n        Student::new("Bob", vec![78.0, 85.0, 72.0]),\n        Student::new("Charlie", vec![62.0, 71.0, 68.0]),\n    ];\n\n    for student in &students {\n        println!("{}: avg={:.1} grade={}",\n            student.name, student.average(), student.grade_letter());\n    }\n\n    let mut word_count: HashMap<&str, usize> = HashMap::new();\n    let text = "hello world hello rust world hello";\n    for word in text.split_whitespace() {\n        *word_count.entry(word).or_insert(0) += 1;\n    }\n    println!("\\nWord count: {:?}", word_count);\n}` },
+      ]},
+      { id: 'f3', name: 'Cargo.toml', type: 'file', language: 'toml', content: `[package]\nname = "cloudflow-app"\nversion = "0.1.0"\nedition = "2021"\n\n[dependencies]\nserde = { version = "1.0", features = ["derive"] }\ntokio = { version = "1", features = ["full"] }` },
+    ],
+  },
+  {
+    id: 'go',
+    name: 'Go',
+    icon: '🐹',
+    category: 'Systems',
+    description: 'Go systems and server programming',
+    language: 'go',
+    files: [
+      { id: 'f1', name: 'main.go', type: 'file', language: 'go', content: `// CloudFlow - Go Project\npackage main\n\nimport (\n\t"fmt"\n\t"math"\n\t"sort"\n\t"strings"\n)\n\ntype Point struct {\n\tX, Y float64\n}\n\nfunc (p Point) Distance(other Point) float64 {\n\tdx := p.X - other.X\n\tdy := p.Y - other.Y\n\treturn math.Sqrt(dx*dx + dy*dy)\n}\n\nfunc (p Point) String() string {\n\treturn fmt.Sprintf("(%.1f, %.1f)", p.X, p.Y)\n}\n\nfunc main() {\n\tfmt.Println("=== CloudFlow Go ===")\n\n\tpoints := []Point{\n\t\t{0, 0}, {3, 4}, {1, 1}, {6, 8}, {2, 3},\n\t}\n\n\torigin := Point{0, 0}\n\n\t// Sort by distance from origin\n\tsort.Slice(points, func(i, j int) bool {\n\t\treturn points[i].Distance(origin) < points[j].Distance(origin)\n\t})\n\n\tfmt.Println("Points sorted by distance from origin:")\n\tfor _, p := range points {\n\t\tfmt.Printf("  %s -> distance: %.2f\\n", p, p.Distance(origin))\n\t}\n\n\t// String manipulation\n\twords := []string{"Go", "is", "fast", "and", "fun"}\n\tfmt.Printf("\\nJoined: %s\\n", strings.Join(words, " "))\n\tfmt.Printf("Upper: %s\\n", strings.ToUpper(strings.Join(words, " ")))\n}` },
+      { id: 'f2', name: 'go.mod', type: 'file', language: 'text', content: `module cloudflow-app\n\ngo 1.21` },
+    ],
+  },
+];

@@ -1,0 +1,69 @@
+@import "tailwindcss";
+
+@font-face {
+  font-family: 'Segoe UI';
+  src: local('Segoe UI'), local('SegoeUI');
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #424242 transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: #424242;
+  border-radius: 4px;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+*::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+textarea, pre, code {
+  font-family: 'Cascadia Code', 'Fira Code', 'Consolas', 'Courier New', monospace !important;
+}
+
+.font-mono {
+  font-family: 'Cascadia Code', 'Fira Code', 'Consolas', 'Courier New', monospace !important;
+}
+
+::selection {
+  background: #264f78;
+  color: #ffffff;
+}
+
+textarea::selection {
+  background: #264f78;
+}
+
+/* Make the textarea text transparent but selection visible */
+textarea.syntax-editor {
+  color: transparent !important;
+  caret-color: #d4d4d4 !important;
+  background: transparent !important;
+}
+
+textarea.syntax-editor::selection {
+  background: #264f78;
+  color: transparent;
+}
+
+/* Ensure proper line height matching between overlay and textarea */
+.syntax-highlight-overlay,
+.syntax-highlight-overlay span {
+  font-variant-ligatures: none;
+  text-rendering: optimizeSpeed;
+}
